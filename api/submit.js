@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // Allow CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -24,9 +24,47 @@ export default function handler(req, res) {
       id: 'LEAD-' + Date.now()
     };
 
+    // Forward to Webhook / Google Sheet / Telegram if configured in Vercel Environment Variables
+    const webhookUrl = process.env.WEBHOOK_URL || process.env.GOOGLE_SHEET_WEBHOOK;
+    const tgToken = process.env.TELEGRAM_BOT_TOKEN;
+    const tgChatId = process.env.TELEGRAM_CHAT_ID;
+
+    try {
+      if (webhookUrl) {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(submission)
+        });
+      }
+
+      if (tgToken && tgChatId) {
+        const text = `📥 *LEAD BARU WEBSITE ABP*\n\n` +
+                     `⏰ *Waktu:* ${formattedTime}\n` +
+                     `👤 *Nama:* ${submission.nama || '-'}\n` +
+                     `🏢 *Perusahaan:* ${submission.firm || '-'}\n` +
+                     `📧 *Email:* ${submission.email || '-'}\n` +
+                     `📞 *Telepon:* ${submission.phone || '-'}\n` +
+                     `📦 *Produk:* ${submission.produk || '-'}\n` +
+                     `💬 *Pesan:* ${submission.pesan || '-'}`;
+
+        await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: tgChatId,
+            text: text,
+            parse_mode: 'Markdown'
+          })
+        });
+      }
+    } catch (err) {
+      console.error('Webhook / Telegram dispatch error:', err);
+    }
+
     return res.status(200).json({
       status: 'success',
-      message: 'Lead berhasil dicatat di Vercel Serverless!',
+      message: 'Lead berhasil dicatat!',
       lead: submission
     });
   }
