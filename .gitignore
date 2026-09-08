@@ -1,0 +1,17 @@
+# Logs & Temp files
+*.log
+__pycache__/
+.DS_Store
+Thumbs.db
+
+# Lead database / submission data (Private User Data)
+assets/leads.json
+
+# Node modules & Environment
+node_modules/
+.env
+.env.local
+
+# IDE / Editor files
+.vscode/
+.idea/

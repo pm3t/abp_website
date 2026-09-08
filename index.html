@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PT. Anugerah Bakti Prima — Sistem Digital & Portofolio SaaS Institusi Indonesia</title>
+  <meta name="description"
+    content="PT. Anugerah Bakti Prima (ABP) mengembangkan 7 lini bisnis SaaS berlangganan untuk RT/RW, gereja, pest control, instansi pemerintah, HRIS, agrobisnis, dan retail offline-first.">
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content="PT. Anugerah Bakti Prima — SaaS Institusi Indonesia">
+  <meta property="og:description"
+    content="Membangun bisnis digital berlangganan yang menjadi tulang punggung institusi Indonesia sehari-hari.">
+  <meta property="og:type" content="website">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- HEADER NAV -->
+  <header>
+    <div class="wrap nav">
+      <a href="#home" class="mark" id="brand-logo">
+        <span class="mark-dot"></span>
+        <span class="mark-title">Anugerah Bakti Prima</span>
+      </a>
+
+      <button class="mobile-toggle" id="mobile-toggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="links" id="nav-links">
+        <a href="#home" class="nav-item active" data-route="home">Beranda</a>
+        <div class="dropdown">
+          <a href="#produk" class="nav-item dropdown-btn">Produk (7) <span class="caret">▾</span></a>
+          <div class="dropdown-menu">
+            <a href="#produk/rtnet" class="dd-item"><span class="dd-dot" style="background:#C7973F;"></span> RTnet
+              <small>RT/RW</small></a>
+            <a href="#produk/eklesia" class="dd-item"><span class="dd-dot" style="background:#E8862B;"></span> Eklesia
+              <small>Gereja</small></a>
+            <a href="#produk/servio" class="dd-item"><span class="dd-dot" style="background:#1F9E6D;"></span> Servio
+              <small>Pest Control</small></a>
+            <a href="#produk/govply" class="dd-item"><span class="dd-dot" style="background:#2C6E63;"></span> GovPly
+              <small>Pemerintah</small></a>
+            <a href="#produk/rekan" class="dd-item"><span class="dd-dot" style="background:#2E8BC9;"></span> Rekan
+              <small>HRIS & Payroll</small></a>
+            <a href="#produk/cultiva" class="dd-item"><span class="dd-dot" style="background:#1BA37A;"></span> Cultiva
+              <small>Agrobisnis</small></a>
+            <a href="#produk/digisale" class="dd-item"><span class="dd-dot" style="background:#D98B2B;"></span> DigiSale
+              POS <small>Retail</small></a>
+          </div>
+        </div>
+        <a href="#investor" class="nav-item" data-route="investor">Investor Hub</a>
+        <a href="#kemitraan" class="nav-item" data-route="kemitraan">Kemitraan</a>
+        <a href="#kontak" class="nav-item" data-route="kontak">Kontak</a>
+        <a href="#admin" class="nav-item admin-badge" data-route="admin">📋 Lead Inbox <span id="lead-count-badge"
+            class="badge-num">0</span></a>
+        <button class="btn btn-primary btn-sm" onclick="openDemoModal()">Minta Demo</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- DYNAMIC SPA APP VIEW -->
+  <main id="app-view">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Memuat ekosistem ABP...</p>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap footer-content">
+      <div class="footer-col brand-col">
+        <div class="mark"><span class="mark-dot"></span> PT. Anugerah Bakti Prima</div>
+        <p class="footer-desc">ABP fokus pada pengembangan dan pemasaran produk SaaS</p>
+        <div class="footer-tagline">“Your Solution Partner”</div>
+      </div>
+      <div class="footer-col">
+        <h4>Portofolio Produk</h4>
+        <ul class="footer-links">
+          <li><a href="#produk/rtnet">RTnet — RT/RW & Komunitas</a></li>
+          <li><a href="#produk/eklesia">Eklesia — Gereja & Jemaat</a></li>
+          <li><a href="#produk/servio">Servio — Jasa Pest Control</a></li>
+          <li><a href="#produk/govply">GovPly — Surat Instansi</a></li>
+          <li><a href="#produk/rekan">Rekan — HRIS & Payroll</a></li>
+          <li><a href="#produk/cultiva">Cultiva — Perkebunan</a></li>
+          <li><a href="#produk/digisale">DigiSale POS — Retail</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Informasi & Manajemen Lead</h4>
+        <ul class="footer-links">
+          <li><a href="#investor">Investor Hub & Tesis Pasar</a></li>
+          <li><a href="#kemitraan">Mitra Reseller & Korporat</a></li>
+          <li><a href="#kontak">Hubungi Tim ABP</a></li>
+          <li><a href="#admin"><strong>📋 Dashboard Pesan Masuk (Admin)</strong></a></li>
+          <li><a href="javascript:void(0)" onclick="openInvestorModal()">Minta Executive Pitch Deck</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap footer-bottom">
+      <span>© 2026 PT. Anugerah Bakti Prima. Seluruh hak cipta dilindungi.</span>
+      <span>RTnet · Eklesia · Servio · GovPly · Rekan · Cultiva · DigiSale</span>
+    </div>
+  </footer>
+
+  <!-- MODAL: DEMO REQUEST -->
+  <div class="modal-backdrop" id="demo-modal" onclick="handleBackdropClick(event)">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeDemoModal()">✕</button>
+      <div class="modal-header">
+        <div class="modal-label"><span class="rule"></span> Formulir Penawaran & Demo</div>
+        <h3 id="demo-modal-title">Diskusi & Demo Produk ABP</h3>
+        <p>Pilih produk yang ingin Anda pelajari. Permintaan Anda akan otomatis dicatat lengkap dengan timestamp.</p>
+      </div>
+      <form id="demo-form" onsubmit="handleDemoSubmit(event)">
+        <div class="field-row">
+          <div class="field">
+            <label for="demo-nama">Nama Lengkap *</label>
+            <input type="text" id="demo-nama" required placeholder="Contoh: Budi Santoso">
+          </div>
+          <div class="field">
+            <label for="demo-instansi">Nama Perusahaan / Instansi *</label>
+            <input type="text" id="demo-instansi" required placeholder="Nama PT, Gereja, RT, atau Toko">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="demo-email">Email Bisnis *</label>
+            <input type="email" id="demo-email" required placeholder="nama@instansi.id">
+          </div>
+          <div class="field">
+            <label for="demo-phone">No. WhatsApp / HP *</label>
+            <input type="tel" id="demo-phone" required placeholder="0812-xxxx-xxxx">
+          </div>
+        </div>
+        <div class="field">
+          <label for="demo-produk">Produk yang Diminati *</label>
+          <select id="demo-produk" required>
+            <option value="Semua Produk / Konsultasi General">Semua Produk / Konsultasi General</option>
+            <option value="Cultiva">Cultiva — Perkebunan & Agrobisnis</option>
+            <option value="GovPly">GovPly — Persuratan Instansi Digital</option>
+            <option value="Rekan">Rekan — HRIS & Payroll TER PPh 21</option>
+            <option value="Servio">Servio — Pest Control & Operasional Lapangan</option>
+            <option value="Eklesia">Eklesia — Manajemen Gereja & Jemaat</option>
+            <option value="RTnet">RTnet — Administrasi RT/RW & Kas Komunitas</option>
+            <option value="DigiSale POS">DigiSale POS — Kasir Offline & Retail</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="demo-pesan">Catatan / Kebutuhan Khusus</label>
+          <textarea id="demo-pesan"
+            placeholder="Ceritakan skala operasional atau kendala yang ingin Anda selesaikan..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn full-width">Kirim Permintaan Demo (Otomatis Dicatat) →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: INVESTOR PITCH DECK -->
+  <div class="modal-backdrop" id="investor-modal" onclick="handleBackdropClick(event)">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeInvestorModal()">✕</button>
+      <div class="modal-header">
+        <div class="modal-label"><span class="rule"></span> Investor Relations</div>
+        <h3>Permintaan Executive Pitch Deck</h3>
+        <p>Dapatkan berkas Executive Summary & Financial Highlights PT. Anugerah Bakti Prima untuk diskusi investasi.
+        </p>
+      </div>
+      <form id="investor-form" onsubmit="handleInvestorSubmit(event)">
+        <div class="field">
+          <label for="inv-nama">Nama Lengkap *</label>
+          <input type="text" id="inv-nama" required placeholder="Nama Anda">
+        </div>
+        <div class="field">
+          <label for="inv-firm">Perusahaan Investasi / VC / Family Office *</label>
+          <input type="text" id="inv-firm" required placeholder="Nama Firma atau Angel Investor">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="inv-email">Email Profesional *</label>
+            <input type="email" id="inv-email" required placeholder="investor@firm.com">
+          </div>
+          <div class="field">
+            <label for="inv-phone">Nomor Kontak / WA *</label>
+            <input type="tel" id="inv-phone" required placeholder="+62 8xx-xxxx-xxxx">
+          </div>
+        </div>
+        <button type="submit" class="submit-btn full-width">Minta Berkas Investor →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: IMAGE LIGHTBOX WITH PROMINENT CLOSE BUTTONS -->
+  <div class="modal-backdrop" id="image-modal" onclick="handleBackdropClick(event)">
+    <div class="modal-lightbox">
+      <button class="modal-close-btn" onclick="closeImageModal()" title="Tutup Gambar (ESC)">✕</button>
+      <img id="lightbox-img" src="" alt="Zoom Pratinjau">
+      <div class="lightbox-caption" id="lightbox-caption">Pratinjau Antarmuka Produk</div>
+      <div style="margin-top:14px; text-align:center;">
+        <button class="btn btn-ghost btn-sm lightbox-close-bottom" onclick="closeImageModal()">✕ Tutup Pratinjau
+          (ESC)</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
