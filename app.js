@@ -1,5 +1,5 @@
 /**
- * PT. Anugerah Bakti Prima (ABP) — Main SPA Application Router & Lead Logger
+ * PT. Anugerah Bakti Prima (ABP) — Marketplace SaaS Pertama di Indonesia
  */
 
 let productsContent = {};
@@ -12,7 +12,7 @@ const productMetadata = {
     name: 'RTnet',
     sector: 'Komunitas & RT/RW',
     color: '#C7973F',
-    tagline: 'Administrasi & Keuangan RT/RW Bebas Ribet',
+    tagline: 'SaaS Administrasi & Keuangan RT/RW Berlangganan (OPEX)',
     heroDesc: 'Membantu pengurus RT menagih iuran warga secara transparan dan menerbitkan surat pengantar dalam hitungan detik, sehingga catatan kas dan data warga tidak pernah hilang saat pengurus berganti.',
     problems: [
       'Buku pencatatan iuran fisik sering terselip, rawan keliru hitung, dan menagih pintu ke pintu terasa kurang nyaman.',
@@ -43,7 +43,7 @@ const productMetadata = {
     name: 'Eklesia',
     sector: 'Keagamaan / Gereja',
     color: '#E8862B',
-    tagline: 'Manajemen Gereja & Penggembalaan Jemaat Terpadu',
+    tagline: 'SaaS Manajemen Gereja & Penggembalaan Jemaat (OPEX)',
     heroDesc: 'Membantu gereja mencatat keuangan persembahan secara rapi dan akuntabel, merawat hubungan penggembalaan jemaat, dan mengatur jadwal pelayanan tanpa beban administrasi fisik.',
     problems: [
       'Pencatatan keuangan persembahan dan persepuluhan rentan ketidakcocokan antara majelis dan pengurus.',
@@ -74,7 +74,7 @@ const productMetadata = {
     name: 'Servio',
     sector: 'Jasa Lapangan / Pest Control',
     color: '#1F9E6D',
-    tagline: 'Operasional Pest Control & Manajemen Kontrak Lapangan',
+    tagline: 'SaaS Operasional Pest Control & Layanan Lapangan (OPEX)',
     heroDesc: 'Membantu pemilik usaha pest control memastikan setiap kontrak pelanggan terpenuhi tepat waktu, sehingga tagihan keluar akurat dan pelanggan tidak berpindah ke pesaing karena kunjungan terlewat.',
     problems: [
       'Kunjungan rutin teknisi pest control terlewat tanpa disadari, memicu komplain klien dan klaim penalti.',
@@ -105,7 +105,7 @@ const productMetadata = {
     name: 'GovPly',
     sector: 'Instansi Pemerintah & Swasta',
     color: '#2C6E63',
-    tagline: 'Tata Naskah Dinas & Disposisi Surat Digital Instant',
+    tagline: 'SaaS Tata Naskah Dinas & Disposisi Surat Digital (OPEX)',
     heroDesc: 'Membantu instansi menyelesaiakan persetujuan surat hanya dalam hitungan detik lewat ponsel pimpinan, sehingga pekerjaan staf tidak lagi tertahan berhari-hari hanya karena atasan sedang di luar kantor.',
     problems: [
       'Surat fisik tertumpuk di meja pimpinan, terselip, rusak, atau terlambat didisposisi saat dinas luar.',
@@ -136,7 +136,7 @@ const productMetadata = {
     name: 'Rekan',
     sector: 'SDM & Payroll Perusahaan',
     color: '#2E8BC9',
-    tagline: 'Platform HRIS, Absensi GPS, & Automated Payroll TER PPh 21',
+    tagline: 'SaaS HRIS, Absensi GPS, & Automated Payroll TER PPh 21 (OPEX)',
     heroDesc: 'Membantu perusahaan menghitung gaji, pajak PPh 21 TER, dan BPJS karyawan secara akurat dan sesuai aturan terbaru, memangkas waktu proses payroll dari berhari-hari menjadi hitungan menit.',
     problems: [
       'Hitung gaji, lembur, dan potongan BPJS/Pajak secara manual di Excel memakan 3-5 hari dan rentan salah.',
@@ -167,7 +167,7 @@ const productMetadata = {
     name: 'Cultiva',
     sector: 'Perkebunan & Agrobisnis',
     color: '#1BA37A',
-    tagline: 'Platform Operasional Agrobisnis & Pengendalian COGS Kebun',
+    tagline: 'SaaS Operasional Agrobisnis & Pengendalian COGS Kebun (OPEX)',
     heroDesc: 'Membantu pemilik kebun mengunci kebocoran biaya produksi dan memastikan hasil panen sesuai target, sehingga margin keuntungan lebih terjaga dan produk lebih dipercaya pembeli pasar ekspor.',
     problems: [
       'Pencatatan manual biaya pupuk, obat, dan Harian Lepas (BHK) tidak sinkron dengan hasil panen, memicu kebocoran COGS.',
@@ -198,7 +198,7 @@ const productMetadata = {
     name: 'DigiSale POS',
     sector: 'Retail & Toko Multi-Cabang',
     color: '#D98B2B',
-    tagline: 'Kasir Offline-First, Stok Multi-Cabang, & Kontrol Piutang Toko',
+    tagline: 'SaaS Kasir Offline-First & Kontrol Piutang Toko (OPEX)',
     heroDesc: 'Membantu pemilik toko kelontong dan bahan bangunan mencegah utang pelanggan yang tak tertagih, sekaligus memastikan kasir tetap bisa melayani pembeli meski internet toko sedang mati.',
     problems: [
       'Catatan kasbon/utang pelanggan di buku saku sering terselip atau lupa ditagih, menjadi piutang macet.',
@@ -370,65 +370,71 @@ async function recordLeadSubmission(leadData) {
  * VIEW RENDERERS
  * ========================================== */
 
-// 1. HOMEPAGE
+// 1. HOMEPAGE (MARKETPLACE SAAS PRIMER DI INDONESIA)
 function renderHomePage(container) {
   container.innerHTML = `
     <section class="hero">
       <div class="wrap">
         <div class="hero-eyebrow"><span class="rule"></span> PT. Anugerah Bakti Prima</div>
-        <h1>Membangun bisnis yang menjadi tulang punggung institusi Indonesia sehari-hari.</h1>
-        <p class="lede">Kami memiliki dan mengembangkan tujuh lini usaha berlangganan yang melayani kebutuhan operasional riil — mulai dari RT, gereja, dan instansi pemerintah, hingga jasa lapangan, perkebunan, dan toko ritel.</p>
+        <h1>Marketplace SaaS Pertama di Indonesia</h1>
+        <p class="lede">PT. Anugerah Bakti Prima (ABP) menyediakan ekosistem aplikasi <strong>SaaS (Software-as-a-Service)</strong> berlangganan siap pakai untuk sektor institusi, operasional lapangan, dan bisnis di Indonesia.</p>
         
         <div class="hero-cta">
-          <a href="#produk/rtnet" class="btn btn-primary">Lihat 7 Portofolio Bisnis</a>
-          <a href="#investor" class="btn btn-ghost">Investor Relations & Tesis Pasar →</a>
+          <a href="#produk/rtnet" class="btn btn-primary">Jelajahi 7 Produk SaaS Siap Pakai</a>
+          <a href="#investor" class="btn btn-ghost">Tesis Investasi OPEX vs CAPEX →</a>
         </div>
 
         <div class="hero-stats">
-          <div class="stat"><b>7</b><span>Lini SaaS Berlangganan</span></div>
-          <div class="stat"><b>7</b><span>Sektor Institusi & Pasar</span></div>
-          <div class="stat"><b>3</b><span>Pihak Dilayani (Pemilik, Staf, Klien)</span></div>
-          <div class="stat"><b>100%</b><span>Offline-First & Separated Data</span></div>
+          <div class="stat"><b>7</b><span>Produk SaaS Berlangganan</span></div>
+          <div class="stat"><b>0 Rupiah</b><span>Biaya Modal Awal (Zero CAPEX)</span></div>
+          <div class="stat"><b>100% OPEX</b><span>Biaya Operasional Rutin Terprediksi</span></div>
+          <div class="stat"><b>Instant</b><span>Waktu Implementasi Siap Pakai</span></div>
         </div>
       </div>
     </section>
 
-    <section id="about-sec">
+    <!-- KENAPA SAAS & OPEX VS CAPEX SECTION -->
+    <section id="opex-vs-capex">
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-label"><span class="rule"></span> Tentang Perusahaan Holding</div>
-            <h2>Satu holding, banyak sektor riil yang kami pahami secara mendalam.</h2>
+            <div class="sec-label"><span class="rule"></span> Keunggulan Model Bisnis</div>
+            <h2>Mengapa SaaS & Model OPEX Jauh Lebih Menguntungkan?</h2>
           </div>
-          <p class="sub">Setiap lini usaha berdiri dan dikelola dengan fokus mendalam pada satu bidang, namun seluruhnya mengikuti standar mutu, keandalan, dan keamanan data yang sama.</p>
+          <p class="sub">Mengapa harus membeli lisensi mahal di awal jika Anda bisa berlangganan aplikasi siap pakai yang selalu diperbarui?</p>
         </div>
 
-        <div class="pillars-grid">
-          <div class="pillar-item">
-            <span class="pillar-icon">🔒</span>
-            <h3>Kerahasiaan Terjaga</h3>
-            <p>Data setiap pelanggan tersimpan secara terpisah (tenant isolation) dan tidak akan pernah tercampur satu sama lain.</p>
+        <div class="problem-solution-grid" style="margin-top:0;">
+          <div class="ps-card problem">
+            <h3>❌ Risiko Model Komputerisasi Lama (CAPEX)</h3>
+            <ul>
+              <li><strong>Investasi Awal Sangat Mahal (High CAPEX)</strong>: Harus membeli server fisik, lisensi perangkat lunak seumur hidup, dan infrastruktur Jaringan di awal.</li>
+              <li><strong>Risiko Software Usang & Terbengkalai</strong>: Sistem yang dibeli mahal sering tidak diperbarui lagi saat regulasi bisnis atau aturan pemerintah berubah.</li>
+              <li><strong>Biaya Tim IT Maintenance Internal</strong>: Wajib merekrut dan membiayai tim teknis internal hanya untuk perawatan rutin server.</li>
+              <li><strong>Waktu Implementasi Berbulan-bulan</strong>: Proses pengadaan dan custom development memakan waktu lama sebelum bisa dipakai.</li>
+            </ul>
           </div>
-          <div class="pillar-item">
-            <span class="pillar-icon">⚡</span>
-            <h3>Selalu Bisa Beroperasi</h3>
-            <p>Sistem dirancang dengan arsitektur offline-first. Operasional di lokasi pelanggan tetap berjalan walau internet terputus.</p>
-          </div>
-          <div class="pillar-item">
-            <span class="pillar-icon">📱</span>
-            <h3>Menjangkau Semua Peran</h3>
-            <p>Dapat diakses oleh pimpinan/pemilik usaha dari kantor maupun staf dan teknisi yang bekerja langsung di lapangan.</p>
+
+          <div class="ps-card solution">
+            <h3>✅ Keuntungan Sistem SaaS ABP (OPEX)</h3>
+            <ul>
+              <li><strong>Tanpa Biaya Modal Awal (Zero Upfront CAPEX)</strong>: Langsung menggunakan aplikasi tanpa beban investasi pembelian server atau server room.</li>
+              <li><strong>Biaya Operasional Terprediksi (Flexible OPEX)</strong>: Berlangganan sesuai skala usaha (Pay-as-you-grow) dan dapat dicatat langsung sebagai biaya operasional rutin.</li>
+              <li><strong>Pembaruan & Perawatan Gratis (Free Updates)</strong>: Selalu mendapatkan fitur terbaru dan penyesuaian regulasi secara otomatis tanpa biaya maintenance tambahan.</li>
+              <li><strong>Langsung Beroperasi (Instant Time-to-Value)</strong>: Aplikasi siap pakai dalam hitungan menit dari browser atau smartphone mana saja.</li>
+            </ul>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- INTERACTIVE PORTFOLIO MATRIX -->
     <section style="background:var(--paper-dim);">
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-label"><span class="rule"></span> Etalase Portofolio Bisnis</div>
-            <h2>Tujuh lini bisnis SaaS berlangganan ABP.</h2>
+            <div class="sec-label"><span class="rule"></span> Katalog Produk SaaS</div>
+            <h2>7 Aplikasi SaaS Berlangganan ABP untuk Sektor Riil</h2>
           </div>
           <p class="sub">Klik pada setiap produk di bawah untuk melihat pratinjau antarmuka dan nilai tambah operasionalnya.</p>
         </div>
@@ -449,12 +455,13 @@ function renderHomePage(container) {
       </div>
     </section>
 
+    <!-- INVESTOR & PARTNERSHIP CALLOUT -->
     <section style="background:var(--ink); color:var(--paper);">
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-label" style="color:var(--brass);"><span class="rule" style="background:var(--brass);"></span> Peluang Akselerasi</div>
-            <h2 style="color:var(--paper);">Tumbuh bersama ekosistem ABP.</h2>
+            <div class="sec-label" style="color:var(--brass);"><span class="rule" style="background:var(--brass);"></span> Akselerasi Bisnis</div>
+            <h2 style="color:var(--paper);">Tumbuh bersama Marketplace SaaS ABP.</h2>
           </div>
           <p class="sub" style="color:rgba(246,244,236,0.7);">Kami membuka kolaborasi bagi investor yang ingin mendukung ekspansi SaaS di Indonesia serta mitra daerah untuk distribusi produk.</p>
         </div>
@@ -467,7 +474,7 @@ function renderHomePage(container) {
           </div>
           <div class="track-card" style="background:rgba(246,244,236,0.05); border-color:var(--line-dark);">
             <h3 style="color:var(--paper);">Bagi Mitra Reseller & Integrator</h3>
-            <p style="color:rgba(246,244,236,0.75);">Dapatkan skema bagi hasil menarik dengan memasarkan produk ABP di kabupaten/kota Anda dengan pendampingan penuh.</p>
+            <p style="color:rgba(246,244,236,0.75);">Dapatkan skema bagi hasil menarik dengan memasarkan produk SaaS ABP di kabupaten/kota Anda dengan pendampingan penuh.</p>
             <a href="#kemitraan" class="btn btn-ghost btn-sm">Pelajari Skema Kemitraan →</a>
           </div>
         </div>
@@ -523,7 +530,6 @@ function renderProductPage(container, productId) {
   const heroImg = images.length > 2 ? images[2] : (images[0] || '');
 
   container.innerHTML = `
-    <!-- PDP HERO WITH FEATURED SCREENSHOT -->
     <section class="pdp-hero">
       <div class="wrap">
         <div class="pdp-hero-grid">
@@ -551,7 +557,6 @@ function renderProductPage(container, productId) {
       </div>
     </section>
 
-    <!-- PROBLEM VS SOLUTION -->
     <section>
       <div class="wrap">
         <div class="sec-head">
@@ -579,7 +584,6 @@ function renderProductPage(container, productId) {
       </div>
     </section>
 
-    <!-- KEY FEATURES -->
     <section style="background:var(--paper-dim);">
       <div class="wrap">
         <div class="sec-head">
@@ -600,7 +604,6 @@ function renderProductPage(container, productId) {
       </div>
     </section>
 
-    <!-- FULL SLIDE DECK SCREENSHOT GALLERY -->
     ${images.length > 0 ? `
     <section>
       <div class="wrap">
@@ -635,7 +638,6 @@ function renderProductPage(container, productId) {
     </section>
     ` : ''}
 
-    <!-- WORKFLOW TIMELINE -->
     <section style="background:var(--paper-card); border-top:1px solid var(--line);">
       <div class="wrap">
         <div class="sec-head">
@@ -674,9 +676,9 @@ function renderInvestorPage(container) {
   container.innerHTML = `
     <section class="investor-hero">
       <div class="wrap">
-        <div class="hero-eyebrow" style="color:var(--brass);"><span class="rule" style="background:var(--brass);"></span> Investor Relations & Pitch Deck</div>
-        <h1>Tesis Investasi ABP: B2B SaaS untuk Sektor Riil Indonesia.</h1>
-        <p>PT. Anugerah Bakti Prima membangun ekosistem 7 platform berlangganan yang menggarap pasar yang terabaikan oleh pemain besar — mulai dari institusi RT, gereja, instansi pemerintah, hingga agrobisnis & toko eceran.</p>
+        <div class="hero-eyebrow" style="color:var(--brass);"><span class="rule" style="background:var(--brass);"></span> Investor Relations & Tesis SaaS OPEX</div>
+        <h1>Tesis Investasi ABP: Marketplace SaaS Berbasis OPEX di Indonesia.</h1>
+        <p>Model bisnis SaaS berlangganan (OPEX) meniadakan hambatan modal awal bagi pembeli institusi, sekaligus menciptakan arus kas berulang (recurring revenue) yang stabil dengan retensi tinggi bagi holding ABP.</p>
         <div style="display:flex; gap:16px; margin-top:32px; flex-wrap:wrap;">
           <button class="btn btn-primary" onclick="openInvestorModal()">Minta Executive Pitch Deck & Financial Highlights →</button>
           <a href="#kontak" class="btn btn-ghost">Diskusi dengan Management ABP</a>
@@ -689,7 +691,7 @@ function renderInvestorPage(container) {
         <div class="sec-head">
           <div>
             <div class="sec-label"><span class="rule"></span> Market Size & Opportunity</div>
-            <h2>Potensi Pasar Berulang (Recurring Revenue) di Indonesia</h2>
+            <h2>Potensi Pasar SaaS Berulang (Recurring Revenue) di Indonesia</h2>
           </div>
         </div>
 
@@ -733,7 +735,7 @@ function renderInvestorPage(container) {
         <div class="sec-head">
           <div>
             <div class="sec-label"><span class="rule"></span> Sinergi Portofolio</div>
-            <h2>Mengapa Model Holding ABP Sangat Efisien?</h2>
+            <h2>Mengapa Model Holding SaaS ABP Sangat Efisien?</h2>
           </div>
         </div>
 
@@ -773,7 +775,7 @@ function renderPartnershipPage(container) {
     <section class="hero" style="padding:70px 0 50px;">
       <div class="wrap">
         <div class="hero-eyebrow"><span class="rule"></span> Program Kemitraan ABP</div>
-        <h1>Tumbuh dan berkembang bersama produk-produk ABP.</h1>
+        <h1>Tumbuh dan berkembang bersama produk SaaS ABP.</h1>
         <p class="lede">Kami membuka jalur kerja sama bagi individu, perusahaan daerah, maupun penyedia teknologi pendukung.</p>
       </div>
     </section>
@@ -862,7 +864,7 @@ function renderContactPage(container) {
                 <input type="email" id="c-email" required placeholder="nama@email.com">
               </div>
               <div class="field">
-                <label for="c-produk">Produk / Topik *</label>
+                <label for="c-produk">Produk SaaS / Topik *</label>
                 <select id="c-produk">
                   <option>RTnet — RT/RW</option>
                   <option>Eklesia — Gereja</option>
@@ -1165,7 +1167,7 @@ window.handleInvestorSubmit = async function(e) {
     type: 'Investor Pitch Deck',
     nama: document.getElementById('inv-nama').value,
     firm: document.getElementById('inv-firm').value,
-    email: document.getElementById('inv-email').value,
+    email: document.getElementById('email').value || document.getElementById('inv-email').value,
     phone: document.getElementById('inv-phone').value,
     produk: 'Executive Pitch Deck',
     pesan: 'Permintaan Executive Pitch Deck & Financial Highlights ABP'
