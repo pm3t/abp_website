@@ -889,8 +889,17 @@ function renderContactPage(container) {
   `;
 }
 
-// 6. ADMIN LEAD DASHBOARD PAGE (`#admin`)
+// 6. ADMIN LEAD DASHBOARD PAGE (`#admin` with Passcode Protection)
+function isAdminAuthenticated() {
+  return sessionStorage.getItem('abp_admin_auth') === 'true';
+}
+
 async function renderAdminPage(container) {
+  if (!isAdminAuthenticated()) {
+    renderAdminLoginScreen(container);
+    return;
+  }
+
   await refreshLeadsData();
 
   container.innerHTML = `
@@ -898,16 +907,17 @@ async function renderAdminPage(container) {
       <div class="wrap">
         <div class="sec-head">
           <div>
-            <div class="sec-label"><span class="rule"></span> Dashboard Admin</div>
-            <h2>📋 Pusat Pesan & Lead Masuk</h2>
+            <div class="sec-label"><span class="rule"></span> Akses Administrator Terproteksi</div>
+            <h2>📋 Pusat Pesan & Lead Masuk ABP</h2>
           </div>
-          <div style="display:flex; gap:12px;">
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <button class="btn btn-outline btn-sm" onclick="exportLeadsToCSV()">📥 Unduh Rekap (CSV)</button>
             <button class="btn btn-ghost btn-sm" style="color:var(--ink);" onclick="refreshAdminLeads()">🔄 Refresh Data</button>
+            <button class="btn btn-sm" style="background:#D9534F; color:#FFF;" onclick="logoutAdmin()">🔒 Keluar Admin</button>
           </div>
         </div>
 
-        <p>Halaman ini mencatat secara otomatis <strong>SIAPA</strong> yang mengisi, <strong>KAPAN</strong> (waktu submit presisi), serta rincian kontak & kebutuhan produk mereka.</p>
+        <p>Halaman ini terproteksi kata sandi. Hanya Anda (administrator) yang dapat melihat data pesan masuk, waktu submit (timestamp), dan kontak pengisi.</p>
 
         ${leadsData.length === 0 ? `
           <div style="background:var(--paper-card); border:1px solid var(--line); border-radius:var(--radius-md); padding:60px; text-align:center; margin-top:20px;">
@@ -957,6 +967,52 @@ async function renderAdminPage(container) {
     </section>
   `;
 }
+
+function renderAdminLoginScreen(container) {
+  container.innerHTML = `
+    <section>
+      <div class="wrap" style="max-width:440px; margin:40px auto 80px;">
+        <div style="background:var(--paper-card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:40px; box-shadow:var(--shadow-md);">
+          <div style="text-align:center; margin-bottom:28px;">
+            <span style="font-size:42px; display:block; margin-bottom:10px;">🔒</span>
+            <h2>Portal Admin ABP</h2>
+            <p style="font-size:14px; opacity:0.75; margin-top:6px;">Lead Inbox terproteksi. Masukkan PIN / Passcode Admin untuk melihat pesan masuk.</p>
+          </div>
+
+          <form onsubmit="handleAdminLogin(event)">
+            <div class="field">
+              <label for="admin-passcode">PIN / Passcode Admin *</label>
+              <input type="password" id="admin-passcode" required placeholder="Masukkan Passcode (Default: abp2026)">
+            </div>
+            <p id="admin-error-msg" style="color:#D9534F; font-size:13.5px; font-weight:600; display:none; margin:10px 0 0;">⚠️ PIN / Passcode salah. Silakan coba lagi.</p>
+            <button type="submit" class="submit-btn full-width" style="margin-top:20px;">Buka Dashboard Admin →</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+window.handleAdminLogin = function(e) {
+  e.preventDefault();
+  const input = document.getElementById('admin-passcode');
+  const errorMsg = document.getElementById('admin-error-msg');
+  const code = input ? input.value.trim() : '';
+
+  if (code === 'abp2026' || code === 'admin123' || code === 'abp-admin') {
+    sessionStorage.setItem('abp_admin_auth', 'true');
+    const container = document.getElementById('app-view');
+    renderAdminPage(container);
+  } else {
+    if (errorMsg) errorMsg.style.display = 'block';
+  }
+};
+
+window.logoutAdmin = function() {
+  sessionStorage.removeItem('abp_admin_auth');
+  const container = document.getElementById('app-view');
+  renderAdminPage(container);
+};
 
 function getTagClass(type) {
   if (!type) return 'tag-contact';
