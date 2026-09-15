@@ -72,29 +72,29 @@ const productMetadata = {
   servio: {
     id: 'servio',
     name: 'Servio',
-    sector: 'Jasa Lapangan / Pest Control',
+    sector: 'Jasa Lapangan & Kebersihan / Pest Control',
     color: '#1F9E6D',
-    tagline: 'SaaS Operasional Pest Control & Layanan Lapangan (OPEX)',
-    heroDesc: 'Membantu pemilik usaha pest control memastikan setiap kontrak pelanggan terpenuhi tepat waktu, sehingga tagihan keluar akurat dan pelanggan tidak berpindah ke pesaing karena kunjungan terlewat.',
+    tagline: 'SaaS Operasional Jasa Kebersihan, Pest Control & Layanan Lapangan (OPEX)',
+    heroDesc: 'Membantu pemilik usaha jasa kebersihan, pest control, dan layanan lapangan memastikan setiap kontrak pelanggan terpenuhi tepat waktu, sehingga tagihan keluar akurat dan pelanggan tidak berpindah ke pesaing karena kunjungan terlewat.',
     problems: [
-      'Kunjungan rutin teknisi pest control terlewat tanpa disadari, memicu komplain klien dan klaim penalti.',
-      'Teknisi di lapangan tidak membawa bukti foto & tanda tangan pelanggan yang sah.',
-      'Kesulitan mengelola penjadwalan banyak cabang dan membagikan rute kerja harian teknisi.'
+      'Kunjungan rutin teknisi & petugas lapangan terlewat tanpa disadari, memicu komplain klien dan klaim penalti.',
+      'Petugas & teknisi di lapangan tidak membawa bukti foto & tanda tangan pelanggan yang sah.',
+      'Kesulitan mengelola penjadwalan banyak cabang dan membagikan rute kerja harian tim lapangan.'
     ],
     solutions: [
       'Monitoring pemenuhan kontrak otomatis yang memberi peringatan jika jadwal kunjungan mendekati tenggat.',
-      'Aplikasi mobile teknisi untuk pengisian berita acara, lampiran foto sebelum/sesudah, dan TTD digital klien.',
+      'Aplikasi mobile petugas lapangan untuk pengisian berita acara, lampiran foto sebelum/sesudah, dan TTD digital klien.',
       'Web admin multi-cabang untuk alokasi rute teratur dan penagihan otomatis sesuai progres kerja.'
     ],
     features: [
       { title: 'Manajemen Multi-Cabang', desc: 'Pengelolaan kantor cabang & divisi layanan dalam satu portal terpusat.' },
-      { title: 'Penjadwalan Otomatis Teknisi', desc: 'Alokasi penugasan harian bebas bentrok dengan optimasi rute terdekat.' },
-      { title: 'Aplikasi Mobile Teknisi', desc: 'Input checklist pest control, rekomendasi teknis, & foto lokasi secara offline-first.' },
+      { title: 'Penjadwalan Otomatis Tim Lapangan', desc: 'Alokasi penugasan harian bebas bentrok dengan optimasi rute terdekat.' },
+      { title: 'Aplikasi Mobile Petugas Lapangan', desc: 'Input checklist kebersihan & pest control, rekomendasi teknis, & foto lokasi secara offline-first.' },
       { title: 'Portal Klien Mandiri', desc: 'Pelanggan korporat dapat mengunduh sertifikat & berita acara pekerjaan kapan saja.' }
     ],
     workflow: [
-      { num: '1', title: 'Input Kontrak & SLA Service', desc: 'Pendaftaran kontrak pelanggan (misal: 2x kunjungan/bulan selama 1 tahun).' },
-      { num: '2', title: 'Penugasan & Inspeksi Lapangan', desc: 'Teknisi menerima perintah kerja via HP, menjalankan treatment, dan mengunggah foto.' },
+      { num: '1', title: 'Input Kontrak & SLA Service', desc: 'Pendaftaran kontrak pelanggan (misal: cleaning rutin / treatment per bulan).' },
+      { num: '2', title: 'Penugasan & Inspeksi Lapangan', desc: 'Petugas/teknisi menerima perintah kerja via HP, menjalankan pekerjaan, dan mengunggah foto.' },
       { num: '3', title: 'Verifikasi & Invoicing', desc: 'Admin memverifikasi bukti kunjungan dan menerbitkan tagihan tepat waktu.' }
     ],
     roi: 'Memangkas risiko kehilangan kontrak berlangganan akibat kunjungan terlewat hingga 0% dan mempercepat proses invoicing 5x lebih cepat.'
@@ -724,7 +724,7 @@ function renderInvestorPage(container) {
           <div class="market-card">
             <h3>Jasa Lapangan & Retail</h3>
             <b>> 4.5 Juta Toko</b>
-            <p>Pengelolaan kontrak kunjungan pest control (Servio) & sistem kasir offline-first penahan piutang (DigiSale).</p>
+            <p>Pengelolaan kontrak kunjungan jasa kebersihan & pest control (Servio) & sistem kasir offline-first penahan piutang (DigiSale).</p>
           </div>
         </div>
       </div>
@@ -868,7 +868,7 @@ function renderContactPage(container) {
                 <select id="c-produk">
                   <option>RTnet — RT/RW</option>
                   <option>Eklesia — Gereja</option>
-                  <option>Servio — Pest Control</option>
+                  <option>Servio — Jasa Kebersihan & Pest Control</option>
                   <option>GovPly — Surat Instansi</option>
                   <option>Rekan — HRIS & Payroll</option>
                   <option>Cultiva — Agrobisnis</option>
