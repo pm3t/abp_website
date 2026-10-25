@@ -11,13 +11,13 @@ const CONFIG = {
   email: 'anugerahbaktiprima@gmail.com',
   phoneDisplay: '0815-8488-9915',
   phoneWA: '6281584889915',
-  address: 'Bakrie Tower Lt. 18, Rasuna Epicentrum, Jl. H.R. Rasuna Said, Kuningan, Jakarta Selatan 12940',
+  address: 'Villa Gunung Lestari Jl. Rinjani II Blok F2 No. 5 Jombang Ciputat Tangerang Selatan 15414',
   // Form dikirim ke email via FormSubmit (tanpa backend). Submit pertama memerlukan aktivasi dari inbox email tujuan.
   formEndpoint: 'https://formsubmit.co/ajax/anugerahbaktiprima@gmail.com',
   // GANTI dengan rekening resmi perusahaan sebelum go-live
   bankAccounts: [
-    { bank: 'BCA', number: '000-000-0000', holder: 'PT. Anugerah Bakti Prima' },
-    { bank: 'Mandiri', number: '000-00-0000000-0', holder: 'PT. Anugerah Bakti Prima' }
+    { bank: 'BCA', number: '000-000-0000', holder: 'Bayu Nurcahyono' },
+    { bank: 'BRI', number: '000-00-0000000-0', holder: 'Bayu Nurcahyono' }
   ],
   adminPasscodes: ['abp2026']
 };
@@ -445,6 +445,24 @@ function setupNavigation() {
   const links = document.getElementById('nav-links');
   if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
   document.querySelectorAll('#nav-links a').forEach(a => a.addEventListener('click', () => links && links.classList.remove('open')));
+
+  // Sinkronkan topbar & footer di index.html dengan CONFIG agar cukup ubah 1 tempat di CONFIG
+  const topbarRight = document.querySelector('.topbar-right');
+  if (topbarRight) {
+    topbarRight.innerHTML = `
+      <a href="mailto:${CONFIG.email}">✉️ ${escapeHtml(CONFIG.email)}</a>
+      <span class="sep">•</span>
+      <a href="https://wa.me/${CONFIG.phoneWA}" target="_blank">📞 ${escapeHtml(CONFIG.phoneDisplay)}</a>
+    `;
+  }
+  const footerContact = document.querySelector('.footer-contact-mini');
+  if (footerContact) {
+    footerContact.innerHTML = `
+      <div>📍 ${escapeHtml(CONFIG.address)}</div>
+      <div>✉️ <a href="mailto:${CONFIG.email}">${escapeHtml(CONFIG.email)}</a></div>
+      <div>📞 <a href="https://wa.me/${CONFIG.phoneWA}" target="_blank">${escapeHtml(CONFIG.phoneDisplay)}</a></div>
+    `;
+  }
 }
 
 function handleRouting() {
@@ -1401,7 +1419,7 @@ function renderInvoicePage(container, orderNo) {
         <div class="invoice-box">
           <div class="invoice-top">
             <div>
-              <div class="mark"><div class="mark-logo-box">ABP</div><div class="mark-text-group"><span class="mark-title">${CONFIG.companyName}</span><span class="mark-subtitle">Indonesia SaaS Marketplace</span></div></div>
+              <div class="mark"><div class="mark-logo-box">ABP</div><div class="mark-text-group"><span class="mark-title">${CONFIG.companyName}</span><span class="mark-subtitle">SaaS Marketplace</span></div></div>
               <div style="font-size:12.5px; color:var(--ink-muted); margin-top:10px; max-width:42ch;">${CONFIG.address}<br>${CONFIG.email} · ${CONFIG.phoneDisplay}</div>
             </div>
             <div style="text-align:right;">
