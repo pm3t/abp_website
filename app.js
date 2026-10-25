@@ -1479,12 +1479,36 @@ async function sendToEmail(fields) {
       body: JSON.stringify({ _template: 'table', _captcha: 'false', ...fields })
     });
     const data = await res.json().catch(() => ({}));
-    return res.ok && String(data.success) !== 'false';
+    const ok = res.ok && String(data.success) !== 'false';
+    return { ok, message: data.message || '' };
   } catch (err) {
-    console.warn('Gagal mengirim email:', err);
-    return false;
+    console.warn('Gagal mengirim email via FormSubmit:', err);
+    return { ok: false, message: err.message || 'network_error' };
   }
 }
+
+// Helper untuk memicu email aktivasi FormSubmit melalui form POST standar (bukan AJAX)
+window.triggerFormSubmitActivation = function () {
+  const f = document.createElement('form');
+  f.method = 'POST';
+  f.action = `https://formsubmit.co/${CONFIG.email}`;
+  f.target = '_blank';
+  const inputs = {
+    _subject: 'Aktivasi Form Website PT. Anugerah Bakti Prima',
+    _captcha: 'false',
+    Pesan: 'Ini adalah pengiriman awal untuk mengaktifkan notifikasi email FormSubmit di ' + CONFIG.email
+  };
+  Object.entries(inputs).forEach(([k, v]) => {
+    const inp = document.createElement('input');
+    inp.type = 'hidden';
+    inp.name = k;
+    inp.value = v;
+    f.appendChild(inp);
+  });
+  document.body.appendChild(f);
+  f.submit();
+  f.remove();
+};
 
 async function logLead(lead) {
   lead.timestamp = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' }) + ' WIB';
@@ -1492,8 +1516,11 @@ async function logLead(lead) {
   backup.unshift(lead);
   localStorage.setItem('abp_leads_backup', JSON.stringify(backup));
   try {
-    await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead) });
-  } catch (err) { /* endpoint opsional */ }
+    const res = await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead) });
+    return res.ok;
+  } catch (err) {
+    return false;
+  }
 }
 
 function mailtoFallback(subject, body) {
@@ -1514,24 +1541,44 @@ window.handleContactSubmit = async function (e) {
   };
   btn.disabled = true; btn.textContent = 'Mengirim...';
 
-  const ok = await sendToEmail({
-    _subject: `[Contact Us] ${data.topik} — ${data.nama}`,
-    _replyto: data.email,
-    'Jenis': 'Contact Us', 'Nama': data.nama, 'Instansi': data.instansi || '-', 'Email': data.email,
-    'Telepon': data.phone || '-', 'Topik': data.topik, 'Pesan': data.pesan
-  });
-  await logLead({ type: 'Kontak', nama: data.nama, instansi: data.instansi, email: data.email, phone: data.phone, produk: data.topik, pesan: data.pesan });
+  const [emailResult, apiSaved] = await Promise.all([
+    sendToEmail({
+      _subject: `[Contact Us] ${data.topik} — ${data.nama}`,
+      _replyto: data.email,
+      'Jenis': 'Contact Us', 'Nama': data.nama, 'Instansi': data.instansi || '-', 'Email': data.email,
+      'Telepon': data.phone || '-', 'Topik': data.topik, 'Pesan': data.pesan
+    }),
+    logLead({ type: 'Kontak', nama: data.nama, instansi: data.instansi, email: data.email, phone: data.phone, produk: data.topik, pesan: data.pesan })
+  ]);
 
   const body = `Nama: ${data.nama}\nInstansi: ${data.instansi || '-'}\nEmail: ${data.email}\nTelepon: ${data.phone || '-'}\nTopik: ${data.topik}\n\n${data.pesan}`;
   const mailHref = mailtoFallback(`[Contact Us] ${data.topik} — ${data.nama}`, body);
-  if (ok) {
-    status.innerHTML = `<span style="color:var(--emerald-dark); font-weight:700;">✓ Pesan telah dikirim ke ${CONFIG.email}.</span> <a href="${mailHref}" style="color:var(--primary); font-weight:600; margin-left:6px;">Buka juga di aplikasi Email →</a>`;
+  const waHref = `https://wa.me/${CONFIG.phoneWA}?text=${encodeURIComponent(`Halo ${CONFIG.companyName}, saya ${data.nama} (${data.instansi || '-'}).\nTopik: ${data.topik}\n\n${data.pesan}`)}`;
+
+  if (emailResult.ok) {
+    status.innerHTML = `<span style="color:var(--emerald-dark); font-weight:700;">✓ Pesan berhasil dikirim ke ${CONFIG.email}.</span>`;
     e.target.reset();
     btn.disabled = false;
     btn.textContent = 'Kirim Pesan →';
   } else {
-    status.innerHTML = `<span style="color:var(--danger); font-weight:700;">Koneksi server email tertunda.</span> <a href="${mailHref}" style="color:var(--primary); font-weight:700;">Kirim langsung lewat aplikasi email Anda (${CONFIG.email}) →</a>`;
-    btn.disabled = false; btn.textContent = 'Kirim Ulang →';
+    const needsActivation = /activation|activate/i.test(emailResult.message);
+    status.innerHTML = `
+      <div style="background:var(--emerald-soft); border:1px solid var(--emerald); border-radius:10px; padding:12px 14px; margin-top:6px;">
+        <div style="color:var(--emerald-dark); font-weight:700; margin-bottom:4px;">✓ Pesan Anda telah tercatat di sistem${apiSaved ? ' & Portal Admin' : ''}.</div>
+        <div style="font-size:13px; color:var(--ink-soft); margin-bottom:10px;">
+          ${needsActivation
+            ? `Untuk mengaktifkan pengiriman otomatis ke inbox <strong>${CONFIG.email}</strong>, cek email dari <em>FormSubmit</em> di inbox/spam Anda lalu klik <strong>Activate Form</strong>, atau klik tombol aktivasi di bawah.`
+            : `Teruskan juga pesan ini langsung melalui Email atau WhatsApp:`}
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="${mailHref}" class="btn btn-primary btn-xs">✉️ Kirim via Aplikasi Email</a>
+          <a href="${waHref}" target="_blank" class="btn btn-emerald btn-xs">💬 Kirim via WhatsApp</a>
+          ${needsActivation ? `<button type="button" onclick="triggerFormSubmitActivation()" class="btn btn-outline btn-xs">⚡ Kirim Ulang Link Aktivasi FormSubmit</button>` : ''}
+        </div>
+      </div>`;
+    e.target.reset();
+    btn.disabled = false;
+    btn.textContent = 'Kirim Pesan →';
   }
 };
 
