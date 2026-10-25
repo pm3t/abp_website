@@ -1,1209 +1,1666 @@
 /**
- * PT. Anugerah Bakti Prima (ABP) — Marketplace SaaS Pertama di Indonesia
+ * PT. Anugerah Bakti Prima — Indonesia SaaS Marketplace (multi-vendor)
+ * SPA: Etalase → Detail Produk → Keranjang → Checkout → Invoice
  */
 
-let productsContent = {};
-let leadsData = [];
+/* ==========================================
+ * KONFIGURASI
+ * ========================================== */
+const CONFIG = {
+  companyName: 'PT. Anugerah Bakti Prima',
+  email: 'anugerahbaktiprima@gmail.com',
+  phoneDisplay: '0815-8488-9915',
+  phoneWA: '6281584889915',
+  address: 'Bakrie Tower Lt. 18, Rasuna Epicentrum, Jl. H.R. Rasuna Said, Kuningan, Jakarta Selatan 12940',
+  // Form dikirim ke email via FormSubmit (tanpa backend). Submit pertama memerlukan aktivasi dari inbox email tujuan.
+  formEndpoint: 'https://formsubmit.co/ajax/anugerahbaktiprima@gmail.com',
+  // GANTI dengan rekening resmi perusahaan sebelum go-live
+  bankAccounts: [
+    { bank: 'BCA', number: '000-000-0000', holder: 'PT. Anugerah Bakti Prima' },
+    { bank: 'Mandiri', number: '000-00-0000000-0', holder: 'PT. Anugerah Bakti Prima' }
+  ],
+  adminPasscodes: ['abp2026']
+};
 
-// Detailed hardcoded metadata fallback enriched with exact PDF content
-const productMetadata = {
-  rtnet: {
-    id: 'rtnet',
-    name: 'RTnet',
-    sector: 'Komunitas & RT/RW',
-    color: '#C7973F',
-    tagline: 'SaaS Administrasi & Keuangan RT/RW Berlangganan (OPEX)',
-    heroDesc: 'Membantu pengurus RT menagih iuran warga secara transparan dan menerbitkan surat pengantar dalam hitungan detik, sehingga catatan kas dan data warga tidak pernah hilang saat pengurus berganti.',
-    problems: [
-      'Buku pencatatan iuran fisik sering terselip, rawan keliru hitung, dan menagih pintu ke pintu terasa kurang nyaman.',
-      'Warga butuh surat pengantar mendadak saat pengurus RT sedang tidak berada di rumah.',
-      'Saat pergantian pengurus RT baru, data warga dan catatan historis kas lama sering hilang/tidak lengkap.'
-    ],
-    solutions: [
-      'Pencatatan kas digital transparan dengan laporan rekapitulasi yang bisa diakses warga kapan saja.',
-      'Penerbitan surat pengantar online berformat resmi lengkap dengan QR verifikasi dari smartphone.',
-      'Database warga terpusat dan tersimpan aman di cloud, siap diterserah-terimakan ke pengurus baru tanpa ada data tercecer.'
-    ],
-    features: [
-      { title: 'Manajemen Iuran & Kas RT', desc: 'Tagihan otomatis per KK, status lunas/tunggakan real-time, & cetak bukti bayar.' },
-      { title: 'Surat Pengantar Digital', desc: 'Warga mengajukan lewat HP, Pengurus RT menyetujui dengan 1-klik via WhatsApp/Web.' },
-      { title: 'Database Warga & KK', desc: 'Pencatatan data keluarga, domisili tetap/kontrak, & status kependudukan rapi.' },
-      { title: 'Laporan Keuangan Transparan', desc: 'Rekapitulasi pemasukan & pengeluaran bulanan otomatis yang bisa dibagikan ke grup warga.' }
-    ],
-    workflow: [
-      { num: '1', title: 'Registrasi Data Warga & Unit Rumah', desc: 'Pengurus mendaftarkan daftar KK dan menetapkan nominal iuran bulanan.' },
-      { num: '2', title: 'Penagihan & Pembayaran Iuran', desc: 'Warga menerima pengingat iuran dan bukti pembayaran digital tercatat otomatis.' },
-      { num: '3', title: 'Pelayanan Surat & Laporan Kas', desc: 'Surat pengantar diterbitkan instant dan kas RT terpantau jujur tanpa selisih.' }
-    ],
-    roi: 'Menghilangkan 100% risiko kehilangan catatan kas RT saat ganti pengurus dan meningkatkan kolektibilitas iuran warga hingga 95%.'
+/* ==========================================
+ * VENDOR (Marketplace multi-vendor)
+ * Tambahkan vendor pihak ketiga di sini, lalu set `vendor` pada produk.
+ * ========================================== */
+const VENDORS = {
+  abp: {
+    id: 'abp',
+    name: 'ABP Official Labs',
+    company: 'PT. Anugerah Bakti Prima',
+    verified: true,
+    official: true,
+    desc: 'Tim pengembang utama PT. Anugerah Bakti Prima untuk solusi enterprise, pemerintahan, dan UMKM.'
   },
-
-  eklesia: {
-    id: 'eklesia',
-    name: 'Eklesia',
-    sector: 'Keagamaan / Gereja',
-    color: '#E8862B',
-    tagline: 'SaaS Manajemen Gereja & Penggembalaan Jemaat (OPEX)',
-    heroDesc: 'Membantu gereja mencatat keuangan persembahan secara rapi dan akuntabel, merawat hubungan penggembalaan jemaat, dan mengatur jadwal pelayanan tanpa beban administrasi fisik.',
-    problems: [
-      'Pencatatan keuangan persembahan dan persepuluhan rentan ketidakcocokan antara majelis dan pengurus.',
-      'Data jemaat tercecer di berbagai buku catatan, membuat gembala sulit memantau jemaat yang butuh kunjungan.',
-      'Jadwal pelayan ibadah minggu (pembicara, musik, usher) sering bentrok atau lupa dikonfirmasi.'
-    ],
-    solutions: [
-      'Pusat kendali keuangan gereja transparan dengan pencatatan multi-kantong persembahan.',
-      'Database penggembalaan terpadu lengkap dengan pengingat ulang tahun, pernikahan, dan status keaktifan jemaat.',
-      'Penjadwalan tim pelayanan otomatis dengan notifikasi jadwal ibadah mingguan.'
-    ],
-    features: [
-      { title: 'Statistik Pertumbuhan Jemaat', desc: 'Memantau jumlah jiwa aktif, keluarga, serta jemaat baru secara real-time.' },
-      { title: 'Keuangan & Persembahan', desc: 'Pencatatan transparan kantong persembahan, persepuluhan, & dana pembangunan.' },
-      { title: 'Pengingat Hari Bahagia', desc: 'Notifikasi otomatis ulang tahun & ulang tahun pernikahan jemaat untuk sapaan gembala.' },
-      { title: 'Penjadwalan Ibadah & Pelayan', desc: 'Pengaturan jadwal pelayan mimbar & musik tanpa khawatir terjadi bentrok tugas.' }
-    ],
-    workflow: [
-      { num: '1', title: 'Pencatatan Base Jemaat', desc: 'Pendataan anggota keluarga jemaat, sakramen baptis/sidi, dan minat pelayanan.' },
-      { num: '2', title: 'Rekapitulasi Ibadah & Kas', desc: 'Input jumlah kehadiran dan penghitungan persembahan pasca ibadah secara akuntabel.' },
-      { num: '3', title: 'Penggembalaan Aktif', desc: 'Gembala menerima alert jemaat yang absen atau membutuhkan doa & kunjungan.' }
-    ],
-    roi: 'Meningkatkan akuntabilitas keuangan gereja 100% dan memastikan tidak ada satu pun jemaat yang terlewat dari perhatian penggembalaan.'
+  partner_agro: {
+    id: 'partner_agro',
+    name: 'ABP AgriTech Division',
+    company: 'Mitra Ekosistem Agrobisnis & IoT',
+    verified: true,
+    official: false,
+    desc: 'Divisi & mitra spesialis sistem telemetri perkebunan, sensor IoT lahan, dan rantai pasok komoditas.'
   },
-
-  servio: {
-    id: 'servio',
-    name: 'Servio',
-    sector: 'Jasa Lapangan & Kebersihan / Pest Control',
-    color: '#1F9E6D',
-    tagline: 'SaaS Operasional Jasa Kebersihan, Pest Control & Layanan Lapangan (OPEX)',
-    heroDesc: 'Membantu pemilik usaha jasa kebersihan, pest control, dan layanan lapangan memastikan setiap kontrak pelanggan terpenuhi tepat waktu, sehingga tagihan keluar akurat dan pelanggan tidak berpindah ke pesaing karena kunjungan terlewat.',
-    problems: [
-      'Kunjungan rutin teknisi & petugas lapangan terlewat tanpa disadari, memicu komplain klien dan klaim penalti.',
-      'Petugas & teknisi di lapangan tidak membawa bukti foto & tanda tangan pelanggan yang sah.',
-      'Kesulitan mengelola penjadwalan banyak cabang dan membagikan rute kerja harian tim lapangan.'
-    ],
-    solutions: [
-      'Monitoring pemenuhan kontrak otomatis yang memberi peringatan jika jadwal kunjungan mendekati tenggat.',
-      'Aplikasi mobile petugas lapangan untuk pengisian berita acara, lampiran foto sebelum/sesudah, dan TTD digital klien.',
-      'Web admin multi-cabang untuk alokasi rute teratur dan penagihan otomatis sesuai progres kerja.'
-    ],
-    features: [
-      { title: 'Manajemen Multi-Cabang', desc: 'Pengelolaan kantor cabang & divisi layanan dalam satu portal terpusat.' },
-      { title: 'Penjadwalan Otomatis Tim Lapangan', desc: 'Alokasi penugasan harian bebas bentrok dengan optimasi rute terdekat.' },
-      { title: 'Aplikasi Mobile Petugas Lapangan', desc: 'Input checklist kebersihan & pest control, rekomendasi teknis, & foto lokasi secara offline-first.' },
-      { title: 'Portal Klien Mandiri', desc: 'Pelanggan korporat dapat mengunduh sertifikat & berita acara pekerjaan kapan saja.' }
-    ],
-    workflow: [
-      { num: '1', title: 'Input Kontrak & SLA Service', desc: 'Pendaftaran kontrak pelanggan (misal: cleaning rutin / treatment per bulan).' },
-      { num: '2', title: 'Penugasan & Inspeksi Lapangan', desc: 'Petugas/teknisi menerima perintah kerja via HP, menjalankan pekerjaan, dan mengunggah foto.' },
-      { num: '3', title: 'Verifikasi & Invoicing', desc: 'Admin memverifikasi bukti kunjungan dan menerbitkan tagihan tepat waktu.' }
-    ],
-    roi: 'Memangkas risiko kehilangan kontrak berlangganan akibat kunjungan terlewat hingga 0% dan mempercepat proses invoicing 5x lebih cepat.'
+  partner_edu: {
+    id: 'partner_edu',
+    name: 'ABP EduTech Partner',
+    company: 'Konsorsium Sistem Akademik Kampus',
+    verified: true,
+    official: false,
+    desc: 'Spesialis sistem informasi akademik perguruan tinggi dan integrasi pelaporan PDDIKTI Neo Feeder.'
   },
-
-  govply: {
-    id: 'govply',
-    name: 'GovPly',
-    sector: 'Instansi Pemerintah & Swasta',
-    color: '#2C6E63',
-    tagline: 'SaaS Tata Naskah Dinas & Disposisi Surat Digital (OPEX)',
-    heroDesc: 'Membantu instansi menyelesaiakan persetujuan surat hanya dalam hitungan detik lewat ponsel pimpinan, sehingga pekerjaan staf tidak lagi tertahan berhari-hari hanya karena atasan sedang di luar kantor.',
-    problems: [
-      'Surat fisik tertumpuk di meja pimpinan, terselip, rusak, atau terlambat didisposisi saat dinas luar.',
-      'Staf kesulitan melacak status surat: berada di meja siapa dan berapa lama sudah tertahan.',
-      'Pemborosan anggaran kertas, cetak berulang kali, dan biaya kurir antar gedung.'
-    ],
-    solutions: [
-      'Disposisi surat digital berbasis seluler yang dapat ditandatangani pimpinan dari mana saja via smartphone.',
-      'Tracking alur surat real-time lengkap dengan riwayat timestamp penanganan antar bidang.',
-      'Pengarsipan digital terenkripsi yang siap dicari kembali dalam hitungan detik.'
-    ],
-    features: [
-      { title: 'Disposisi Cepat via Smartphone', desc: 'Pimpinan meninjau draft surat & memberikan instruksi disposisi langsung via HP.' },
-      { title: 'Tracking Surat Real-Time', desc: 'Pelacakan posisi dokumen, waktu penanganan, & indikator keterlambatan.' },
-      { title: 'Digital Archiving & OCR Search', desc: 'Pencarian berkas lama instan berdasarkan nomor surat, perihal, atau instansi pengirim.' },
-      { title: 'Keamanan Hak Akses Multi-Level', desc: 'Pembatasan rahasia jabatan, e-signature verifiable, & audit trail lengkap.' }
-    ],
-    workflow: [
-      { num: '1', title: 'Agenda Surat Masuk', desc: 'Petugas agenda mengunggah/menginput surat masuk ke sistem GovPly.' },
-      { num: '2', title: 'Disposisi Pimpinan via Mobile', desc: 'Kepala instansi menerima notifikasi dan meneruskan disposisi ke Kabid/Staf.' },
-      { num: '3', title: 'Tindak Lanjut & Arsip Automated', desc: 'Staf menyelesaikan instruksi dan dokumen terarsip rapi tanpa ruang berkas.' }
-    ],
-    roi: 'Memangkas waktu proses disposisi surat dari 3-5 hari menjadi kurang dari 10 menit dan menghemat 80% anggaran kertas instansi.'
-  },
-
-  rekan: {
-    id: 'rekan',
-    name: 'Rekan',
-    sector: 'SDM & Payroll Perusahaan',
-    color: '#2E8BC9',
-    tagline: 'SaaS HRIS, Absensi GPS, & Automated Payroll TER PPh 21 (OPEX)',
-    heroDesc: 'Membantu perusahaan menghitung gaji, pajak PPh 21 TER, dan BPJS karyawan secara akurat dan sesuai aturan terbaru, memangkas waktu proses payroll dari berhari-hari menjadi hitungan menit.',
-    problems: [
-      'Hitung gaji, lembur, dan potongan BPJS/Pajak secara manual di Excel memakan 3-5 hari dan rentan salah.',
-      'Perubahan regulasi TER PPh 21 dan kalkulasi BPJS Kesehatan/Ketenagakerjaan membingungkan tim HR.',
-      'Absensi kartu/mesin fisik mudah dititipkan (buddy punching) dan birokrasi cuti berbasis kertas rumit.'
-    ],
-    solutions: [
-      'Kalkulasi payroll & pajak TER PPh 21 otomatis yang menghasilkan slip gaji & laporan e-SPT siap pakai.',
-      'Absensi selfie GPS Geofencing di smartphone karyawan yang mencegah kecurangan lokasi.',
-      'Pengajuan cuti, lembur, & klaim reimbursement mandiri (Employee Self-Service) dalam 1 aplikasi.'
-    ],
-    features: [
-      { title: 'Kalkulasi TER PPh 21 & BPJS', desc: 'Penghitungan pajak penghasilan aturan terbaru & jaminan sosial otomatis presisi.' },
-      { title: 'Absensi GPS Geofencing', desc: 'Karyawan absen di radius lokasi kerja yang ditentukan lengkap dengan foto selfie.' },
-      { title: 'Self-Service Cuti & Lembur', desc: 'Karyawan mengajukan via HP, atasan melakukan persetujuan digital instant.' },
-      { title: 'HR Analytics & Audit Trail', desc: 'Grafik rasio turnover, keaktifan jam kerja, & riwayat perubahan gaji transparan.' }
-    ],
-    workflow: [
-      { num: '1', title: 'Clock-in & Aktivitas Harian', desc: 'Absensi otomatis terekam lengkap dengan verifikasi lokasi geofence GPS.' },
-      { num: '2', title: 'Kalkulasi Payroll 1-Klik', desc: 'Sistem menarik data kehadiran, cuti, lembur, & pajak TER PPh 21 secara presisi.' },
-      { num: '3', title: 'Distribusi Slip Gaji Digital', desc: 'Gaji ditransfer dan slip gaji terenkripsi langsung terkirim ke HP karyawan.' }
-    ],
-    roi: 'Menghemat 90% waktu pemrosesan payroll bulanan HR dan menjamin kepatuhan pajak 100% bebas sanksi regulasi.'
-  },
-
-  cultiva: {
-    id: 'cultiva',
-    name: 'Cultiva',
-    sector: 'Perkebunan & Agrobisnis',
-    color: '#1BA37A',
-    tagline: 'SaaS Operasional Agrobisnis & Pengendalian COGS Kebun (OPEX)',
-    heroDesc: 'Membantu pemilik kebun mengunci kebocoran biaya produksi dan memastikan hasil panen sesuai target, sehingga margin keuntungan lebih terjaga dan produk lebih dipercaya pembeli pasar ekspor.',
-    problems: [
-      'Pencatatan manual biaya pupuk, obat, dan Harian Lepas (BHK) tidak sinkron dengan hasil panen, memicu kebocoran COGS.',
-      'Monitoring kondisi kelembapan tanah & kesehatan tanaman terlambat karena mengandalkan patroli fisik manual.',
-      'Hasil perkiraan panen sering meleset dari komitmen buyer, memicu denda keterlambatan penyerahan.'
-    ],
-    solutions: [
-      'Pengendalian HPP/COGS per blok lahan yang mencatat pemakaian sarana produksi (saprotan) & tenaga kerja.',
-      'Integrasi Sensor IoT tanah & stasiun cuaca lokasi untuk deteksi dini risiko fase tanam.',
-      'Manajemen rantai pasok panen terintegrasi dari penimbangan di kebun hingga pengiriman ke pabrik/buyer.'
-    ],
-    features: [
-      { title: 'Pengendalian COGS per Blok', desc: 'Pelacakan rinci biaya pupuk, pestisida, & upah pekerja per hektar tanaman.' },
-      { title: 'Monitoring Presisi IoT & Sensor', desc: 'Integrasi kelembapan tanah, curah hujan, & suhu udara lokasi perkebunan.' },
-      { title: 'Verifikasi Kegiatan Mandor', desc: 'Aplikasi mobile lapangan untuk foto bukti pekerjaan pemupukan & pemanenan.' },
-      { title: 'Transparansi Bagi Hasil Plasma', desc: 'Rekonsiliasi data pinjaman sarana produksi & hasil panen petani mitra secara terbuka.' }
-    ],
-    workflow: [
-      { num: '1', title: 'Mapping Blok & Rencana Tanam', desc: 'Pengaturan batas petak kebun, komoditas, dan estimasi kebutuhan sarana produksi.' },
-      { num: '2', title: 'Input Kegiatan & Sensor IoT', desc: 'Mandor melaporkan pemupukan via HP dan sensor mengirim kondisi lahan real-time.' },
-      { num: '3', title: 'Panen & Rekap Margin HPP', desc: 'Hasil panen ditimbang, dicocokkan dengan COGS, dan laporan margin siap dianalisis.' }
-    ],
-    roi: 'Menekan kebocoran biaya operasional lapangan hingga 20% dan meningkatkan akurasi estimasi jadwal panen untuk kontrak buyer.'
-  },
-
-  digisale: {
-    id: 'digisale',
-    name: 'DigiSale POS',
-    sector: 'Retail & Toko Multi-Cabang',
-    color: '#D98B2B',
-    tagline: 'SaaS Kasir Offline-First & Kontrol Piutang Toko (OPEX)',
-    heroDesc: 'Membantu pemilik toko kelontong dan bahan bangunan mencegah utang pelanggan yang tak tertagih, sekaligus memastikan kasir tetap bisa melayani pembeli meski internet toko sedang mati.',
-    problems: [
-      'Catatan kasbon/utang pelanggan di buku saku sering terselip atau lupa ditagih, menjadi piutang macet.',
-      'Aplikasi kasir cloud biasa terhenti saat internet mati, pembeli antre panjang dan beralih ke toko competitor.',
-      'Pusing menghitung konversi satuan grosir ke eceran (Dus -> Pcs, Sak -> Kg) yang membuat stok fisik selisih.'
-    ],
-    solutions: [
-      'Manajemen piutang pelanggan terstruktur dengan pengingat jatuh tempo otomatis.',
-      'Arsitektur Kasir Offline-First: Transaksi tetap berjalan 100% lancar walau internet mati dan tersinkron otomatis saat online.',
-      'Konversi satuan bertingkat otomatis dan monitoring stok multi-cabang dari satu dashboard HP.'
-    ],
-    features: [
-      { title: 'Arsitektur Offline-First', desc: 'Kasir bebas jualan tanpa koneksi internet; data otomatis tersinkron saat terhubung.' },
-      { title: 'Manajemen Kasbon & Piutang', desc: 'Pencatatan batas kredit pelanggan, histori bayar, & pengingat jatuh tempo WA.' },
-      { title: 'Konversi Satuan Bertingkat', desc: 'Penjualan otomatis memotong stok grosir ke eceran secara presisi tanpa selisih.' },
-      { title: 'Multi-Cabang & Audit Stok', desc: 'Pantau omzet harian & sisa stok barang laris di semua toko langsung dari HP pimpinan.' }
-    ],
-    workflow: [
-      { num: '1', title: 'Setup Katalog & Satuan Grosir', desc: 'Input produk, harga eceran/grosir, dan limit utang pelanggan setia.' },
-      { num: '2', title: 'Transaksi Kasir Cepat (Offline/Online)', desc: 'Kasir melayani pembayaran, cetak struk, atau catat piutang tanpa hambatan.' },
-      { num: '3', title: 'Sinkronisasi & Konsolidasi Omzet', desc: 'Pemilik toko menerima laporan laba rugi & peringatan stok menipis secara otomatis.' }
-    ],
-    roi: 'Mencegah 100% kehilangan omzet saat mati internet dan menekan piutang macet pelanggan hingga 75%.'
+  partner_sme: {
+    id: 'partner_sme',
+    name: 'Nusantara Retail & Auto Labs',
+    company: 'Mitra Vendor SaaS UMKM Terverifikasi',
+    verified: true,
+    official: false,
+    desc: 'Vendor spesialis aplikasi operasional mikro-retail, bengkel otomotif, dan konter handphone.'
   }
 };
 
-// Initialize App
+const CATEGORIES = [
+  { id: 'all', label: 'Semua Produk' },
+  { id: 'gov', label: 'Pemerintahan & Institusi' },
+  { id: 'edu', label: 'Pendidikan' },
+  { id: 'community', label: 'Komunitas & Keagamaan' },
+  { id: 'enterprise', label: 'Enterprise, HR & Keuangan' },
+  { id: 'agro', label: 'Agrobisnis' },
+  { id: 'retail', label: 'Retail & UMKM' },
+  { id: 'service', label: 'Jasa Lapangan' },
+  { id: 'utility', label: 'Utilitas Gratis' }
+];
+
+/* ==========================================
+ * KATALOG PRODUK (harga sesuai Pricelist.xlsx)
+ * ========================================== */
+const PRODUCTS = [
+  {
+    id: 'govply', name: 'GovPly', vendor: 'abp', category: 'gov', color: '#0D9488',
+    tagline: 'Tata Naskah Dinas & Persuratan', sector: 'Instansi Pemerintah & Swasta',
+    onboarding: 7500000, monthly: 3500000, unit: 'Instansi', unitLabel: 'Per Instansi/Bulan',
+    thumb: 3, rating: 4.9,
+    desc: 'Disposisi surat digital lewat ponsel pimpinan, pelacakan surat real-time, dan arsip digital yang dapat dicari dalam hitungan detik.',
+    highlights: ['Disposisi via HP pimpinan', 'Tracking surat real-time', 'Arsip digital & audit log'],
+    problems: [
+      'Surat fisik tertumpuk di meja pimpinan, terselip, atau terlambat didisposisi saat dinas luar.',
+      'Staf sulit melacak posisi surat: di meja siapa dan sudah berapa lama tertahan.',
+      'Pemborosan kertas, cetak berulang, dan biaya kurir antar gedung.'
+    ],
+    solutions: [
+      'Disposisi digital yang bisa diproses pimpinan dari smartphone di mana saja.',
+      'Timeline alur surat lengkap dengan waktu penanganan per bidang.',
+      'Arsip digital terenkripsi dengan pencarian berdasarkan nomor, perihal, atau pengirim.'
+    ],
+    features: [
+      { title: 'Disposisi Cepat via Smartphone', desc: 'Pimpinan meninjau surat & memberi instruksi disposisi langsung dari HP.' },
+      { title: 'Agenda Surat Masuk Otomatis', desc: 'Nomor agenda otomatis tanpa risiko ganda, scan surat fisik via kamera.' },
+      { title: 'Surat Keluar Berjenjang', desc: 'Draft → penelaahan atasan → finalisasi & penomoran resmi.' },
+      { title: 'Hak Akses & Audit Trail', desc: 'Akses sesuai jabatan dan jejak digital setiap tindakan.' }
+    ]
+  },
+  {
+    id: 'rekan', name: 'Rekan', vendor: 'abp', category: 'enterprise', color: '#2E8BC9',
+    tagline: 'Manajemen SDM, Penggajian & Absensi', sector: 'SDM & Payroll Perusahaan',
+    onboarding: 7500000, monthly: 1500000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
+    thumb: 2, rating: 4.8,
+    desc: 'Hitung gaji, PPh 21 TER, dan BPJS otomatis; absensi GPS geofencing; pengajuan cuti & lembur mandiri.',
+    highlights: ['Payroll PPh 21 TER & BPJS', 'Absensi GPS + verifikasi wajah', 'Self-service cuti & lembur'],
+    problems: [
+      'Hitung gaji, lembur, dan potongan BPJS/pajak di Excel memakan 3–5 hari dan rawan salah.',
+      'Perubahan regulasi TER PPh 21 membingungkan tim HR.',
+      'Absensi mudah dititipkan dan birokrasi cuti berbasis kertas.'
+    ],
+    solutions: [
+      'Payroll engine otomatis yang menghasilkan slip gaji & rekap pajak.',
+      'Absensi selfie GPS geofencing dengan deteksi lokasi palsu.',
+      'Employee & Manager Self-Service untuk cuti, lembur, dan approval berjenjang.'
+    ],
+    features: [
+      { title: 'Kalkulasi PPh 21 TER & BPJS', desc: 'Perhitungan pajak & jaminan sosial sesuai aturan terbaru.' },
+      { title: 'Absensi GPS Geofencing', desc: 'Clock-in hanya di radius lokasi kerja, lengkap dengan foto.' },
+      { title: 'Cuti, Izin & Lembur Mandiri', desc: 'Saldo cuti tervalidasi otomatis, approval 1-klik.' },
+      { title: 'HR Analytics', desc: 'Turnover, biaya SDM per departemen, dan tren kehadiran.' }
+    ]
+  },
+  {
+    id: 'cultiva', name: 'Cultiva', vendor: 'partner_agro', category: 'agro', color: '#1BA37A',
+    tagline: 'Budidaya & Penjualan', sector: 'Perkebunan & Agrobisnis',
+    onboarding: 25000000, monthly: 12500000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
+    thumb: 2, rating: 4.8,
+    desc: 'Kendalikan COGS per blok kebun, pantau lahan dengan sensor IoT, dan kelola rantai penjualan hingga ke buyer.',
+    highlights: ['Kontrol COGS per blok', 'Monitoring IoT lahan', 'Traceability & sales order'],
+    problems: [
+      'Biaya pupuk, obat, dan tenaga harian tidak sinkron dengan hasil panen sehingga COGS bocor.',
+      'Monitoring kelembapan tanah masih mengandalkan patroli manual.',
+      'Estimasi panen meleset dari komitmen buyer.'
+    ],
+    solutions: [
+      'Pengendalian HPP per blok lahan, termasuk saprotan & tenaga kerja.',
+      'Integrasi sensor IoT & ambang batas alert untuk deteksi dini.',
+      'Batch traceability, CRM buyer, sales order, dan invoice dalam satu sistem.'
+    ],
+    features: [
+      { title: 'Pengendalian COGS per Blok', desc: 'Rencana vs realisasi biaya per komoditas dan area.' },
+      { title: 'Monitoring IoT & Telemetri', desc: 'Sensor kelembapan, curah hujan, dan log alert.' },
+      { title: 'Aktivitas Budidaya & Mandor', desc: 'Laporan lapangan via HP lengkap dengan foto bukti.' },
+      { title: 'Kemitraan Plasma & Penjualan', desc: 'Bagi hasil transparan, sales pipeline, dan invoice.' }
+    ]
+  },
+  {
+    id: 'digisale', name: 'DigiSale', vendor: 'abp', category: 'retail', color: '#D98B2B',
+    tagline: 'POS Toko & Head Office', sector: 'Retail & Toko Multi-Cabang',
+    onboarding: 7500000, monthly: 750000, unit: 'Toko', unitLabel: 'Per Toko/Bulan',
+    thumb: 2, rating: 4.7,
+    desc: 'Kasir offline-first yang tetap jalan saat internet mati, kontrol kasbon pelanggan, konversi satuan grosir–eceran, dan dashboard head office.',
+    highlights: ['Kasir tetap jalan tanpa internet', 'Kontrol kasbon & piutang', 'Multi-cabang dari head office'],
+    problems: [
+      'Catatan kasbon pelanggan di buku saku sering lupa ditagih.',
+      'Kasir cloud biasa berhenti saat internet mati sehingga pembeli antre.',
+      'Konversi satuan Dus→Pcs atau Sak→Kg membuat stok selisih.'
+    ],
+    solutions: [
+      'Manajemen piutang dengan batas kredit dan pengingat jatuh tempo.',
+      'Arsitektur offline-first yang otomatis sinkron saat online.',
+      'Konversi satuan bertingkat dan monitoring stok semua cabang.'
+    ],
+    features: [
+      { title: 'Arsitektur Offline-First', desc: 'Jualan tanpa koneksi, data tersinkron otomatis.' },
+      { title: 'Kasbon & Piutang', desc: 'Limit kredit, histori bayar, dan pengingat jatuh tempo.' },
+      { title: 'Konversi Satuan Bertingkat', desc: 'Jual per sak, kg, dus, atau pcs tanpa selisih stok.' },
+      { title: 'Head Office Multi-Cabang', desc: 'Omzet, laba, dan stok semua toko dari satu dashboard.' }
+    ]
+  },
+  {
+    id: 'servio', name: 'Servio', vendor: 'abp', category: 'service', color: '#1F9E6D',
+    tagline: 'Penjadwalan Teknisi Pest Control', sector: 'Jasa Kebersihan & Pest Control',
+    onboarding: 7500000, monthly: 100000, unit: 'User', unitLabel: 'Per User/Bulan',
+    thumb: 3, rating: 4.8, defaultQty: 5,
+    desc: 'Penjadwalan teknisi bebas bentrok, monitoring target kunjungan kontrak, aplikasi lapangan offline, dan portal klien.',
+    highlights: ['Jadwal teknisi bebas bentrok', 'Warning SLA kontrak', 'Foto bukti & TTD digital'],
+    problems: [
+      'Kunjungan rutin terlewat tanpa disadari sehingga klien komplain.',
+      'Teknisi tidak membawa bukti foto & tanda tangan pelanggan yang sah.',
+      'Sulit mengelola jadwal banyak cabang dan rute harian tim.'
+    ],
+    solutions: [
+      'Monitoring pemenuhan kontrak dengan peringatan dini H-7.',
+      'Aplikasi mobile teknisi: checklist, foto sebelum/sesudah, TTD digital, offline.',
+      'Web admin multi-cabang dan invoice otomatis dari pekerjaan terverifikasi.'
+    ],
+    features: [
+      { title: 'Kalender Dispatch', desc: 'Alokasi tim per zona dan pencegahan jadwal bentrok.' },
+      { title: 'Kontrak & Target Layanan', desc: 'Kuota kunjungan per bulan dan masa berlaku kontrak.' },
+      { title: 'Aplikasi Teknisi Offline', desc: 'Laporan, foto, geotagging, dan TTD klien.' },
+      { title: 'Portal Klien & Invoicing', desc: 'Klien unduh berita acara; tagihan terbit otomatis.' }
+    ]
+  },
+  {
+    id: 'ledgery', name: 'Ledgery', vendor: 'abp', category: 'enterprise', color: '#0EA5E9',
+    tagline: 'Jurnal s.d. Laporan Keuangan', sector: 'Akuntansi & Keuangan',
+    onboarding: 2500000, monthly: 750000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
+    thumb: 0, rating: 4.7,
+    desc: 'Accounting engine multi-tenant: jurnal manual & via API, buku besar, neraca, laba rugi, arus kas, dan rekap pajak dasar.',
+    highlights: ['Jurnal manual & via API', 'Neraca, Laba Rugi, Arus Kas', 'Auto-post atau approval'],
+    problems: [
+      'Transaksi dari aplikasi kasir, payroll, dan operasional tidak tersambung ke pembukuan.',
+      'Laporan keuangan baru tersedia setelah rekap manual akhir bulan.',
+      'Tidak ada kontrol review sebelum jurnal masuk buku besar.'
+    ],
+    solutions: [
+      'API per tenant untuk menerima jurnal dari aplikasi mana pun, dengan nomor voucher otomatis.',
+      'Laporan keuangan standar tersedia kapan saja.',
+      'Kebijakan posting fleksibel: Auto-Post atau Approval Manual dengan audit trail.'
+    ],
+    features: [
+      { title: 'Chart of Accounts per Tenant', desc: 'Aset, Liabilitas, Ekuitas, Pendapatan, Beban.' },
+      { title: 'Jurnal & Buku Besar', desc: 'Validasi balance, jurnal penyesuaian & tutup buku.' },
+      { title: 'Laporan Keuangan', desc: 'Neraca, Laba Rugi, Arus Kas, dan Neraca Saldo.' },
+      { title: 'Integrasi API Ber-versi', desc: 'Satu tenant dapat menerima jurnal dari banyak aplikasi.' }
+    ]
+  },
+  {
+    id: 'qrgen', name: 'QRGen', vendor: 'abp', category: 'utility', color: '#10B981',
+    tagline: 'QR Code Generator', sector: 'Utilitas Gratis',
+    onboarding: 0, monthly: 0, unit: 'Akun', unitLabel: 'Gratis', free: true,
+    thumb: 0, rating: 4.9,
+    desc: 'Buat QR Code resolusi tinggi dari URL apa pun, unduh PNG, atau cetak langsung. Gratis tanpa batas.',
+    highlights: ['100% gratis', 'Unduh PNG resolusi tinggi', 'Cetak langsung'],
+    problems: [
+      'Generator QR online sering berbayar, memasang watermark, atau penuh iklan.',
+      'Hasil QR resolusi rendah sulit dipindai saat dicetak.'
+    ],
+    solutions: [
+      'Generator QR gratis tanpa watermark dan tanpa batas kuota.',
+      'Error correction level H dan ekspor PNG dengan margin rapi.'
+    ],
+    features: [
+      { title: 'Instan & Client-Side', desc: 'QR langsung muncul saat Anda mengetik URL.' },
+      { title: 'Unduh PNG', desc: 'Latar putih bersih, siap ditempel di desain.' },
+      { title: 'Cetak Langsung', desc: 'Mode print untuk meja kasir, gudang, atau pengumuman.' },
+      { title: 'Koreksi Kesalahan Tinggi', desc: 'Tetap terbaca meski dicetak kecil.' }
+    ]
+  },
+  {
+    id: 'eklesia', name: 'CMS Eklesia', vendor: 'abp', category: 'community', color: '#E8862B',
+    tagline: 'Manajemen Gereja', sector: 'Keagamaan / Gereja',
+    onboarding: 12000000, monthly: 1400000, unit: 'Gereja', unitLabel: 'Per Gereja/Bulan',
+    thumb: 1, rating: 4.9,
+    desc: 'Data jemaat & penggembalaan, keuangan persembahan multi-kantong, jadwal pelayan, presensi, komsel, dan aplikasi jemaat.',
+    highlights: ['Keuangan persembahan transparan', 'Kartu jemaat & lawatan', 'Jadwal pelayan bebas bentrok'],
+    problems: [
+      'Pencatatan persembahan dan persepuluhan rawan selisih antara majelis dan pengurus.',
+      'Data jemaat tercecer sehingga gembala sulit memantau jemaat yang butuh kunjungan.',
+      'Jadwal pelayan ibadah sering bentrok atau lupa dikonfirmasi.'
+    ],
+    solutions: [
+      'Keuangan multi-kategori dengan laporan kas otomatis untuk rapat majelis.',
+      'Database penggembalaan dengan pengingat ulang tahun & deteksi absen beruntun.',
+      'Penjadwalan pelayan dengan pengingat H-3 dan H-1.'
+    ],
+    features: [
+      { title: 'Dashboard Pelayanan', desc: 'Statistik jemaat, kehadiran, dan persembahan.' },
+      { title: 'Keuangan & Persembahan', desc: 'Persepuluhan, pembangunan, diakonia, QRIS/transfer.' },
+      { title: 'Presensi & Komsel', desc: 'Presensi QR dan pelaporan kelompok sel.' },
+      { title: 'Aplikasi Jemaat', desc: 'Renungan, warta, permohonan doa, kartu anggota digital.' }
+    ]
+  },
+  {
+    id: 'akadex', name: 'Akadex', vendor: 'partner_edu', category: 'edu', color: '#6366F1',
+    tagline: 'Sistem Akademik Perguruan Tinggi', sector: 'Perguruan Tinggi',
+    onboarding: 18000000, monthly: 2750000, unit: 'Perguruan Tinggi', unitLabel: 'Per PT/Bulan',
+    thumb: 0, rating: 4.8,
+    desc: 'SIAKAD multi-tenant untuk kampus kecil–menengah: KRS, presensi, nilai & KHS, tagihan SPP, dan sinkronisasi Neo Feeder PDDIKTI.',
+    highlights: ['KRS online & perwalian', 'Nilai, DPNA, EDOM & KHS', 'Sinkronisasi Neo Feeder PDDIKTI'],
+    problems: [
+      'SIAKAD enterprise terlalu mahal untuk sekolah tinggi kecil.',
+      'Data akademik masih dikelola di Excel dan kertas.',
+      'Pelaporan PDDIKTI memakan waktu karena data harus disiapkan ulang.'
+    ],
+    solutions: [
+      'Langganan terjangkau dengan implementasi dalam hitungan hari.',
+      'Siklus semester lengkap: tahun akademik, KRS, presensi, nilai, KHS.',
+      'Validasi & sinkronisasi Neo Feeder langsung dari sistem.'
+    ],
+    features: [
+      { title: 'Portal Multi-Peran', desc: 'Admin akademik, keuangan, dosen, mahasiswa, pimpinan.' },
+      { title: 'KRS & Perwalian', desc: 'Validasi SKS, prasyarat, bentrok jadwal, approval Dosen PA.' },
+      { title: 'Keuangan Mahasiswa', desc: 'Tagihan SPP massal, verifikasi kasir, kwitansi PDF.' },
+      { title: 'Integrasi PDDIKTI', desc: 'Pre-validasi data dan push ke Neo Feeder.' }
+    ]
+  },
+  {
+    id: 'rtnet', name: 'RTnet', vendor: 'abp', category: 'community', color: '#C7973F',
+    tagline: 'Aplikasi Pengurus & Warga RT', sector: 'Komunitas RT/RW',
+    onboarding: 2500000, monthly: 150000, unit: 'RT', unitLabel: 'Per RT/Bulan',
+    thumb: 3, rating: 4.8,
+    desc: 'Iuran warga transparan, surat pengantar digital, dan data warga yang aman saat pergantian pengurus.',
+    highlights: ['Iuran & kas transparan', 'Surat pengantar digital', 'Serah terima pengurus mudah'],
+    problems: [
+      'Buku iuran sering terselip, rawan salah hitung, dan menagih pintu ke pintu kurang nyaman.',
+      'Warga butuh surat pengantar mendadak saat Pak RT tidak di rumah.',
+      'Data warga dan catatan kas hilang saat pergantian pengurus.'
+    ],
+    solutions: [
+      'Warga bayar iuran dari HP, bendahara verifikasi 1-klik, laporan kas terbuka.',
+      'Surat pengantar diajukan online dan disetujui RT secara digital.',
+      'Data KK & kas tersimpan di cloud dan pindah utuh ke pengurus baru.'
+    ],
+    features: [
+      { title: 'Aplikasi Warga', desc: 'Tagihan, upload bukti transfer, ajukan surat.' },
+      { title: 'Modul Bendahara', desc: 'Verifikasi pembayaran dan buku kas otomatis.' },
+      { title: 'Modul Ketua RT', desc: 'Approval surat, data KK, dan manajemen pengurus.' },
+      { title: 'Laporan Transparan', desc: 'Rekap kas siap dibagikan ke grup warga.' }
+    ]
+  },
+  {
+    id: 'bengkelio', name: 'BengkelIO', vendor: 'partner_sme', category: 'retail', color: '#F97316',
+    tagline: 'Aplikasi Bengkel Kecil', sector: 'Bengkel Motor & Mobil',
+    onboarding: 1000000, monthly: 150000, unit: 'Bengkel', unitLabel: 'Per Bengkel/Bulan',
+    thumb: 0, rating: 4.7,
+    desc: 'Work order servis, kasir, stok sparepart, riwayat kendaraan per plat, dan cetak struk thermal dari HP.',
+    highlights: ['Transaksi servis < 1 menit', 'Cetak struk thermal dari HP', 'Bisa dipakai offline'],
+    problems: [
+      'Nota tulis tangan membuat riwayat servis kendaraan tidak tercatat.',
+      'Stok sparepart selisih atau habis tanpa disadari.',
+      'Omzet dan laba sulit direkap.'
+    ],
+    solutions: [
+      'Cari plat nomor untuk melihat riwayat servis dan KM terakhir.',
+      'Stok sparepart terpotong otomatis dengan peringatan stok minimum.',
+      'Dashboard omzet, laba kotor, piutang, dan kinerja mekanik.'
+    ],
+    features: [
+      { title: 'Work Order Servis', desc: 'Status Antri → Dikerjakan → Selesai → Dibayar.' },
+      { title: 'Kasir & Jual Cepat', desc: 'Tunai, transfer, QRIS statis, atau hutang.' },
+      { title: 'Struk Thermal 58/80mm', desc: 'Bluetooth, cetak browser, atau bagikan PDF ke WhatsApp.' },
+      { title: 'Offline & Sinkronisasi', desc: 'Tetap jalan saat sinyal jelek.' }
+    ]
+  },
+  {
+    id: 'kiosio', name: 'KiosIO', vendor: 'partner_sme', category: 'retail', color: '#8B5CF6',
+    tagline: 'Aplikasi Kios HP', sector: 'Kios & Konter Handphone',
+    onboarding: 1500000, monthly: 350000, unit: 'Kios', unitLabel: 'Per Kios/Bulan',
+    thumb: 0, rating: 4.8,
+    desc: 'Jual HP & aksesoris, beli HP bekas/trade-in, tiket servis, stok per IMEI, serta pulsa & PPOB dalam satu aplikasi.',
+    highlights: ['Stok HP per IMEI', 'Trade-in dengan checklist', 'Servis + pulsa & PPOB'],
+    problems: [
+      'Stok HP dicatat sebagai jumlah saja padahal tiap unit beda IMEI, kondisi, dan modal.',
+      'Beli HP bekas berisiko: IMEI diblokir, barang curian, kondisi tidak sesuai.',
+      'Status servis tidak jelas dan laba sulit dihitung.'
+    ],
+    solutions: [
+      'Pelacakan unit per IMEI dengan harga modal dan status masing-masing.',
+      'Wizard pembelian dengan checklist pemeriksaan dan cek duplikat IMEI.',
+      'Tiket servis dengan QR tracking dan laporan laba per transaksi.'
+    ],
+    features: [
+      { title: 'POS HP & Aksesoris', desc: 'Scan IMEI/barcode, garansi toko tercetak di struk.' },
+      { title: 'Beli dari Pelanggan', desc: 'Checklist unit, bukti pembelian, kas keluar otomatis.' },
+      { title: 'Tiket Servis', desc: 'Status, sparepart, garansi servis, notifikasi pelanggan.' },
+      { title: 'Pulsa, Data & PPOB', desc: 'Produk digital langsung dari layar kasir.' }
+    ]
+  }
+];
+
+const BILLING_PERIODS = [
+  { months: 1, label: '1 Bulan' },
+  { months: 3, label: '3 Bulan' },
+  { months: 6, label: '6 Bulan' },
+  { months: 12, label: '12 Bulan' }
+];
+
+let productsContent = {};
+let leadsData = [];
+let mpState = { search: '', category: 'all', vendor: 'all', sort: 'featured' };
+let selectedPayment = 'transfer';
+
+/* ==========================================
+ * UTIL
+ * ========================================== */
+const rupiah = (n) => 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
+const getProduct = (id) => PRODUCTS.find(p => p.id === id);
+const getVendor = (p) => VENDORS[p.vendor] || { name: p.vendor, verified: false };
+
+function escapeHtml(text) {
+  if (text === undefined || text === null) return '';
+  return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+}
+
+function productImages(p) {
+  return (productsContent[p.id] && productsContent[p.id].images) || [];
+}
+
+function productThumb(p) {
+  const imgs = productImages(p);
+  return imgs[p.thumb] || imgs[0] || '';
+}
+
+function showToast(msg) {
+  const c = document.getElementById('toast-container');
+  if (!c) return;
+  const t = document.createElement('div');
+  t.className = 'toast-item';
+  t.innerHTML = `✓ ${escapeHtml(msg)}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+/* ==========================================
+ * INIT & ROUTER
+ * ========================================== */
 document.addEventListener('DOMContentLoaded', async () => {
   setupNavigation();
   await loadProductContentData();
-  await refreshLeadsData();
+  updateCartBadge();
   handleRouting();
   window.addEventListener('hashchange', handleRouting);
 });
 
-// ESC Key & Backdrop Click Handlers
-window.handleBackdropClick = function(event) {
-  if (event.target.classList.contains('modal-backdrop')) {
-    closeImageModal();
-    closeDemoModal();
-    closeInvestorModal();
-  }
-};
-
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    closeImageModal();
-    closeDemoModal();
-    closeInvestorModal();
+    closeImageModal(); closeDemoModal(); closeVendorModal(); closeCartDrawer();
   }
 });
 
-// Load extracted JSON if available
+window.handleBackdropClick = function (event) {
+  if (event.target.classList.contains('modal-backdrop')) {
+    closeImageModal(); closeDemoModal(); closeVendorModal();
+  }
+};
+
 async function loadProductContentData() {
   try {
     const res = await fetch('assets/products_content.json');
-    if (res.ok) {
-      productsContent = await res.json();
-    }
+    if (res.ok) productsContent = await res.json();
   } catch (err) {
-    console.warn('Using metadata fallback:', err);
+    console.warn('products_content.json tidak dapat dimuat:', err);
   }
 }
 
-// Fetch Leads Data for Admin
-async function refreshLeadsData() {
-  try {
-    const res = await fetch('/api/leads');
-    if (res.ok) {
-      leadsData = await res.json();
-    } else {
-      leadsData = JSON.parse(localStorage.getItem('abp_leads_backup') || '[]');
-    }
-  } catch (err) {
-    leadsData = JSON.parse(localStorage.getItem('abp_leads_backup') || '[]');
-  }
-  updateLeadBadgeCount();
-}
-
-function updateLeadBadgeCount() {
-  const badge = document.getElementById('lead-count-badge');
-  if (badge) {
-    badge.textContent = leadsData.length;
-  }
-}
-
-// Navigation & Mobile Menu Handler
 function setupNavigation() {
   const toggle = document.getElementById('mobile-toggle');
   const links = document.getElementById('nav-links');
-  
-  if (toggle && links) {
-    toggle.addEventListener('click', () => links.classList.toggle('open'));
-  }
-
-  document.querySelectorAll('.dropdown-menu a').forEach(item => {
-    item.addEventListener('click', () => {
-      if (links) links.classList.remove('open');
-    });
-  });
+  if (toggle && links) toggle.addEventListener('click', () => links.classList.toggle('open'));
+  document.querySelectorAll('#nav-links a').forEach(a => a.addEventListener('click', () => links && links.classList.remove('open')));
 }
 
-// SPA Router
 function handleRouting() {
   const hash = window.location.hash || '#home';
-  const appView = document.getElementById('app-view');
-  
-  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-  
-  if (hash === '#home' || hash === '') {
-    const homeNav = document.querySelector('[data-route="home"]');
-    if (homeNav) homeNav.classList.add('active');
-    renderHomePage(appView);
-  } else if (hash.startsWith('#produk/')) {
-    const productId = hash.replace('#produk/', '');
-    renderProductPage(appView, productId);
-  } else if (hash === '#investor') {
-    const invNav = document.querySelector('[data-route="investor"]');
-    if (invNav) invNav.classList.add('active');
-    renderInvestorPage(appView);
-  } else if (hash === '#kemitraan') {
-    const kamNav = document.querySelector('[data-route="kemitraan"]');
-    if (kamNav) kamNav.classList.add('active');
-    renderPartnershipPage(appView);
-  } else if (hash === '#kontak') {
-    const konNav = document.querySelector('[data-route="kontak"]');
-    if (konNav) konNav.classList.add('active');
-    renderContactPage(appView);
-  } else if (hash === '#admin') {
-    const admNav = document.querySelector('[data-route="admin"]');
-    if (admNav) admNav.classList.add('active');
-    renderAdminPage(appView);
-  } else {
-    renderHomePage(appView);
-  }
+  const view = document.getElementById('app-view');
+  const route = hash.replace('#', '').split('/')[0] || 'home';
+
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.route === route));
+
+  if (hash.startsWith('#produk/')) renderProductPage(view, hash.replace('#produk/', ''));
+  else if (hash.startsWith('#invoice/')) renderInvoicePage(view, decodeURIComponent(hash.replace('#invoice/', '')));
+  else if (route === 'pricelist') renderPricelistPage(view);
+  else if (route === 'vendor') renderVendorPage(view);
+  else if (route === 'kontak') renderContactPage(view);
+  else if (route === 'checkout') renderCheckoutPage(view);
+  else if (route === 'admin') renderAdminPage(view);
+  else renderHomePage(view);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* ==========================================
- * LEAD SUBMISSION & LOGGING ENGINE
+ * CART (localStorage)
  * ========================================== */
+function getCart() {
+  try { return JSON.parse(localStorage.getItem('abp_cart') || '[]'); } catch { return []; }
+}
 
-async function recordLeadSubmission(leadData) {
-  const dateObj = new Date();
-  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-  const formattedTime = dateObj.toLocaleDateString('id-ID', options) + ' WIB';
+function saveCart(cart) {
+  localStorage.setItem('abp_cart', JSON.stringify(cart));
+  updateCartBadge();
+  renderCartDrawer();
+}
 
-  leadData.timestamp = formattedTime;
+function lineTotals(item) {
+  const p = getProduct(item.id);
+  if (!p) return { onboarding: 0, subscription: 0, total: 0 };
+  const onboarding = item.onboarding ? p.onboarding : 0;
+  const subscription = p.monthly * item.qty * item.months;
+  return { onboarding, subscription, total: onboarding + subscription };
+}
 
-  const existingBackup = JSON.parse(localStorage.getItem('abp_leads_backup') || '[]');
-  existingBackup.unshift(leadData);
-  localStorage.setItem('abp_leads_backup', JSON.stringify(existingBackup));
+function cartTotals(cart = getCart()) {
+  return cart.reduce((acc, item) => {
+    const t = lineTotals(item);
+    acc.onboarding += t.onboarding;
+    acc.subscription += t.subscription;
+    acc.total += t.total;
+    return acc;
+  }, { onboarding: 0, subscription: 0, total: 0 });
+}
 
-  try {
-    await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(leadData)
-    });
-  } catch (err) {
-    console.warn('API POST error, saved locally:', err);
+window.addToCart = function (id, opts = {}) {
+  const p = getProduct(id);
+  if (!p) return;
+  const cart = getCart();
+  const existing = cart.find(i => i.id === id);
+  const qty = Math.max(1, parseInt(opts.qty || p.defaultQty || 1, 10));
+  const months = parseInt(opts.months || 1, 10);
+  const onboarding = opts.onboarding !== undefined ? !!opts.onboarding : !p.free;
+
+  if (existing) {
+    Object.assign(existing, { qty, months, onboarding });
+  } else {
+    cart.push({ id, qty, months, onboarding });
   }
+  saveCart(cart);
+  showToast(`${p.name} ditambahkan ke keranjang`);
+  if (opts.openDrawer !== false) openCartDrawer();
+};
 
-  await refreshLeadsData();
+window.buyNow = function (id, opts = {}) {
+  addToCart(id, { ...opts, openDrawer: false });
+  window.location.hash = '#checkout';
+};
+
+window.removeFromCart = function (id) {
+  saveCart(getCart().filter(i => i.id !== id));
+  if (location.hash === '#checkout') renderCheckoutPage(document.getElementById('app-view'));
+};
+
+window.updateCartItem = function (id, field, value) {
+  const cart = getCart();
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  if (field === 'qty') item.qty = Math.max(1, parseInt(value, 10) || 1);
+  if (field === 'months') item.months = parseInt(value, 10) || 1;
+  if (field === 'onboarding') item.onboarding = !!value;
+  saveCart(cart);
+  if (location.hash === '#checkout') renderCheckoutSummary();
+};
+
+function updateCartBadge() {
+  const badge = document.getElementById('cart-count-badge');
+  if (badge) badge.textContent = getCart().length;
 }
 
-/* ==========================================
- * VIEW RENDERERS
- * ========================================== */
+window.openCartDrawer = function () {
+  renderCartDrawer();
+  document.getElementById('cart-drawer-backdrop').classList.add('open');
+};
+window.closeCartDrawer = function () {
+  const el = document.getElementById('cart-drawer-backdrop');
+  if (el) el.classList.remove('open');
+};
+window.toggleCartDrawer = function () {
+  const el = document.getElementById('cart-drawer-backdrop');
+  el.classList.contains('open') ? closeCartDrawer() : openCartDrawer();
+};
+window.handleCartBackdropClick = function (e) {
+  if (e.target.id === 'cart-drawer-backdrop') closeCartDrawer();
+};
 
-// 1. HOMEPAGE (MARKETPLACE SAAS PRIMER DI INDONESIA)
-function renderHomePage(container) {
-  container.innerHTML = `
-    <section class="hero">
-      <div class="wrap">
-        <div class="hero-eyebrow"><span class="rule"></span> PT. Anugerah Bakti Prima</div>
-        <h1>Marketplace SaaS Pertama di Indonesia</h1>
-        <p class="lede">PT. Anugerah Bakti Prima (ABP) menyediakan ekosistem aplikasi <strong>SaaS (Software-as-a-Service)</strong> berlangganan siap pakai untuk sektor institusi, operasional lapangan, dan bisnis di Indonesia.</p>
-        
-        <div class="hero-cta">
-          <a href="#produk/rtnet" class="btn btn-primary">Jelajahi 7 Produk SaaS Siap Pakai</a>
-          <a href="#investor" class="btn btn-ghost">Tesis Investasi OPEX vs CAPEX →</a>
-        </div>
-
-        <div class="hero-stats">
-          <div class="stat"><b>7</b><span>Produk SaaS Berlangganan</span></div>
-          <div class="stat"><b>0 Rupiah</b><span>Biaya Modal Awal (Zero CAPEX)</span></div>
-          <div class="stat"><b>100% OPEX</b><span>Biaya Operasional Rutin Terprediksi</span></div>
-          <div class="stat"><b>Instant</b><span>Waktu Implementasi Siap Pakai</span></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- KENAPA SAAS & OPEX VS CAPEX SECTION -->
-    <section id="opex-vs-capex">
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Keunggulan Model Bisnis</div>
-            <h2>Mengapa SaaS & Model OPEX Jauh Lebih Menguntungkan?</h2>
-          </div>
-          <p class="sub">Mengapa harus membeli lisensi mahal di awal jika Anda bisa berlangganan aplikasi siap pakai yang selalu diperbarui?</p>
-        </div>
-
-        <div class="problem-solution-grid" style="margin-top:0;">
-          <div class="ps-card problem">
-            <h3>❌ Risiko Model Komputerisasi Lama (CAPEX)</h3>
-            <ul>
-              <li><strong>Investasi Awal Sangat Mahal (High CAPEX)</strong>: Harus membeli server fisik, lisensi perangkat lunak seumur hidup, dan infrastruktur Jaringan di awal.</li>
-              <li><strong>Risiko Software Usang & Terbengkalai</strong>: Sistem yang dibeli mahal sering tidak diperbarui lagi saat regulasi bisnis atau aturan pemerintah berubah.</li>
-              <li><strong>Biaya Tim IT Maintenance Internal</strong>: Wajib merekrut dan membiayai tim teknis internal hanya untuk perawatan rutin server.</li>
-              <li><strong>Waktu Implementasi Berbulan-bulan</strong>: Proses pengadaan dan custom development memakan waktu lama sebelum bisa dipakai.</li>
-            </ul>
-          </div>
-
-          <div class="ps-card solution">
-            <h3>✅ Keuntungan Sistem SaaS ABP (OPEX)</h3>
-            <ul>
-              <li><strong>Tanpa Biaya Modal Awal (Zero Upfront CAPEX)</strong>: Langsung menggunakan aplikasi tanpa beban investasi pembelian server atau server room.</li>
-              <li><strong>Biaya Operasional Terprediksi (Flexible OPEX)</strong>: Berlangganan sesuai skala usaha (Pay-as-you-grow) dan dapat dicatat langsung sebagai biaya operasional rutin.</li>
-              <li><strong>Pembaruan & Perawatan Gratis (Free Updates)</strong>: Selalu mendapatkan fitur terbaru dan penyesuaian regulasi secara otomatis tanpa biaya maintenance tambahan.</li>
-              <li><strong>Langsung Beroperasi (Instant Time-to-Value)</strong>: Aplikasi siap pakai dalam hitungan menit dari browser atau smartphone mana saja.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- INTERACTIVE PORTFOLIO MATRIX -->
-    <section style="background:var(--paper-dim);">
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Katalog Produk SaaS</div>
-            <h2>7 Aplikasi SaaS Berlangganan ABP untuk Sektor Riil</h2>
-          </div>
-          <p class="sub">Klik pada setiap produk di bawah untuk melihat pratinjau antarmuka dan nilai tambah operasionalnya.</p>
-        </div>
-
-        <div class="matrix-tabs" id="matrix-tabs-container">
-          ${Object.keys(productMetadata).map((pid, idx) => {
-            const p = productMetadata[pid];
-            return `<button class="matrix-tab ${idx === 0 ? 'active' : ''}" onclick="switchMatrixTab('${pid}')">
-              <span style="width:8px;height:8px;border-radius:50%;background:${p.color};"></span>
-              ${p.name}
-            </button>`;
-          }).join('')}
-        </div>
-
-        <div id="matrix-card-target">
-          ${renderMatrixCardHTML('rtnet')}
-        </div>
-      </div>
-    </section>
-
-    <!-- INVESTOR & PARTNERSHIP CALLOUT -->
-    <section style="background:var(--ink); color:var(--paper);">
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label" style="color:var(--brass);"><span class="rule" style="background:var(--brass);"></span> Akselerasi Bisnis</div>
-            <h2 style="color:var(--paper);">Tumbuh bersama Marketplace SaaS ABP.</h2>
-          </div>
-          <p class="sub" style="color:rgba(246,244,236,0.7);">Kami membuka kolaborasi bagi investor yang ingin mendukung ekspansi SaaS di Indonesia serta mitra daerah untuk distribusi produk.</p>
-        </div>
-
-        <div class="partner-tracks" style="margin-top:0;">
-          <div class="track-card" style="background:rgba(246,244,236,0.05); border-color:var(--line-dark);">
-            <h3 style="color:var(--paper);">Bagi Investor Institusi & Angel</h3>
-            <p style="color:rgba(246,244,236,0.75);">Pelajari tesis pasar B2B/B2G SaaS untuk sektor riil Indonesia dan minta berkas Executive Summary portofolio ABP.</p>
-            <a href="#investor" class="btn btn-primary btn-sm">Buka Investor Hub →</a>
-          </div>
-          <div class="track-card" style="background:rgba(246,244,236,0.05); border-color:var(--line-dark);">
-            <h3 style="color:var(--paper);">Bagi Mitra Reseller & Integrator</h3>
-            <p style="color:rgba(246,244,236,0.75);">Dapatkan skema bagi hasil menarik dengan memasarkan produk SaaS ABP di kabupaten/kota Anda dengan pendampingan penuh.</p>
-            <a href="#kemitraan" class="btn btn-ghost btn-sm">Pelajari Skema Kemitraan →</a>
-          </div>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-function renderMatrixCardHTML(productId) {
-  const p = productMetadata[productId];
-  const images = (productsContent[productId] && productsContent[productId].images) || [];
-  const previewImg = images.length > 2 ? images[2] : (images[0] || '');
-
+function cartItemControlsHTML(item, compact = false) {
+  const p = getProduct(item.id);
+  const t = lineTotals(item);
+  if (p.free) {
+    return `<div style="font-size:13px; color:var(--emerald-dark); font-weight:700;">Produk gratis — aktivasi akun tanpa biaya</div>`;
+  }
   return `
-    <div class="matrix-card">
-      <div class="matrix-card-info">
-        <span class="sector-tag" style="color:${p.color};">${p.sector}</span>
-        <h3>${p.name}</h3>
-        <p><strong>${p.tagline}</strong> — ${p.heroDesc}</p>
-        <div style="display:flex; gap:14px; flex-wrap:wrap;">
-          <a href="#produk/${p.id}" class="btn btn-primary btn-sm">Jelajahi ${p.name} Selengkapnya →</a>
-          <button class="btn btn-outline btn-sm" onclick="openDemoModal('${p.name}')">Minta Demo ${p.name}</button>
-        </div>
+    <div class="field-row" style="gap:10px; margin-top:6px;">
+      <div class="field">
+        <label>Jumlah ${escapeHtml(p.unit)}</label>
+        <input type="number" min="1" value="${item.qty}" onchange="updateCartItem('${p.id}','qty',this.value)">
       </div>
-      <div class="matrix-card-preview" onclick="openImageModal('${previewImg}', '${p.name} Main Interface')">
-        ${previewImg ? `<img src="${previewImg}" alt="${p.name} Preview">` 
-          : `<div style="padding:60px; color:var(--ink-soft); font-weight:600;">Pratinjau Antarmuka ${p.name}</div>`}
-        <small style="display:block; margin-top:8px; opacity:0.6;">Klik gambar untuk memperbesar</small>
+      <div class="field">
+        <label>Periode Bayar</label>
+        <select onchange="updateCartItem('${p.id}','months',this.value)">
+          ${BILLING_PERIODS.map(b => `<option value="${b.months}" ${b.months === item.months ? 'selected' : ''}>${b.label}</option>`).join('')}
+        </select>
       </div>
     </div>
-  `;
+    <label style="display:flex; gap:8px; align-items:center; font-size:12.5px; margin-top:10px; cursor:pointer;">
+      <input type="checkbox" ${item.onboarding ? 'checked' : ''} onchange="updateCartItem('${p.id}','onboarding',this.checked)" style="accent-color:var(--primary);">
+      Onboarding & Migrasi Data (sekali bayar) — ${rupiah(p.onboarding)}
+    </label>
+    <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px;">
+      <span style="color:var(--ink-muted);">${rupiah(p.monthly)} × ${item.qty} ${escapeHtml(p.unit)} × ${item.months} bln</span>
+      <strong class="mono">${rupiah(t.total)}</strong>
+    </div>`;
 }
 
-window.switchMatrixTab = function(pid) {
-  document.querySelectorAll('.matrix-tab').forEach(t => t.classList.remove('active'));
-  event.target.closest('.matrix-tab').classList.add('active');
-  const target = document.getElementById('matrix-card-target');
-  if (target) target.innerHTML = renderMatrixCardHTML(pid);
-};
+function renderCartDrawer() {
+  const body = document.getElementById('cart-drawer-items');
+  const footer = document.getElementById('cart-drawer-footer');
+  if (!body || !footer) return;
+  const cart = getCart();
 
-// 2. PRODUCT DETAIL PAGE (PDP)
-function renderProductPage(container, productId) {
-  const p = productMetadata[productId];
-  if (!p) {
-    container.innerHTML = `<div class="wrap" style="padding:100px 0; text-align:center;"><h2>Produk tidak ditemukan</h2><a href="#home" class="btn btn-primary" style="margin-top:20px;">Kembali ke Beranda</a></div>`;
+  if (cart.length === 0) {
+    body.innerHTML = `
+      <div style="text-align:center; padding:60px 10px; color:var(--ink-muted);">
+        <div style="font-size:42px; margin-bottom:10px;">🛒</div>
+        <strong style="color:var(--ink);">Keranjang masih kosong</strong>
+        <p style="font-size:13.5px;">Jelajahi etalase dan pilih aplikasi SaaS yang Anda butuhkan.</p>
+        <a href="#home" class="btn btn-primary btn-sm" onclick="closeCartDrawer()">Lihat Etalase</a>
+      </div>`;
+    footer.innerHTML = '';
     return;
   }
 
-  const pContent = productsContent[productId] || {};
-  const images = pContent.images || [];
-  const pagesText = pContent.pages_text || [];
-  
-  const heroImg = images.length > 2 ? images[2] : (images[0] || '');
+  body.innerHTML = cart.map(item => {
+    const p = getProduct(item.id);
+    if (!p) return '';
+    return `
+      <div class="cart-item-card">
+        <div class="cart-item-top">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="dd-dot" style="background:${p.color};"></span>
+              <strong>${escapeHtml(p.name)}</strong>
+            </div>
+            <small style="color:var(--ink-light);">${escapeHtml(p.tagline)} · ${escapeHtml(getVendor(p).name)}</small>
+          </div>
+          <button class="cart-item-remove" onclick="removeFromCart('${p.id}')">Hapus</button>
+        </div>
+        ${cartItemControlsHTML(item)}
+      </div>`;
+  }).join('');
+
+  const t = cartTotals(cart);
+  footer.innerHTML = `
+    <div class="buy-breakdown" style="background:#fff; border:1px solid var(--line);">
+      <div class="buy-breakdown-row"><span>Onboarding & Migrasi</span><span class="mono">${rupiah(t.onboarding)}</span></div>
+      <div class="buy-breakdown-row"><span>Langganan Cloud</span><span class="mono">${rupiah(t.subscription)}</span></div>
+      <div class="buy-breakdown-total"><span>Total</span><span class="mono">${rupiah(t.total)}</span></div>
+    </div>
+    <a href="#checkout" class="btn btn-primary full-width" onclick="closeCartDrawer()">Lanjut ke Checkout →</a>`;
+}
+
+/* ==========================================
+ * 1. ETALASE (HOME)
+ * ========================================== */
+function renderHomePage(container) {
+  const paidCount = PRODUCTS.filter(p => !p.free).length;
+  const minMonthly = Math.min(...PRODUCTS.filter(p => !p.free).map(p => p.monthly));
+  const vendorCount = Object.keys(VENDORS).length;
 
   container.innerHTML = `
-    <section class="pdp-hero">
-      <div class="wrap">
-        <div class="pdp-hero-grid">
-          <div>
-            <div class="pdp-badge" style="border-left: 3px solid ${p.color};">
-              <span style="width:8px;height:8px;border-radius:50%;background:${p.color};"></span>
-              ${p.sector}
-            </div>
-            <h1>${p.name}</h1>
-            <div class="tagline">${p.tagline}</div>
-            <p style="max-width:54ch; font-size:17.5px; color:rgba(246,244,236,0.8); margin-bottom:32px;">${p.heroDesc}</p>
-            <div style="display:flex; gap:16px; flex-wrap:wrap;">
-              <button class="btn btn-primary" onclick="openDemoModal('${p.name}')">Minta Demo & Penawaran ${p.name} →</button>
-              <a href="#home" class="btn btn-ghost">← Portofolio Produk Lainnya</a>
-            </div>
-          </div>
-
-          ${heroImg ? `
-            <div class="pdp-hero-preview" onclick="openImageModal('${heroImg}', '${p.name} Main Interface')">
-              <img src="${heroImg}" alt="${p.name} Main Interface Screenshot">
-              <small style="display:block; margin-top:8px; color:rgba(246,244,236,0.7); font-size:12.5px;">🔍 Klik gambar untuk perbesar antarmuka ${p.name}</small>
-            </div>
-          ` : ''}
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Analisis Operasional</div>
-            <h2>Tantangan Sektor & Solusi ${p.name}</h2>
+    <section class="mp-hero">
+      <div class="wrap mp-hero-grid">
+        <div>
+          <div class="mp-eyebrow">● Marketplace SaaS Multi-Vendor Indonesia</div>
+          <h1>Temukan aplikasi <span>siap pakai</span> untuk instansi, kampus & bisnis Anda.</h1>
+          <p class="lede">Bandingkan fitur, lihat tampilan aplikasi, pilih jumlah lisensi, lalu checkout. Langganan cloud sudah termasuk maintenance, tanpa beli server.</p>
+          <div class="mp-hero-badges">
+            <span class="mp-trust-pill">☁️ Cloud + maintenance</span>
+            <span class="mp-trust-pill">🧾 Invoice resmi</span>
+            <span class="mp-trust-pill">🛠️ Onboarding & migrasi data</span>
+            <span class="mp-trust-pill">✅ Vendor terverifikasi</span>
           </div>
         </div>
-
-        <div class="problem-solution-grid">
-          <div class="ps-card problem">
-            <h3>⚠️ Kendala Operasional Saat Ini</h3>
-            <ul>
-              ${p.problems.map(item => `<li>${item}</li>`).join('')}
-            </ul>
+        <div class="mp-hero-card">
+          <div class="mp-hero-card-stats">
+            <div class="mp-stat-box"><b>${PRODUCTS.length}</b><span>Produk di etalase</span></div>
+            <div class="mp-stat-box"><b>${vendorCount}</b><span>Vendor terverifikasi</span></div>
+            <div class="mp-stat-box"><b>${rupiah(minMonthly).replace('Rp ', 'Rp')}</b><span>Langganan mulai /bulan</span></div>
+            <div class="mp-stat-box"><b>${paidCount} + 1</b><span>Berbayar + gratis</span></div>
           </div>
-
-          <div class="ps-card solution">
-            <h3>✅ Solusi Digital ${p.name}</h3>
-            <ul>
-              ${p.solutions.map(item => `<li>${item}</li>`).join('')}
-            </ul>
+          <div class="vendor-callout-Mini">
+            <span>Punya produk SaaS? Jual di marketplace ini.</span>
+            <a href="#vendor" class="btn btn-xs btn-primary">Jadi Vendor</a>
           </div>
         </div>
       </div>
     </section>
 
-    <section style="background:var(--paper-dim);">
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Fitur Utama</div>
-            <h2>Dirancang presisi untuk pengambil keputusan & tim lapangan.</h2>
+    <div class="wrap mp-toolbar-wrap">
+      <div class="mp-toolbar">
+        <div class="mp-search-row">
+          <div class="search-input-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="search" id="mp-search" placeholder="Cari aplikasi, mis. payroll, kasir, gereja, PDDIKTI..." value="${escapeHtml(mpState.search)}" oninput="onMpSearch(this.value)">
           </div>
+          <select class="mp-select" onchange="onMpVendor(this.value)">
+            <option value="all">Semua Vendor</option>
+            ${Object.values(VENDORS).map(v => `<option value="${v.id}" ${mpState.vendor === v.id ? 'selected' : ''}>${escapeHtml(v.name)}</option>`).join('')}
+          </select>
+          <select class="mp-select" onchange="onMpSort(this.value)">
+            <option value="featured" ${mpState.sort === 'featured' ? 'selected' : ''}>Urutkan: Unggulan</option>
+            <option value="price-asc" ${mpState.sort === 'price-asc' ? 'selected' : ''}>Harga bulanan termurah</option>
+            <option value="price-desc" ${mpState.sort === 'price-desc' ? 'selected' : ''}>Harga bulanan termahal</option>
+            <option value="name" ${mpState.sort === 'name' ? 'selected' : ''}>Nama A–Z</option>
+          </select>
         </div>
+        <div class="mp-category-pills">
+          ${CATEGORIES.map(c => `<button class="cat-pill ${mpState.category === c.id ? 'active' : ''}" onclick="onMpCategory('${c.id}')">${c.label}</button>`).join('')}
+        </div>
+      </div>
+    </div>
 
-        <div class="features-grid">
-          ${p.features.map(f => `
-            <div class="feature-card">
-              <h4>${f.title}</h4>
-              <p>${f.desc}</p>
-            </div>
-          `).join('')}
+    <section class="etalase-section">
+      <div class="wrap">
+        <div class="etalase-meta-bar">
+          <span class="etalase-count" id="etalase-count"></span>
+          <a href="#pricelist" class="btn btn-outline btn-sm">Bandingkan semua harga →</a>
         </div>
+        <div class="product-grid" id="product-grid"></div>
       </div>
     </section>
 
-    ${images.length > 0 ? `
-    <section>
+    <section style="padding:0 0 80px;">
       <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Galeri Antarmuka & Modul Operasional</div>
-            <h2>Screenshot Tangkapan Layar ${p.name} (${images.length} Slide)</h2>
-          </div>
-          <p class="sub">Klik pada masing-masing kartu slide untuk memperbesar dan mempelajari modul operasional.</p>
-        </div>
-
-        <div class="deck-gallery-grid">
-          ${images.map((imgUrl, i) => {
-            const pageTxt = pagesText[i] || '';
-            const firstLine = pageTxt.split('\n')[0] || `Modul Operasional Slide ${i+1}`;
-            const titleClean = firstLine.replace(/^[^\w]+/, '').trim();
-
-            return `
-              <div class="deck-card" onclick="openImageModal('${imgUrl}', '${p.name} — ${escapeHtml(titleClean)}')">
-                <div class="deck-img-wrap">
-                  <img src="${imgUrl}" alt="${p.name} Slide ${i+1}">
-                </div>
-                <div class="deck-card-info">
-                  <h4>Slide ${i+1}: ${escapeHtml(titleClean.substring(0, 45))}</h4>
-                  <span>🔍 Klik untuk perbesar tampilan</span>
-                </div>
-              </div>
-            `;
-          }).join('')}
+        <div class="content-panel" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px;">
+          ${[
+            ['1', 'Pilih Produk', 'Jelajahi etalase dan pelajari detail tiap aplikasi.'],
+            ['2', 'Atur Paket', 'Tentukan jumlah lisensi, periode bayar, dan onboarding.'],
+            ['3', 'Checkout', 'Isi data, pilih QRIS atau transfer, invoice terbit langsung.'],
+            ['4', 'Aktivasi', 'Tim kami menghubungi Anda untuk onboarding & migrasi data.']
+          ].map(s => `
+            <div style="display:flex; gap:12px;">
+              <div class="step-num-circle">${s[0]}</div>
+              <div><strong>${s[1]}</strong><p style="margin:2px 0 0; font-size:13.5px; color:var(--ink-muted);">${s[2]}</p></div>
+            </div>`).join('')}
         </div>
       </div>
-    </section>
-    ` : ''}
+    </section>`;
 
-    <section style="background:var(--paper-card); border-top:1px solid var(--line);">
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Alur Penggunaan</div>
-            <h2>3 Langkah Operasional ${p.name} di Lapangan</h2>
-          </div>
-        </div>
-
-        <div class="workflow-timeline">
-          ${p.workflow.map(wf => `
-            <div class="wf-step">
-              <div class="wf-num">${wf.num}</div>
-              <div class="wf-content">
-                <h4>${wf.title}</h4>
-                <p>${wf.desc}</p>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="roi-banner">
-          <div>
-            <h3>Dampak ROI & Keuntungan Bisnis</h3>
-            <p>${p.roi}</p>
-          </div>
-          <button class="btn btn-primary" onclick="openDemoModal('${p.name}')">Dapatkan Penawaran Khusus →</button>
-        </div>
-      </div>
-    </section>
-  `;
+  renderProductGrid();
 }
 
-// 3. INVESTOR HUB PAGE
-function renderInvestorPage(container) {
-  container.innerHTML = `
-    <section class="investor-hero">
-      <div class="wrap">
-        <div class="hero-eyebrow" style="color:var(--brass);"><span class="rule" style="background:var(--brass);"></span> Investor Relations & Tesis SaaS OPEX</div>
-        <h1>Tesis Investasi ABP: Marketplace SaaS Berbasis OPEX di Indonesia.</h1>
-        <p>Model bisnis SaaS berlangganan (OPEX) meniadakan hambatan modal awal bagi pembeli institusi, sekaligus menciptakan arus kas berulang (recurring revenue) yang stabil dengan retensi tinggi bagi holding ABP.</p>
-        <div style="display:flex; gap:16px; margin-top:32px; flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="openInvestorModal()">Minta Executive Pitch Deck & Financial Highlights →</button>
-          <a href="#kontak" class="btn btn-ghost">Diskusi dengan Management ABP</a>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Market Size & Opportunity</div>
-            <h2>Potensi Pasar SaaS Berulang (Recurring Revenue) di Indonesia</h2>
-          </div>
-        </div>
-
-        <div class="market-matrix">
-          <div class="market-card">
-            <h3>Rukun Tetangga & RW</h3>
-            <b>> 1.2 Juta RT/RW</b>
-            <p>Pasar pengurusan komunitas yang membutuhkan transparansi kas & digitalisasi surat pengantar warga (RTnet).</p>
-          </div>
-          <div class="market-card">
-            <h3>Gereja & Rumah Ibadah</h3>
-            <b>> 75.000 Gereja</b>
-            <p>Kebutuhan akuntabilitas dana persembahan dan efisiensi penjadwalan tim pelayanan & jemaat (Eklesia).</p>
-          </div>
-          <div class="market-card">
-            <h3>Instansi Pemerintah & BUMD</h3>
-            <b>> 500 Kab/Kota</b>
-            <p>Pencegahan penumpukan berkas disposisi dan percepatan alur naskah dinas elektronik (GovPly).</p>
-          </div>
-          <div class="market-card">
-            <h3>Agrobisnis & Perkebunan</h3>
-            <b>> 14 Juta Ha Lahan</b>
-            <p>Kebutuhan penguncian kebocoran biaya COGS dan monitoring presisi sensor IoT lahan panen (Cultiva).</p>
-          </div>
-          <div class="market-card">
-            <h3>HRIS & Perusahaan Menengah</h3>
-            <b>> 60 Juta Pekerja</b>
-            <p>Otomatisasi penggajian, absensi GPS geofencing, & kepatuhan aturan TER PPh 21 pajak terbaru (Rekan).</p>
-          </div>
-          <div class="market-card">
-            <h3>Jasa Lapangan & Retail</h3>
-            <b>> 4.5 Juta Toko</b>
-            <p>Pengelolaan kontrak kunjungan jasa kebersihan & pest control (Servio) & sistem kasir offline-first penahan piutang (DigiSale).</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section style="background:var(--paper-dim);">
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Sinergi Portofolio</div>
-            <h2>Mengapa Model Holding SaaS ABP Sangat Efisien?</h2>
-          </div>
-        </div>
-
-        <div class="synergy-list">
-          <div class="synergy-item">
-            <div>
-              <strong>Shared Engineering & Core Architecture</strong>
-              <p style="margin:4px 0 0; font-size:14px; opacity:0.75;">Arsitektur offline-first, tenant data isolation, dan modul pembayaran dikembangkan secara terpusat untuk 7 produk.</p>
-            </div>
-            <span style="font-weight:700; color:var(--brass-dim);">CAPEX Efficient</span>
-          </div>
-
-          <div class="synergy-item">
-            <div>
-              <strong>Cross-Selling & Regional Partner Network</strong>
-              <p style="margin:4px 0 0; font-size:14px; opacity:0.75;">Satu mitra reseller daerah dapat memasarkan RTnet, Eklesia, dan DigiSale POS sekaligus di wilayahnya.</p>
-            </div>
-            <span style="font-weight:700; color:var(--brass-dim);">Low CAC Scaling</span>
-          </div>
-
-          <div class="synergy-item">
-            <div>
-              <strong>High LTV / Low Churn Model</strong>
-              <p style="margin:4px 0 0; font-size:14px; opacity:0.75;">Aplikasi menjadi sistem inti operasional harian institusi sehingga menciptakan sticky usage dan arus kas berlangganan yang sehat.</p>
-            </div>
-            <span style="font-weight:700; color:var(--brass-dim);">High Retention</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-// 4. PARTNERSHIP PAGE
-function renderPartnershipPage(container) {
-  container.innerHTML = `
-    <section class="hero" style="padding:70px 0 50px;">
-      <div class="wrap">
-        <div class="hero-eyebrow"><span class="rule"></span> Program Kemitraan ABP</div>
-        <h1>Tumbuh dan berkembang bersama produk SaaS ABP.</h1>
-        <p class="lede">Kami membuka jalur kerja sama bagi individu, perusahaan daerah, maupun penyedia teknologi pendukung.</p>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap">
-        <div class="partner-tracks">
-          <div class="track-card">
-            <h3>1. Mitra Reseller Daerah</h3>
-            <p>Memasarkan dan mengimplementasikan produk ABP (seperti RTnet, Eklesia, DigiSale) di kabupaten/kota Anda dengan komisi berlangganan yang menarik.</p>
-            <button class="btn btn-primary btn-sm" onclick="openDemoModal('Kemitraan Reseller Daerah')">Daftar Jadi Mitra Reseller →</button>
-          </div>
-
-          <div class="track-card">
-            <h3>2. Kemitraan Instansi & Korporat</h3>
-            <p>Kerja sama pengadaan langsung dengan pemerintah daerah, gereja pusat, koperasi, atau asosiasi perusahaan untuk implementasi skala besar.</p>
-            <button class="btn btn-primary btn-sm" onclick="openDemoModal('Kemitraan Instansi/Korporat')">Diskusi Proyek Korporat →</button>
-          </div>
-
-          <div class="track-card">
-            <h3>3. Integrasi Layanan Pendukung</h3>
-            <p>Kolaborasi teknis bagi penyedia hardware sensor IoT, payment gateway digital, atau provider WhatsApp API untuk terhubung dengan ekosistem ABP.</p>
-            <button class="btn btn-outline btn-sm" onclick="openDemoModal('Integrasi Layanan Pendukung')">Ajukan Integrasi Teknis →</button>
-          </div>
-
-          <div class="track-card">
-            <h3>4. Investasi & Ekspansi SaaS</h3>
-            <p>Dukungan pendanaan bagi investor yang tertarik mempercepat pertumbuhan lini bisnis SaaS ABP ke wilayah baru di Indonesia.</p>
-            <button class="btn btn-outline btn-sm" onclick="openInvestorModal()">Diskusi Investasi →</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-// 5. CONTACT PAGE
-function renderContactPage(container) {
-  container.innerHTML = `
-    <section>
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Kontak Kami</div>
-            <h2>Ceritakan kebutuhan Anda kepada tim ABP.</h2>
-          </div>
-        </div>
-
-        <div class="contact-grid">
-          <div class="contact-info">
-            <dl>
-              <div>
-                <dt>Perusahaan</dt>
-                <dd>PT. Anugerah Bakti Prima</dd>
-              </div>
-              <div>
-                <dt>Email Informasi & Sales</dt>
-                <dd>info@abp-prima.id</dd>
-              </div>
-              <div>
-                <dt>Telepon / WhatsApp Business</dt>
-                <dd>+62 812-3456-7890</dd>
-              </div>
-              <div>
-                <dt>Wilayah Operasional</dt>
-                <dd>Seluruh Indonesia (Layanan Cloud & Implementasi On-Site)</dd>
-              </div>
-            </dl>
-          </div>
-
-          <form onsubmit="handleContactSubmit(event)">
-            <div class="field-row">
-              <div class="field">
-                <label for="c-nama">Nama Lengkap *</label>
-                <input type="text" id="c-nama" required placeholder="Nama Anda">
-              </div>
-              <div class="field">
-                <label for="c-instansi">Instansi / Perusahaan *</label>
-                <input type="text" id="c-instansi" required placeholder="Nama organisasi">
-              </div>
-            </div>
-
-            <div class="field-row">
-              <div class="field">
-                <label for="c-email">Email *</label>
-                <input type="email" id="c-email" required placeholder="nama@email.com">
-              </div>
-              <div class="field">
-                <label for="c-produk">Produk SaaS / Topik *</label>
-                <select id="c-produk">
-                  <option>RTnet — RT/RW</option>
-                  <option>Eklesia — Gereja</option>
-                  <option>Servio — Jasa Kebersihan & Pest Control</option>
-                  <option>GovPly — Surat Instansi</option>
-                  <option>Rekan — HRIS & Payroll</option>
-                  <option>Cultiva — Agrobisnis</option>
-                  <option>DigiSale POS — Retail</option>
-                  <option>Kemitraan & Investasi</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="c-pesan">Pesan / Kendala Operasional</label>
-              <textarea id="c-pesan" placeholder="Ceritakan pertanyaan atau rencana implementasi Anda..."></textarea>
-            </div>
-
-            <button type="submit" class="submit-btn">Kirim Pesan (Otomatis Dicatat) →</button>
-          </form>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-// 6. ADMIN LEAD DASHBOARD PAGE (`#admin` with Passcode Protection)
-function isAdminAuthenticated() {
-  return sessionStorage.getItem('abp_admin_auth') === 'true';
-}
-
-async function renderAdminPage(container) {
-  if (!isAdminAuthenticated()) {
-    renderAdminLoginScreen(container);
-    return;
-  }
-
-  await refreshLeadsData();
-
-  container.innerHTML = `
-    <section>
-      <div class="wrap">
-        <div class="sec-head">
-          <div>
-            <div class="sec-label"><span class="rule"></span> Akses Administrator Terproteksi</div>
-            <h2>📋 Pusat Pesan & Lead Masuk ABP</h2>
-          </div>
-          <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <button class="btn btn-outline btn-sm" onclick="exportLeadsToCSV()">📥 Unduh Rekap (CSV)</button>
-            <button class="btn btn-ghost btn-sm" style="color:var(--ink);" onclick="refreshAdminLeads()">🔄 Refresh Data</button>
-            <button class="btn btn-sm" style="background:#D9534F; color:#FFF;" onclick="logoutAdmin()">🔒 Keluar Admin</button>
-          </div>
-        </div>
-
-        <p>Halaman ini terproteksi kata sandi. Hanya Anda (administrator) yang dapat melihat data pesan masuk, waktu submit (timestamp), dan kontak pengisi.</p>
-
-        ${leadsData.length === 0 ? `
-          <div style="background:var(--paper-card); border:1px solid var(--line); border-radius:var(--radius-md); padding:60px; text-align:center; margin-top:20px;">
-            <h3>Belum Ada Pesan Masuk</h3>
-            <p style="opacity:0.7;">Isi salah satu form (Demo, Investor, atau Kontak) untuk menguji pencatatan lead otomatis.</p>
-          </div>
-        ` : `
-          <div class="admin-table-wrap">
-            <table class="lead-table">
-              <thead>
-                <tr>
-                  <th>Waktu Submit (Kapan)</th>
-                  <th>Nama & Instansi (Siapa)</th>
-                  <th>Kontak</th>
-                  <th>Kategori / Produk</th>
-                  <th>Pesan / Catatan</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${leadsData.map(item => `
-                  <tr>
-                    <td style="white-space:nowrap; font-weight:600; font-size:13px; color:var(--brass-dim);">
-                      ${item.timestamp || 'N/A'}
-                    </td>
-                    <td>
-                      <strong>${escapeHtml(item.nama || '-')}</strong><br>
-                      <small style="opacity:0.7;">${escapeHtml(item.instansi || item.firm || '-')}</small>
-                    </td>
-                    <td>
-                      <a href="mailto:${escapeHtml(item.email)}">${escapeHtml(item.email || '-')}</a><br>
-                      <small><a href="https://wa.me/${formatPhoneWA(item.phone)}" target="_blank">📱 WA: ${escapeHtml(item.phone || '-')}</a></small>
-                    </td>
-                    <td>
-                      <span class="lead-tag ${getTagClass(item.type)}">${escapeHtml(item.type || 'Pesan')}</span><br>
-                      <small style="font-weight:600;">${escapeHtml(item.produk || '-')}</small>
-                    </td>
-                    <td style="max-width:280px; font-size:13.5px;">
-                      ${escapeHtml(item.pesan || '-')}
-                    </td>
-                  </tr>
-                `).map(row => row).join('')}
-              </tbody>
-            </table>
-          </div>
-        `}
-      </div>
-    </section>
-  `;
-}
-
-function renderAdminLoginScreen(container) {
-  container.innerHTML = `
-    <section>
-      <div class="wrap" style="max-width:440px; margin:40px auto 80px;">
-        <div style="background:var(--paper-card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:40px; box-shadow:var(--shadow-md);">
-          <div style="text-align:center; margin-bottom:28px;">
-            <span style="font-size:42px; display:block; margin-bottom:10px;">🔒</span>
-            <h2>Portal Admin ABP</h2>
-            <p style="font-size:14px; opacity:0.75; margin-top:6px;">Lead Inbox terproteksi. Masukkan PIN / Passcode Admin untuk melihat pesan masuk.</p>
-          </div>
-
-          <form onsubmit="handleAdminLogin(event)">
-            <div class="field">
-              <label for="admin-passcode">PIN / Passcode Admin *</label>
-              <input type="password" id="admin-passcode" required placeholder="Masukkan Passcode (Default: abp2026)">
-            </div>
-            <p id="admin-error-msg" style="color:#D9534F; font-size:13.5px; font-weight:600; display:none; margin:10px 0 0;">⚠️ PIN / Passcode salah. Silakan coba lagi.</p>
-            <button type="submit" class="submit-btn full-width" style="margin-top:20px;">Buka Dashboard Admin →</button>
-          </form>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-window.handleAdminLogin = function(e) {
-  e.preventDefault();
-  const input = document.getElementById('admin-passcode');
-  const errorMsg = document.getElementById('admin-error-msg');
-  const code = input ? input.value.trim() : '';
-
-  if (code === 'abp2026' || code === 'admin123' || code === 'abp-admin') {
-    sessionStorage.setItem('abp_admin_auth', 'true');
-    const container = document.getElementById('app-view');
-    renderAdminPage(container);
-  } else {
-    if (errorMsg) errorMsg.style.display = 'block';
-  }
-};
-
-window.logoutAdmin = function() {
-  sessionStorage.removeItem('abp_admin_auth');
-  const container = document.getElementById('app-view');
-  renderAdminPage(container);
-};
-
-function getTagClass(type) {
-  if (!type) return 'tag-contact';
-  if (type.includes('Demo')) return 'tag-demo';
-  if (type.includes('Investor')) return 'tag-investor';
-  return 'tag-contact';
-}
-
-function formatPhoneWA(phone) {
-  if (!phone) return '';
-  let p = phone.replace(/[^0-9]/g, '');
-  if (p.startsWith('0')) p = '62' + p.substring(1);
-  return p;
-}
-
-function escapeHtml(text) {
-  if (!text) return '';
-  return text.replace(/[&<>"']/g, function(m) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+function filteredProducts() {
+  const q = mpState.search.trim().toLowerCase();
+  let list = PRODUCTS.filter(p => {
+    if (mpState.category !== 'all' && p.category !== mpState.category) return false;
+    if (mpState.vendor !== 'all' && p.vendor !== mpState.vendor) return false;
+    if (!q) return true;
+    const hay = [p.name, p.tagline, p.sector, p.desc, ...p.highlights, ...p.features.map(f => f.title + ' ' + f.desc)].join(' ').toLowerCase();
+    return hay.includes(q);
   });
+  if (mpState.sort === 'price-asc') list = [...list].sort((a, b) => a.monthly - b.monthly);
+  if (mpState.sort === 'price-desc') list = [...list].sort((a, b) => b.monthly - a.monthly);
+  if (mpState.sort === 'name') list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+  return list;
 }
 
-window.refreshAdminLeads = async function() {
-  const container = document.getElementById('app-view');
-  if (container) await renderAdminPage(container);
-};
+function productCardHTML(p) {
+  const v = getVendor(p);
+  const thumb = productThumb(p);
+  return `
+    <article class="mp-card">
+      <div class="mp-card-thumb" onclick="location.hash='#produk/${p.id}'">
+        ${thumb ? `<img src="${thumb}" alt="Tampilan ${escapeHtml(p.name)}" loading="lazy">` : ''}
+        <div class="mp-card-badges">
+          <span class="sector-pill">${escapeHtml(p.sector)}</span>
+          ${p.free ? '<span class="free-badge-pill">GRATIS</span>' : ''}
+        </div>
+      </div>
+      <div class="mp-card-body">
+        <div class="mp-vendor-row">
+          <span class="vendor-tag">${v.verified ? '<span class="verified-check">✔</span>' : ''} ${escapeHtml(v.name)}</span>
+          <span class="rating-tag">★ ${p.rating.toFixed(1)}</span>
+        </div>
+        <div class="mp-card-title"><a href="#produk/${p.id}">${escapeHtml(p.name)}</a><span class="dd-dot" style="background:${p.color}; width:11px; height:11px;"></span></div>
+        <div class="mp-card-sub">${escapeHtml(p.tagline)}</div>
+        <p class="mp-card-desc">${escapeHtml(p.desc)}</p>
+        <ul class="mp-card-highlights">${p.highlights.map(h => `<li>${escapeHtml(h)}</li>`).join('')}</ul>
+        <div class="mp-card-pricing">
+          ${p.free ? `
+            <div class="price-main-row"><span class="price-amount" style="color:var(--emerald-dark);">Rp 0</span><span class="price-unit">Gratis selamanya</span></div>
+          ` : `
+            <div class="price-main-row"><span class="price-amount">${rupiah(p.monthly)}</span><span class="price-unit">${escapeHtml(p.unitLabel)}</span></div>
+            <div class="price-onboarding-row"><span>Onboarding & migrasi (sekali)</span><strong class="mono">${rupiah(p.onboarding)}</strong></div>
+          `}
+        </div>
+        <div class="mp-card-actions">
+          <a href="#produk/${p.id}" class="btn btn-outline btn-sm">Detail</a>
+          ${p.free
+            ? `<button class="btn btn-emerald btn-sm" onclick="buyNow('${p.id}')">Dapatkan Gratis</button>`
+            : `<button class="btn btn-primary btn-sm" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
+        </div>
+      </div>
+    </article>`;
+}
 
-window.exportLeadsToCSV = function() {
-  if (!leadsData || leadsData.length === 0) {
-    alert('Belum ada data pesan untuk diunduh.');
-    return;
-  }
+function renderProductGrid() {
+  const grid = document.getElementById('product-grid');
+  const count = document.getElementById('etalase-count');
+  if (!grid) return;
+  const list = filteredProducts();
+  if (count) count.textContent = `Menampilkan ${list.length} dari ${PRODUCTS.length} produk`;
+  grid.innerHTML = list.length ? list.map(productCardHTML).join('') : `
+    <div class="content-panel" style="grid-column:1/-1; text-align:center;">
+      <h3>Produk tidak ditemukan</h3>
+      <p style="color:var(--ink-muted);">Coba kata kunci lain atau <a href="#kontak" style="color:var(--primary); font-weight:700;">hubungi kami</a> untuk kebutuhan khusus.</p>
+    </div>`;
+}
 
-  let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "ID,Waktu Submit (Kapan),Nama (Siapa),Instansi/Firma,Email,WhatsApp/HP,Kategori/Tipe,Produk,Pesan\n";
-
-  leadsData.forEach(row => {
-    let line = [
-      `"${row.id || ''}"`,
-      `"${row.timestamp || ''}"`,
-      `"${row.nama || ''}"`,
-      `"${row.instansi || row.firm || ''}"`,
-      `"${row.email || ''}"`,
-      `"${row.phone || ''}"`,
-      `"${row.type || ''}"`,
-      `"${row.produk || ''}"`,
-      `"${(row.pesan || '').replace(/"/g, '""')}"`
-    ].join(",");
-    csvContent += line + "\n";
-  });
-
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `ABP_Leads_Report_${new Date().toISOString().slice(0,10)}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+window.onMpSearch = (v) => { mpState.search = v; renderProductGrid(); };
+window.onMpSort = (v) => { mpState.sort = v; renderProductGrid(); };
+window.onMpVendor = (v) => { mpState.vendor = v; renderProductGrid(); };
+window.onMpCategory = (c) => {
+  mpState.category = c;
+  document.querySelectorAll('.cat-pill').forEach((el, i) => el.classList.toggle('active', CATEGORIES[i].id === c));
+  renderProductGrid();
 };
 
 /* ==========================================
- * MODAL & FORM HANDLERS
+ * 2. DETAIL PRODUK
  * ========================================== */
+function renderProductPage(container, id) {
+  const p = getProduct(id);
+  if (!p) {
+    container.innerHTML = `<div class="wrap" style="padding:100px 0; text-align:center;"><h2>Produk tidak ditemukan</h2><a href="#home" class="btn btn-primary" style="margin-top:20px;">Kembali ke Etalase</a></div>`;
+    return;
+  }
+  const v = getVendor(p);
+  const images = productImages(p);
+  const pages = (productsContent[p.id] && productsContent[p.id].pages_text) || [];
+  const heroImg = productThumb(p);
+  const inCart = getCart().find(i => i.id === p.id);
+  const qty = inCart ? inCart.qty : (p.defaultQty || 1);
+  const months = inCart ? inCart.months : 1;
+  const related = PRODUCTS.filter(x => x.id !== p.id && (x.category === p.category || x.vendor === p.vendor)).slice(0, 3);
 
-window.openDemoModal = function(productName = '') {
-  const modal = document.getElementById('demo-modal');
+  container.innerHTML = `
+    <div class="pdp-breadcrumb"><div class="wrap"><a href="#home">Etalase</a> / ${escapeHtml(CATEGORIES.find(c => c.id === p.category).label)} / <strong style="color:var(--ink);">${escapeHtml(p.name)}</strong></div></div>
+    <div class="wrap pdp-layout">
+      <div class="pdp-main-col">
+        <div class="pdp-header-card">
+          <div class="pdp-top-meta">
+            <span class="sector-pill" style="background:${p.color};">${escapeHtml(p.sector)}</span>
+            <span class="vendor-tag">${v.verified ? '<span class="verified-check">✔</span>' : ''} Dijual oleh <strong>&nbsp;${escapeHtml(v.name)}</strong></span>
+            <span class="rating-tag">★ ${p.rating.toFixed(1)}</span>
+          </div>
+          <h1 style="font-size:clamp(28px,3.4vw,40px);">${escapeHtml(p.name)}</h1>
+          <div style="font-size:17px; font-weight:700; color:var(--primary); margin:4px 0 10px;">${escapeHtml(p.tagline)}</div>
+          <p style="color:var(--ink-muted); margin:0; font-size:15.5px;">${escapeHtml(p.desc)}</p>
+          ${heroImg ? `
+            <div class="pdp-main-preview" onclick="openImageModal('${heroImg}', '${escapeHtml(p.name)}')">
+              <img src="${heroImg}" alt="Tampilan ${escapeHtml(p.name)}">
+              <div class="pdp-zoom-hint">🔍 Klik untuk memperbesar</div>
+            </div>` : ''}
+        </div>
+
+        ${p.id === 'qrgen' ? qrgenToolHTML() : ''}
+
+        <div class="content-panel">
+          <h2>Masalah yang diselesaikan</h2>
+          <div class="problem-solution-grid">
+            <div class="ps-card problem"><h3>Kendala saat ini</h3><ul>${p.problems.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul></div>
+            <div class="ps-card solution"><h3>Solusi ${escapeHtml(p.name)}</h3><ul>${p.solutions.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul></div>
+          </div>
+        </div>
+
+        <div class="content-panel">
+          <h2>Fitur utama</h2>
+          <div class="features-grid">${p.features.map(f => `<div class="feature-card"><h4>${escapeHtml(f.title)}</h4><p>${escapeHtml(f.desc)}</p></div>`).join('')}</div>
+        </div>
+
+        ${images.length ? `
+        <div class="content-panel">
+          <h2>Galeri tampilan (${images.length})</h2>
+          <div class="deck-gallery-grid">
+            ${images.map((img, i) => {
+              const title = ((pages[i] || '').split('\n').find(l => l.trim()) || `Tampilan ${i + 1}`).replace(/^[^\w]+/, '').trim().substring(0, 60);
+              return `<div class="deck-card" onclick="openImageModal('${img}', '${escapeHtml(p.name)} — ${escapeHtml(title).replace(/'/g, '')}')">
+                <div class="deck-img-wrap"><img src="${img}" alt="${escapeHtml(p.name)} ${i + 1}" loading="lazy"></div>
+                <div class="deck-card-info"><h4>${escapeHtml(title)}</h4><span>Klik untuk perbesar</span></div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>` : ''}
+
+        <div class="content-panel">
+          <h2>Tentang vendor</h2>
+          <div style="display:flex; gap:14px; align-items:center;">
+            <div class="mark-logo-box">${escapeHtml(v.name.substring(0, 3).toUpperCase())}</div>
+            <div>
+              <strong>${escapeHtml(v.name)}</strong> ${v.official ? '<span class="free-mini-pill" style="background:var(--primary-soft); color:var(--primary);">OFFICIAL</span>' : ''}
+              <div style="font-size:13.5px; color:var(--ink-muted);">${escapeHtml(v.company || '')} — ${escapeHtml(v.desc || '')}</div>
+            </div>
+          </div>
+          <p style="font-size:13px; color:var(--ink-light); margin:14px 0 0;">Transaksi, invoice, dan dukungan pembayaran untuk semua vendor dikelola oleh ${CONFIG.companyName} sebagai operator marketplace.</p>
+        </div>
+
+        ${related.length ? `
+        <div>
+          <h2 style="font-size:22px; margin-bottom:16px;">Produk terkait</h2>
+          <div class="product-grid">${related.map(productCardHTML).join('')}</div>
+        </div>` : ''}
+      </div>
+
+      <aside class="pdp-buy-box">
+        <span class="buy-box-badge">${p.free ? '● Gratis' : '● Tersedia · Siap aktivasi'}</span>
+        ${p.free ? `
+          <div class="buy-box-price" style="color:var(--emerald-dark);">Rp 0</div>
+          <div class="buy-box-unit">Gratis selamanya, tanpa watermark</div>
+          <button class="btn btn-emerald full-width" onclick="document.getElementById('qrgen-tool').scrollIntoView({behavior:'smooth'})">Coba Sekarang</button>
+          <button class="btn btn-outline full-width" style="margin-top:10px;" onclick="buyNow('qrgen')">Daftar Akun Gratis</button>
+        ` : `
+          <div class="buy-box-price">${rupiah(p.monthly)}</div>
+          <div class="buy-box-unit">${escapeHtml(p.unitLabel)} · termasuk cloud & maintenance</div>
+
+          <div class="config-group">
+            <label>Jumlah ${escapeHtml(p.unit)}</label>
+            <div class="qty-stepper">
+              <button type="button" onclick="pdpStep(-1)">−</button>
+              <input type="number" id="pdp-qty" min="1" value="${qty}" oninput="pdpRecalc()">
+              <button type="button" onclick="pdpStep(1)">+</button>
+            </div>
+          </div>
+          <div class="config-group">
+            <label>Periode bayar di muka</label>
+            <select class="mp-select" style="width:100%;" id="pdp-months" onchange="pdpRecalc()">
+              ${BILLING_PERIODS.map(b => `<option value="${b.months}" ${b.months === months ? 'selected' : ''}>${b.label}</option>`).join('')}
+            </select>
+          </div>
+          <label class="onboarding-check-card">
+            <input type="checkbox" id="pdp-onboarding" ${inCart ? (inCart.onboarding ? 'checked' : '') : 'checked'} onchange="pdpRecalc()">
+            <div>
+              <strong style="font-size:13.5px;">Onboarding & Migrasi Data</strong>
+              <div style="font-size:12.5px; color:var(--ink-muted);">Sekali bayar · <span class="mono">${rupiah(p.onboarding)}</span><br>Setup akun, pelatihan, impor data awal.</div>
+            </div>
+          </label>
+          <div class="buy-breakdown" id="pdp-breakdown"></div>
+          <button class="btn btn-primary full-width" onclick="pdpAdd(true)">Beli Sekarang →</button>
+          <button class="btn btn-outline full-width" style="margin-top:10px;" onclick="pdpAdd(false)">+ Tambah ke Keranjang</button>
+        `}
+        <button class="btn btn-xs" style="margin-top:12px; width:100%; background:none; color:var(--primary);" onclick="openDemoModal('${p.name}')">Atau jadwalkan demo dulu</button>
+        <div class="buy-box-guarantees">
+          <span>☁️ Cloud hosting & maintenance termasuk</span>
+          <span>🧾 Invoice resmi dari ${CONFIG.companyName}</span>
+          <span>💳 QRIS atau transfer bank</span>
+          <span>📞 Dukungan via WhatsApp ${CONFIG.phoneDisplay}</span>
+        </div>
+      </aside>
+    </div>`;
+
+  window._pdpProduct = p;
+  if (!p.free) pdpRecalc();
+  if (p.id === 'qrgen') initQrgenTool();
+}
+
+window.pdpStep = function (d) {
+  const el = document.getElementById('pdp-qty');
+  el.value = Math.max(1, (parseInt(el.value, 10) || 1) + d);
+  pdpRecalc();
+};
+
+window.pdpRecalc = function () {
+  const p = window._pdpProduct;
+  if (!p || p.free) return;
+  const qty = Math.max(1, parseInt(document.getElementById('pdp-qty').value, 10) || 1);
+  const months = parseInt(document.getElementById('pdp-months').value, 10);
+  const ob = document.getElementById('pdp-onboarding').checked;
+  const t = lineTotals({ id: p.id, qty, months, onboarding: ob });
+  document.getElementById('pdp-breakdown').innerHTML = `
+    <div class="buy-breakdown-row"><span>Langganan ${qty} ${escapeHtml(p.unit)} × ${months} bln</span><span class="mono">${rupiah(t.subscription)}</span></div>
+    <div class="buy-breakdown-row"><span>Onboarding & migrasi</span><span class="mono">${rupiah(t.onboarding)}</span></div>
+    <div class="buy-breakdown-total"><span>Total</span><span class="mono">${rupiah(t.total)}</span></div>`;
+};
+
+window.pdpAdd = function (goCheckout) {
+  const p = window._pdpProduct;
+  const opts = {
+    qty: document.getElementById('pdp-qty').value,
+    months: document.getElementById('pdp-months').value,
+    onboarding: document.getElementById('pdp-onboarding').checked
+  };
+  goCheckout ? buyNow(p.id, opts) : addToCart(p.id, opts);
+};
+
+/* QRGen live tool (gratis) — memakai layanan gambar QR publik */
+function qrgenToolHTML() {
+  return `
+    <div class="content-panel" id="qrgen-tool">
+      <h2>Coba QRGen sekarang</h2>
+      <div class="field"><label>URL atau teks</label><input type="text" id="qrgen-input" placeholder="https://contoh.id" value="https://anugerahbaktiprima.id"></div>
+      <div style="display:flex; gap:24px; align-items:center; margin-top:16px; flex-wrap:wrap;">
+        <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px;"><img id="qrgen-img" alt="QR Code" width="200" height="200"></div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <a id="qrgen-download" class="btn btn-emerald btn-sm" download="qrcode.png" target="_blank">Unduh PNG</a>
+          <button class="btn btn-outline btn-sm" onclick="printQrgen()">Cetak QR</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function qrgenUrl(text, size = 400) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&ecc=H&margin=10&data=${encodeURIComponent(text || ' ')}`;
+}
+
+function initQrgenTool() {
+  const input = document.getElementById('qrgen-input');
+  const update = () => {
+    const url = qrgenUrl(input.value);
+    document.getElementById('qrgen-img').src = url;
+    document.getElementById('qrgen-download').href = url;
+  };
+  input.addEventListener('input', update);
+  update();
+}
+
+window.printQrgen = function () {
+  const src = document.getElementById('qrgen-img').src;
+  const w = window.open('', '_blank');
+  if (!w) return;
+  w.document.write(`<html><body style="display:flex;justify-content:center;align-items:center;height:100vh;margin:0;"><img src="${src}" onload="window.print()"></body></html>`);
+  w.document.close();
+};
+
+/* ==========================================
+ * 3. DAFTAR HARGA
+ * ========================================== */
+function renderPricelistPage(container) {
+  container.innerHTML = `
+    <section class="mp-hero" style="padding:44px 0 56px;">
+      <div class="wrap">
+        <div class="mp-eyebrow">● Harga transparan</div>
+        <h1 style="font-size:clamp(28px,3.6vw,40px);">Daftar Harga Semua Produk</h1>
+        <p class="lede" style="margin:0;">Onboarding & migrasi data dibayar sekali di awal. Langganan cloud dibayar bulanan dan sudah termasuk maintenance.</p>
+      </div>
+    </section>
+    <section style="padding:36px 0 80px;">
+      <div class="wrap">
+        <div class="pricelist-table-wrap">
+          <table class="pricelist-table">
+            <thead><tr><th>Produk</th><th>Vendor</th><th>Deskripsi</th><th>Onboarding & Migrasi (sekali)</th><th>Langganan Cloud /bulan</th><th>Satuan</th><th></th></tr></thead>
+            <tbody>
+              ${PRODUCTS.map(p => `
+                <tr>
+                  <td><div style="display:flex; align-items:center; gap:8px;"><span class="dd-dot" style="background:${p.color};"></span><a href="#produk/${p.id}"><strong>${escapeHtml(p.name)}</strong></a></div></td>
+                  <td style="font-size:13px; color:var(--ink-muted);">${escapeHtml(getVendor(p).name)}</td>
+                  <td>${escapeHtml(p.tagline)}</td>
+                  <td class="mono">${p.free ? '—' : rupiah(p.onboarding)}</td>
+                  <td class="mono"><strong>${p.free ? 'GRATIS' : rupiah(p.monthly)}</strong></td>
+                  <td style="font-size:13px;">${escapeHtml(p.unitLabel)}</td>
+                  <td>${p.free
+                    ? `<a href="#produk/qrgen" class="btn btn-emerald btn-xs">Coba</a>`
+                    : `<button class="btn btn-primary btn-xs" onclick="addToCart('${p.id}')">+ Keranjang</button>`}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13px; color:var(--ink-light); margin-top:14px;">Butuh penawaran untuk banyak cabang, instansi besar, atau paket bundling? <a href="#kontak" style="color:var(--primary); font-weight:700;">Hubungi kami</a>.</p>
+      </div>
+    </section>`;
+}
+
+/* ==========================================
+ * 4. HALAMAN VENDOR
+ * ========================================== */
+function renderVendorPage(container) {
+  container.innerHTML = `
+    <section class="mp-hero" style="padding:52px 0 60px;">
+      <div class="wrap mp-hero-grid">
+        <div>
+          <div class="mp-eyebrow">● Program Mitra Vendor</div>
+          <h1>Jual produk SaaS Anda di <span>Marketplace ABP</span>.</h1>
+          <p class="lede">Kami membuka etalase untuk vendor perangkat lunak lain. Anda fokus membangun produk, kami bantu pemasaran, penagihan, dan onboarding ke klien instansi, kampus, dan UMKM.</p>
+          <button class="btn btn-primary" onclick="openVendorModal()">Daftarkan Produk Anda →</button>
+        </div>
+        <div class="mp-hero-card">
+          <div class="mp-hero-card-stats">
+            ${Object.values(VENDORS).map(v => `<div class="mp-stat-box" style="grid-column:1/-1;"><b style="font-size:16px;">${v.verified ? '✔ ' : ''}${escapeHtml(v.name)}</b><span>${PRODUCTS.filter(p => p.vendor === v.id).length} produk aktif · ${escapeHtml(v.company)}</span></div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </section>
+    <section style="padding:48px 0 80px;">
+      <div class="wrap">
+        <div class="features-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
+          ${[
+            ['Etalase & Halaman Produk', 'Produk Anda tampil di etalase dengan galeri, fitur, dan harga transparan.'],
+            ['Checkout & Invoice Terpusat', 'Pembeli checkout langsung; invoice dan konfirmasi pembayaran dikelola marketplace.'],
+            ['Kurasi & Verifikasi', 'Setiap produk ditinjau sebelum tayang agar kualitas etalase terjaga.'],
+            ['Akses Jaringan Klien', 'Instansi, kampus, gereja, dan UMKM dari jaringan ABP.']
+          ].map(f => `<div class="feature-card"><h4>${f[0]}</h4><p>${f[1]}</p></div>`).join('')}
+        </div>
+        <div class="content-panel" style="margin-top:28px;">
+          <h2>Alur menjadi vendor</h2>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px;">
+            ${['Kirim pengajuan produk', 'Review & demo dengan tim ABP', 'Sepakati harga & bagi hasil', 'Produk tayang di etalase'].map((s, i) => `
+              <div style="display:flex; gap:10px; align-items:center;"><div class="step-num-circle">${i + 1}</div><strong style="font-size:14px;">${s}</strong></div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </section>`;
+}
+
+/* ==========================================
+ * 5. CONTACT US
+ * ========================================== */
+function renderContactPage(container) {
+  container.innerHTML = `
+    <section class="mp-hero" style="padding:44px 0 56px;">
+      <div class="wrap">
+        <div class="mp-eyebrow">● Contact Us</div>
+        <h1 style="font-size:clamp(28px,3.6vw,40px);">Hubungi Tim ${CONFIG.companyName}</h1>
+        <p class="lede" style="margin:0;">Pertanyaan produk, penawaran khusus, atau bantuan pembayaran. Pesan dari form ini langsung masuk ke email kami.</p>
+      </div>
+    </section>
+    <section style="padding:40px 0 80px;">
+      <div class="wrap contact-page-grid">
+        <div class="contact-info-card">
+          <h3 style="color:#fff; margin-bottom:8px;">${CONFIG.companyName}</h3>
+          <p style="color:rgba(255,255,255,0.65); font-size:14px; margin:0 0 10px;">Operator Marketplace SaaS Indonesia</p>
+          <div class="contact-info-item">
+            <div class="contact-icon-box">📍</div>
+            <div><strong>Alamat</strong><div style="color:rgba(255,255,255,0.75); font-size:14px;">${CONFIG.address}</div></div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-icon-box">✉️</div>
+            <div><strong>Email</strong><div><a href="mailto:${CONFIG.email}" style="color:#A5B4FC; font-size:14px;">${CONFIG.email}</a></div></div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-icon-box">📞</div>
+            <div><strong>No. Telepon / WhatsApp</strong><div><a href="https://wa.me/${CONFIG.phoneWA}" target="_blank" style="color:#A5B4FC; font-size:14px;">${CONFIG.phoneDisplay}</a></div></div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-icon-box">🕘</div>
+            <div><strong>Jam Layanan</strong><div style="color:rgba(255,255,255,0.75); font-size:14px;">Senin–Jumat, 08.00–17.00 WIB</div></div>
+          </div>
+          <iframe title="Peta lokasi" src="https://www.google.com/maps?q=${encodeURIComponent(CONFIG.address)}&output=embed" style="width:100%; height:200px; border:0; border-radius:12px; margin-top:14px;" loading="lazy"></iframe>
+        </div>
+
+        <div class="checkout-card" style="margin:0;">
+          <h2 style="font-size:22px; margin-bottom:6px;">Kirim Pesan</h2>
+          <p style="color:var(--ink-muted); font-size:14px; margin:0 0 18px;">Dikirim ke <strong>${CONFIG.email}</strong>.</p>
+          <form id="contact-form" onsubmit="handleContactSubmit(event)">
+            <div class="field-row">
+              <div class="field"><label for="c-nama">Nama Lengkap *</label><input type="text" id="c-nama" required placeholder="Nama Anda"></div>
+              <div class="field"><label for="c-instansi">Instansi / Perusahaan</label><input type="text" id="c-instansi" placeholder="Nama organisasi"></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label for="c-email">Email *</label><input type="email" id="c-email" required placeholder="nama@email.com"></div>
+              <div class="field"><label for="c-phone">No. Telepon / WhatsApp</label><input type="tel" id="c-phone" placeholder="0812-xxxx-xxxx"></div>
+            </div>
+            <div class="field">
+              <label for="c-topik">Topik *</label>
+              <select id="c-topik" required>
+                <option>Pertanyaan Produk</option>
+                <option>Permintaan Penawaran / Bundling</option>
+                <option>Bantuan Pembayaran & Invoice</option>
+                <option>Kemitraan Vendor</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
+            <div class="field"><label for="c-pesan">Pesan *</label><textarea id="c-pesan" required placeholder="Tulis pesan Anda..."></textarea></div>
+            <button type="submit" class="btn btn-primary">Kirim Pesan →</button>
+            <p id="contact-status" style="font-size:13.5px; margin:0;"></p>
+          </form>
+        </div>
+      </div>
+    </section>`;
+}
+
+/* ==========================================
+ * 6. CHECKOUT
+ * ========================================== */
+function renderCheckoutPage(container) {
+  const cart = getCart();
+  if (cart.length === 0) {
+    container.innerHTML = `
+      <section class="checkout-section"><div class="wrap" style="text-align:center; padding:60px 0;">
+        <div style="font-size:48px;">🛒</div>
+        <h2>Keranjang Anda kosong</h2>
+        <p style="color:var(--ink-muted);">Pilih produk dari etalase untuk mulai checkout.</p>
+        <a href="#home" class="btn btn-primary">Ke Etalase</a>
+      </div></section>`;
+    return;
+  }
+  const saved = JSON.parse(localStorage.getItem('abp_customer') || '{}');
+
+  container.innerHTML = `
+    <div class="pdp-breadcrumb"><div class="wrap"><a href="#home">Etalase</a> / Keranjang / <strong style="color:var(--ink);">Checkout</strong></div></div>
+    <section class="checkout-section">
+      <div class="wrap checkout-grid">
+        <form id="checkout-form" onsubmit="handleCheckoutSubmit(event)" style="display:block;">
+          <div class="checkout-card">
+            <div class="checkout-step-head"><div class="step-num-circle">1</div><h3 style="font-size:18px;">Data Pemesan</h3></div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div class="field-row">
+                <div class="field"><label for="co-nama">Nama Lengkap *</label><input id="co-nama" required value="${escapeHtml(saved.nama || '')}" placeholder="Nama penanggung jawab"></div>
+                <div class="field"><label for="co-instansi">Instansi / Perusahaan *</label><input id="co-instansi" required value="${escapeHtml(saved.instansi || '')}" placeholder="Nama PT, kampus, gereja, toko, dll."></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label for="co-email">Email *</label><input id="co-email" type="email" required value="${escapeHtml(saved.email || '')}" placeholder="nama@instansi.id"></div>
+                <div class="field"><label for="co-phone">No. WhatsApp *</label><input id="co-phone" type="tel" required value="${escapeHtml(saved.phone || '')}" placeholder="0812-xxxx-xxxx"></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label for="co-npwp">NPWP (opsional, untuk faktur)</label><input id="co-npwp" value="${escapeHtml(saved.npwp || '')}" placeholder="00.000.000.0-000.000"></div>
+                <div class="field"><label for="co-alamat">Alamat Penagihan</label><input id="co-alamat" value="${escapeHtml(saved.alamat || '')}" placeholder="Kota / alamat lengkap"></div>
+              </div>
+              <div class="field"><label for="co-catatan">Catatan untuk tim onboarding</label><textarea id="co-catatan" placeholder="Jumlah cabang, data yang perlu dimigrasi, jadwal yang diinginkan..."></textarea></div>
+            </div>
+          </div>
+
+          <div class="checkout-card">
+            <div class="checkout-step-head"><div class="step-num-circle">2</div><h3 style="font-size:18px;">Metode Pembayaran</h3></div>
+            <div class="payment-methods-grid">
+              ${[
+                ['transfer', 'Transfer Bank', 'BCA / Mandiri, konfirmasi manual'],
+                ['qris', 'QRIS', 'Semua e-wallet & mobile banking'],
+                ['invoice', 'Invoice / PO', 'Untuk instansi & korporat (termin)']
+              ].map(m => `
+                <div class="pay-method-option ${selectedPayment === m[0] ? 'selected' : ''}" data-method="${m[0]}" onclick="selectPayment('${m[0]}')">
+                  <strong>${m[1]}</strong><small>${m[2]}</small>
+                </div>`).join('')}
+            </div>
+            <label style="display:flex; gap:10px; font-size:13px; color:var(--ink-muted); cursor:pointer;">
+              <input type="checkbox" required style="accent-color:var(--primary); margin-top:3px;">
+              Saya menyetujui bahwa langganan dibayar di muka sesuai periode yang dipilih dan aktivasi dilakukan setelah pembayaran terkonfirmasi.
+            </label>
+          </div>
+        </form>
+
+        <div>
+          <div class="checkout-card" style="position:sticky; top:86px;">
+            <div class="checkout-step-head"><div class="step-num-circle">3</div><h3 style="font-size:18px;">Ringkasan Pesanan</h3></div>
+            <div id="checkout-summary"></div>
+          </div>
+        </div>
+      </div>
+    </section>`;
+
+  renderCheckoutSummary();
+}
+
+function renderCheckoutSummary() {
+  const el = document.getElementById('checkout-summary');
+  if (!el) return;
+  const cart = getCart();
+  const t = cartTotals(cart);
+  el.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+      ${cart.map(item => {
+        const p = getProduct(item.id);
+        if (!p) return '';
+        return `<div class="cart-item-card">
+          <div class="cart-item-top">
+            <div><strong>${escapeHtml(p.name)}</strong><br><small style="color:var(--ink-light);">${escapeHtml(getVendor(p).name)}</small></div>
+            <button type="button" class="cart-item-remove" onclick="removeFromCart('${p.id}')">Hapus</button>
+          </div>
+          ${cartItemControlsHTML(item)}
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="buy-breakdown">
+      <div class="buy-breakdown-row"><span>Onboarding & Migrasi</span><span class="mono">${rupiah(t.onboarding)}</span></div>
+      <div class="buy-breakdown-row"><span>Langganan Cloud</span><span class="mono">${rupiah(t.subscription)}</span></div>
+      <div class="buy-breakdown-total"><span>Total Bayar</span><span class="mono">${rupiah(t.total)}</span></div>
+    </div>
+    <button type="submit" form="checkout-form" class="btn btn-primary full-width" id="checkout-submit-btn">${t.total === 0 ? 'Aktifkan Gratis →' : 'Buat Pesanan & Terbitkan Invoice →'}</button>
+    <p style="font-size:12px; color:var(--ink-light); margin:10px 0 0; text-align:center;">Detail pesanan akan dikirim ke ${CONFIG.email} dan WhatsApp tim ABP.</p>`;
+}
+
+window.selectPayment = function (m) {
+  selectedPayment = m;
+  document.querySelectorAll('.pay-method-option').forEach(el => el.classList.toggle('selected', el.dataset.method === m));
+};
+
+function generateOrderNo() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `ABP-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
+function getOrders() {
+  try { return JSON.parse(localStorage.getItem('abp_orders') || '[]'); } catch { return []; }
+}
+
+window.handleCheckoutSubmit = async function (e) {
+  e.preventDefault();
+  const cart = getCart();
+  if (!cart.length) return;
+  const btn = document.getElementById('checkout-submit-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Memproses pesanan...'; }
+
+  const customer = {
+    nama: document.getElementById('co-nama').value.trim(),
+    instansi: document.getElementById('co-instansi').value.trim(),
+    email: document.getElementById('co-email').value.trim(),
+    phone: document.getElementById('co-phone').value.trim(),
+    npwp: document.getElementById('co-npwp').value.trim(),
+    alamat: document.getElementById('co-alamat').value.trim()
+  };
+  localStorage.setItem('abp_customer', JSON.stringify(customer));
+
+  const totals = cartTotals(cart);
+  const order = {
+    orderNo: generateOrderNo(),
+    createdAt: new Date().toISOString(),
+    customer,
+    catatan: document.getElementById('co-catatan').value.trim(),
+    payment: totals.total === 0 ? 'free' : selectedPayment,
+    items: cart.map(item => {
+      const p = getProduct(item.id);
+      const t = lineTotals(item);
+      return {
+        id: p.id, name: p.name, vendor: getVendor(p).name, unit: p.unit,
+        qty: item.qty, months: item.months, monthly: p.monthly,
+        onboarding: t.onboarding, subscription: t.subscription, total: t.total
+      };
+    }),
+    totals,
+    status: totals.total === 0 ? 'Aktivasi Gratis' : 'Menunggu Pembayaran'
+  };
+
+  const orders = getOrders();
+  orders.unshift(order);
+  localStorage.setItem('abp_orders', JSON.stringify(orders));
+
+  const itemsText = order.items.map((it, i) =>
+    `${i + 1}. ${it.name} (${it.vendor}) — ${it.qty} ${it.unit} × ${it.months} bln = ${rupiah(it.subscription)}; onboarding ${rupiah(it.onboarding)}; subtotal ${rupiah(it.total)}`
+  ).join('\n');
+
+  await sendToEmail({
+    _subject: `[PESANAN BARU] ${order.orderNo} — ${customer.instansi} — ${rupiah(totals.total)}`,
+    'Jenis': 'Pesanan Marketplace',
+    'No. Pesanan': order.orderNo,
+    'Nama': customer.nama,
+    'Instansi': customer.instansi,
+    'Email': customer.email,
+    'WhatsApp': customer.phone,
+    'NPWP': customer.npwp || '-',
+    'Alamat Penagihan': customer.alamat || '-',
+    'Metode Pembayaran': paymentLabel(order.payment),
+    'Item Pesanan': itemsText,
+    'Total Onboarding': rupiah(totals.onboarding),
+    'Total Langganan': rupiah(totals.subscription),
+    'TOTAL': rupiah(totals.total),
+    'Catatan': order.catatan || '-'
+  });
+  await logLead({ type: 'Pesanan', nama: customer.nama, instansi: customer.instansi, email: customer.email, phone: customer.phone, produk: order.items.map(i => i.name).join(', '), pesan: `${order.orderNo} · ${rupiah(totals.total)} · ${paymentLabel(order.payment)}` });
+
+  saveCart([]);
+  window.location.hash = `#invoice/${encodeURIComponent(order.orderNo)}`;
+};
+
+function paymentLabel(m) {
+  return { transfer: 'Transfer Bank', qris: 'QRIS', invoice: 'Invoice / PO (termin)', free: 'Gratis' }[m] || m;
+}
+
+/* ==========================================
+ * 7. INVOICE
+ * ========================================== */
+function renderInvoicePage(container, orderNo) {
+  const order = getOrders().find(o => o.orderNo === orderNo);
+  if (!order) {
+    container.innerHTML = `<div class="wrap" style="padding:100px 0; text-align:center;"><h2>Invoice tidak ditemukan</h2><p style="color:var(--ink-muted);">Invoice hanya tersimpan di perangkat tempat pesanan dibuat.</p><a href="#home" class="btn btn-primary">Ke Etalase</a></div>`;
+    return;
+  }
+  const c = order.customer;
+  const date = new Date(order.createdAt);
+  const due = new Date(date.getTime() + 3 * 86400000);
+  const fmtDate = (d) => d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const waText = encodeURIComponent(
+    `Halo ${CONFIG.companyName}, saya ${c.nama} dari ${c.instansi}.\n` +
+    `Saya telah membuat pesanan *${order.orderNo}* senilai *${rupiah(order.totals.total)}* (${paymentLabel(order.payment)}).\n` +
+    order.items.map(i => `- ${i.name}: ${i.qty} ${i.unit} × ${i.months} bln`).join('\n') +
+    `\nMohon konfirmasi & instruksi selanjutnya. Terima kasih.`
+  );
+  const mailLink = mailtoFallback(
+    `[PESANAN] ${order.orderNo} — ${c.instansi}`,
+    `Halo ${CONFIG.companyName},\n\nBerikut detail pesanan kami:\nNo. Pesanan: ${order.orderNo}\nNama: ${c.nama}\nInstansi: ${c.instansi}\nEmail: ${c.email}\nWhatsApp: ${c.phone}\nMetode Pembayaran: ${paymentLabel(order.payment)}\n\nItem:\n` +
+    order.items.map(i => `- ${i.name} (${i.vendor}): ${i.qty} ${i.unit} × ${i.months} bln = ${rupiah(i.total)}`).join('\n') +
+    `\n\nTotal Onboarding: ${rupiah(order.totals.onboarding)}\nTotal Langganan: ${rupiah(order.totals.subscription)}\nTOTAL BAYAR: ${rupiah(order.totals.total)}`
+  );
+
+  let payBlock = '';
+  if (order.payment === 'transfer') {
+    payBlock = `
+      <h4 style="margin-bottom:10px;">Instruksi Transfer Bank</h4>
+      ${CONFIG.bankAccounts.map(b => `<div style="display:flex; justify-content:space-between; padding:10px 14px; background:var(--surface); border:1px solid var(--line); border-radius:10px; margin-bottom:8px;"><span><strong>${b.bank}</strong> · a.n. ${escapeHtml(b.holder)}</span><span class="mono" style="font-weight:800;">${b.number}</span></div>`).join('')}
+      <p style="font-size:13px; color:var(--ink-muted);">Transfer tepat <strong class="mono">${rupiah(order.totals.total)}</strong> dan cantumkan berita <strong class="mono">${order.orderNo}</strong>. Kirim bukti transfer via WhatsApp.</p>`;
+  } else if (order.payment === 'qris') {
+    const qrData = `ABP-PAYMENT|${order.orderNo}|${order.totals.total}`;
+    payBlock = `
+      <h4 style="margin-bottom:10px;">Pembayaran QRIS</h4>
+      <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+        <div style="border:1px solid var(--line); border-radius:12px; padding:10px; background:#fff;"><img src="${qrgenUrl(qrData, 220)}" width="180" height="180" alt="Kode pembayaran"></div>
+        <p style="font-size:13px; color:var(--ink-muted); max-width:40ch;">Kode QRIS resmi merchant ${CONFIG.companyName} akan dikirim tim kami via WhatsApp/email untuk nominal <strong class="mono">${rupiah(order.totals.total)}</strong>. Kode di samping adalah referensi pesanan Anda.</p>
+      </div>`;
+  } else if (order.payment === 'invoice') {
+    payBlock = `<h4>Invoice / Purchase Order</h4><p style="font-size:13.5px; color:var(--ink-muted);">Tim kami akan menghubungi Anda untuk dokumen penawaran resmi, PO, dan skema termin pembayaran.</p>`;
+  } else {
+    payBlock = `<h4>Aktivasi Gratis</h4><p style="font-size:13.5px; color:var(--ink-muted);">Tidak ada pembayaran. Akun Anda akan diaktifkan dan detail akses dikirim ke ${escapeHtml(c.email)}.</p>`;
+  }
+
+  container.innerHTML = `
+    <section class="checkout-section">
+      <div class="wrap">
+        <div class="no-print" style="max-width:900px; margin:0 auto 20px; background:var(--emerald-soft); border:1px solid var(--emerald); border-radius:14px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;">
+          <div><strong style="color:var(--emerald-dark);">✓ Pesanan berhasil dibuat</strong><div style="font-size:13.5px; color:var(--ink-soft);">Detail pesanan telah diteruskan ke ${CONFIG.email}. Konfirmasi via WhatsApp agar lebih cepat diproses.</div></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a class="btn btn-emerald btn-sm" target="_blank" href="https://wa.me/${CONFIG.phoneWA}?text=${waText}">Konfirmasi via WhatsApp</a>
+            <a class="btn btn-outline btn-sm" href="${mailLink}">Kirim via Email</a>
+            <button class="btn btn-outline btn-sm" onclick="window.print()">Cetak / Simpan PDF</button>
+          </div>
+        </div>
+
+        <div class="invoice-box">
+          <div class="invoice-top">
+            <div>
+              <div class="mark"><div class="mark-logo-box">ABP</div><div class="mark-text-group"><span class="mark-title">${CONFIG.companyName}</span><span class="mark-subtitle">Indonesia SaaS Marketplace</span></div></div>
+              <div style="font-size:12.5px; color:var(--ink-muted); margin-top:10px; max-width:42ch;">${CONFIG.address}<br>${CONFIG.email} · ${CONFIG.phoneDisplay}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:26px; font-weight:800; letter-spacing:0.04em;">INVOICE</div>
+              <div class="mono" style="font-weight:700;">${order.orderNo}</div>
+              <div style="font-size:13px; color:var(--ink-muted);">Tanggal: ${fmtDate(date)}<br>Jatuh tempo: ${fmtDate(due)}</div>
+              <span class="lead-tag ${order.payment === 'free' ? 'tag-order' : 'tag-contact'}" style="margin-top:8px;">${escapeHtml(order.status)}</span>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; font-size:14px;">
+            <div><div style="font-size:11.5px; font-weight:800; color:var(--ink-light); text-transform:uppercase;">Ditagihkan kepada</div><strong>${escapeHtml(c.instansi)}</strong><br>${escapeHtml(c.nama)}<br>${escapeHtml(c.email)} · ${escapeHtml(c.phone)}${c.npwp ? `<br>NPWP: ${escapeHtml(c.npwp)}` : ''}${c.alamat ? `<br>${escapeHtml(c.alamat)}` : ''}</div>
+            <div><div style="font-size:11.5px; font-weight:800; color:var(--ink-light); text-transform:uppercase;">Metode pembayaran</div><strong>${paymentLabel(order.payment)}</strong></div>
+          </div>
+
+          <div style="overflow-x:auto;">
+          <table class="invoice-table">
+            <thead><tr><th>Produk</th><th>Detail</th><th style="text-align:right;">Onboarding</th><th style="text-align:right;">Langganan</th><th style="text-align:right;">Subtotal</th></tr></thead>
+            <tbody>
+              ${order.items.map(it => `
+                <tr>
+                  <td><strong>${escapeHtml(it.name)}</strong><br><small style="color:var(--ink-light);">Vendor: ${escapeHtml(it.vendor)}</small></td>
+                  <td style="font-size:13px;">${it.monthly ? `${rupiah(it.monthly)} × ${it.qty} ${escapeHtml(it.unit)} × ${it.months} bln` : 'Gratis'}</td>
+                  <td class="mono" style="text-align:right;">${rupiah(it.onboarding)}</td>
+                  <td class="mono" style="text-align:right;">${rupiah(it.subscription)}</td>
+                  <td class="mono" style="text-align:right; font-weight:800;">${rupiah(it.total)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end;">
+            <div style="min-width:300px;" class="buy-breakdown">
+              <div class="buy-breakdown-row"><span>Total Onboarding</span><span class="mono">${rupiah(order.totals.onboarding)}</span></div>
+              <div class="buy-breakdown-row"><span>Total Langganan</span><span class="mono">${rupiah(order.totals.subscription)}</span></div>
+              <div class="buy-breakdown-total"><span>TOTAL</span><span class="mono">${rupiah(order.totals.total)}</span></div>
+            </div>
+          </div>
+
+          <div style="margin-top:24px; padding-top:20px; border-top:1px dashed var(--line-strong);">${payBlock}</div>
+          <p style="font-size:12px; color:var(--ink-light); margin-top:24px;">Langganan cloud sudah termasuk maintenance. Masa aktif dihitung sejak akun diaktifkan setelah pembayaran terkonfirmasi.</p>
+        </div>
+
+        <div class="no-print" style="text-align:center; margin-top:24px;"><a href="#home" class="btn btn-outline">← Kembali ke Etalase</a></div>
+      </div>
+    </section>`;
+}
+
+/* ==========================================
+ * PENGIRIMAN EMAIL & LOG
+ * ========================================== */
+async function sendToEmail(fields) {
+  try {
+    const res = await fetch(CONFIG.formEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ _template: 'table', _captcha: 'false', ...fields })
+    });
+    const data = await res.json().catch(() => ({}));
+    return res.ok && String(data.success) !== 'false';
+  } catch (err) {
+    console.warn('Gagal mengirim email:', err);
+    return false;
+  }
+}
+
+async function logLead(lead) {
+  lead.timestamp = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' }) + ' WIB';
+  const backup = JSON.parse(localStorage.getItem('abp_leads_backup') || '[]');
+  backup.unshift(lead);
+  localStorage.setItem('abp_leads_backup', JSON.stringify(backup));
+  try {
+    await fetch('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead) });
+  } catch (err) { /* endpoint opsional */ }
+}
+
+function mailtoFallback(subject, body) {
+  return `mailto:${CONFIG.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+window.handleContactSubmit = async function (e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const status = document.getElementById('contact-status');
+  const data = {
+    nama: document.getElementById('c-nama').value.trim(),
+    instansi: document.getElementById('c-instansi').value.trim(),
+    email: document.getElementById('c-email').value.trim(),
+    phone: document.getElementById('c-phone').value.trim(),
+    topik: document.getElementById('c-topik').value,
+    pesan: document.getElementById('c-pesan').value.trim()
+  };
+  btn.disabled = true; btn.textContent = 'Mengirim...';
+
+  const ok = await sendToEmail({
+    _subject: `[Contact Us] ${data.topik} — ${data.nama}`,
+    _replyto: data.email,
+    'Jenis': 'Contact Us', 'Nama': data.nama, 'Instansi': data.instansi || '-', 'Email': data.email,
+    'Telepon': data.phone || '-', 'Topik': data.topik, 'Pesan': data.pesan
+  });
+  await logLead({ type: 'Kontak', nama: data.nama, instansi: data.instansi, email: data.email, phone: data.phone, produk: data.topik, pesan: data.pesan });
+
+  const body = `Nama: ${data.nama}\nInstansi: ${data.instansi || '-'}\nEmail: ${data.email}\nTelepon: ${data.phone || '-'}\nTopik: ${data.topik}\n\n${data.pesan}`;
+  const mailHref = mailtoFallback(`[Contact Us] ${data.topik} — ${data.nama}`, body);
+  if (ok) {
+    status.innerHTML = `<span style="color:var(--emerald-dark); font-weight:700;">✓ Pesan telah dikirim ke ${CONFIG.email}.</span> <a href="${mailHref}" style="color:var(--primary); font-weight:600; margin-left:6px;">Buka juga di aplikasi Email →</a>`;
+    e.target.reset();
+    btn.disabled = false;
+    btn.textContent = 'Kirim Pesan →';
+  } else {
+    status.innerHTML = `<span style="color:var(--danger); font-weight:700;">Koneksi server email tertunda.</span> <a href="${mailHref}" style="color:var(--primary); font-weight:700;">Kirim langsung lewat aplikasi email Anda (${CONFIG.email}) →</a>`;
+    btn.disabled = false; btn.textContent = 'Kirim Ulang →';
+  }
+};
+
+/* ==========================================
+ * MODAL: DEMO, VENDOR, LIGHTBOX
+ * ========================================== */
+window.openDemoModal = function (productName = '') {
   const select = document.getElementById('demo-produk');
   const title = document.getElementById('demo-modal-title');
-  
   if (productName && select) {
-    title.textContent = `Diskusi & Demo ${productName}`;
-    for (let opt of select.options) {
-      if (opt.value.toLowerCase().includes(productName.toLowerCase())) {
-        opt.selected = true;
-        break;
-      }
+    title.textContent = `Jadwalkan Demo ${productName}`;
+    for (const opt of select.options) {
+      if (opt.value.toLowerCase() === productName.toLowerCase()) { opt.selected = true; break; }
     }
+  } else if (title) {
+    title.textContent = 'Jadwalkan Demo & Konsultasi Implementasi';
   }
-  if (modal) modal.classList.add('open');
+  document.getElementById('demo-modal').classList.add('open');
 };
+window.closeDemoModal = () => { const m = document.getElementById('demo-modal'); if (m) m.classList.remove('open'); };
+window.openVendorModal = () => document.getElementById('vendor-modal').classList.add('open');
+window.closeVendorModal = () => { const m = document.getElementById('vendor-modal'); if (m) m.classList.remove('open'); };
 
-window.closeDemoModal = function() {
-  const modal = document.getElementById('demo-modal');
-  if (modal) modal.classList.remove('open');
+window.openImageModal = function (src, caption) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-caption').textContent = caption || 'Pratinjau Antarmuka';
+  document.getElementById('image-modal').classList.add('open');
 };
+window.closeImageModal = () => { const m = document.getElementById('image-modal'); if (m) m.classList.remove('open'); };
 
-window.openInvestorModal = function() {
-  const modal = document.getElementById('investor-modal');
-  if (modal) modal.classList.add('open');
-};
-
-window.closeInvestorModal = function() {
-  const modal = document.getElementById('investor-modal');
-  if (modal) modal.classList.remove('open');
-};
-
-window.openImageModal = function(src, caption) {
-  const modal = document.getElementById('image-modal');
-  const img = document.getElementById('lightbox-img');
-  const cap = document.getElementById('lightbox-caption');
-  if (img && modal) {
-    img.src = src;
-    if (cap) cap.textContent = caption || 'Pratinjau Antarmuka';
-    modal.classList.add('open');
-  }
-};
-
-window.closeImageModal = function() {
-  const modal = document.getElementById('image-modal');
-  if (modal) modal.classList.remove('open');
-};
-
-// Form Submissions with Automatic Timestamp & Lead Logging
-window.handleDemoSubmit = async function(e) {
+window.handleDemoSubmit = async function (e) {
   e.preventDefault();
-  const btn = e.target.querySelector('.submit-btn');
-
-  const lead = {
-    type: 'Demo Request',
-    nama: document.getElementById('demo-nama').value,
-    instansi: document.getElementById('demo-instansi').value,
-    email: document.getElementById('demo-email').value,
-    phone: document.getElementById('demo-phone').value,
-    produk: document.getElementById('demo-produk').value,
-    pesan: document.getElementById('demo-pesan').value
+  const btn = e.target.querySelector('button[type="submit"]');
+  const d = {
+    nama: document.getElementById('demo-nama').value, instansi: document.getElementById('demo-instansi').value,
+    email: document.getElementById('demo-email').value, phone: document.getElementById('demo-phone').value,
+    produk: document.getElementById('demo-produk').value, pesan: document.getElementById('demo-pesan').value
   };
-
-  await recordLeadSubmission(lead);
-
-  if (btn) {
-    btn.textContent = 'Permintaan Terkirim & Dicatat ✓';
-    btn.disabled = true;
-    btn.style.background = '#1BA37A';
-  }
-
-  setTimeout(() => {
-    closeDemoModal();
-    if (confirm('Pesan Anda telah dicatat lengkap dengan timestamp! Apakah Anda ingin langsung terhubung ke WhatsApp Sales ABP?')) {
-      const waMsg = encodeURIComponent(`Halo ABP, nama saya ${lead.nama} dari ${lead.instansi}. Saya berminat pada produk ${lead.produk}.`);
-      window.open(`https://wa.me/6281234567890?text=${waMsg}`, '_blank');
-    }
-  }, 1000);
+  btn.disabled = true; btn.textContent = 'Mengirim...';
+  await sendToEmail({ _subject: `[Permintaan Demo] ${d.produk} — ${d.instansi}`, _replyto: d.email, 'Jenis': 'Permintaan Demo', 'Nama': d.nama, 'Instansi': d.instansi, 'Email': d.email, 'WhatsApp': d.phone, 'Produk': d.produk, 'Catatan': d.pesan || '-' });
+  await logLead({ type: 'Demo', ...d });
+  btn.textContent = 'Terkirim ✓';
+  showToast('Permintaan demo terkirim');
+  setTimeout(() => { closeDemoModal(); e.target.reset(); btn.disabled = false; btn.textContent = `Kirim ke Tim ABP (${CONFIG.email}) →`; }, 1200);
 };
 
-window.handleInvestorSubmit = async function(e) {
+window.handleVendorSubmit = async function (e) {
   e.preventDefault();
-  const btn = e.target.querySelector('.submit-btn');
-
-  const lead = {
-    type: 'Investor Pitch Deck',
-    nama: document.getElementById('inv-nama').value,
-    firm: document.getElementById('inv-firm').value,
-    email: document.getElementById('email').value || document.getElementById('inv-email').value,
-    phone: document.getElementById('inv-phone').value,
-    produk: 'Executive Pitch Deck',
-    pesan: 'Permintaan Executive Pitch Deck & Financial Highlights ABP'
+  const btn = e.target.querySelector('button[type="submit"]');
+  const d = {
+    nama: document.getElementById('v-nama').value, instansi: document.getElementById('v-perusahaan').value,
+    email: document.getElementById('v-email').value, phone: document.getElementById('v-phone').value,
+    produk: document.getElementById('v-produk').value, kategori: document.getElementById('v-kategori').value,
+    pesan: document.getElementById('v-deskripsi').value
   };
-
-  await recordLeadSubmission(lead);
-
-  if (btn) {
-    btn.textContent = 'Permintaan Berkas Investor Terkirim & Dicatat ✓';
-    btn.disabled = true;
-    btn.style.background = '#1BA37A';
-  }
-
-  setTimeout(() => {
-    closeInvestorModal();
-  }, 1500);
+  btn.disabled = true; btn.textContent = 'Mengirim...';
+  await sendToEmail({ _subject: `[Pengajuan Vendor] ${d.produk} — ${d.instansi}`, _replyto: d.email, 'Jenis': 'Pengajuan Vendor', 'PIC': d.nama, 'Perusahaan': d.instansi, 'Email': d.email, 'WhatsApp': d.phone, 'Produk & URL': d.produk, 'Kategori': d.kategori, 'Deskripsi & Harga': d.pesan });
+  await logLead({ type: 'Vendor', ...d });
+  btn.textContent = 'Terkirim ✓';
+  showToast('Pengajuan vendor terkirim');
+  setTimeout(() => { closeVendorModal(); e.target.reset(); btn.disabled = false; btn.textContent = 'Kirim Pengajuan Vendor ke ABP →'; }, 1200);
 };
 
-window.handleContactSubmit = async function(e) {
-  e.preventDefault();
-  const btn = e.target.querySelector('.submit-btn');
-
-  const lead = {
-    type: 'Kontak Umum',
-    nama: document.getElementById('c-nama').value,
-    instansi: document.getElementById('c-instansi').value,
-    email: document.getElementById('c-email').value,
-    produk: document.getElementById('c-produk').value,
-    pesan: document.getElementById('c-pesan').value
-  };
-
-  await recordLeadSubmission(lead);
-
-  if (btn) {
-    btn.textContent = 'Pesan Terkirim & Dicatat ✓';
-    btn.disabled = true;
-    btn.style.background = '#1BA37A';
+/* ==========================================
+ * ADMIN (lokal) — pesanan & pesan masuk di perangkat ini
+ * Catatan: proteksi ini hanya di sisi klien, bukan keamanan sungguhan.
+ * Sumber kebenaran pesanan adalah inbox email.
+ * ========================================== */
+async function renderAdminPage(container) {
+  if (sessionStorage.getItem('abp_admin_auth') !== 'true') {
+    container.innerHTML = `
+      <section style="padding:60px 0;"><div class="wrap" style="max-width:440px;">
+        <div class="checkout-card">
+          <h2 style="font-size:22px;">Admin & Order Inbox</h2>
+          <p style="font-size:13.5px; color:var(--ink-muted);">Masukkan passcode admin.</p>
+          <form onsubmit="handleAdminLogin(event)">
+            <div class="field"><label for="admin-passcode">Passcode</label><input type="password" id="admin-passcode" required></div>
+            <p id="admin-error-msg" style="color:var(--danger); font-size:13px; display:none; margin:0;">Passcode salah.</p>
+            <button class="btn btn-dark full-width" type="submit">Masuk</button>
+          </form>
+        </div>
+      </div></section>`;
+    return;
   }
+
+  try {
+    const res = await fetch('/api/leads');
+    leadsData = res.ok ? await res.json() : [];
+  } catch { leadsData = []; }
+  if (!leadsData.length) leadsData = JSON.parse(localStorage.getItem('abp_leads_backup') || '[]');
+  const orders = getOrders();
+
+  container.innerHTML = `
+    <section style="padding:40px 0 80px;"><div class="wrap">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <h2>Pesanan & Pesan Masuk</h2>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-outline btn-sm" onclick="exportLeadsToCSV()">Unduh CSV</button>
+          <button class="btn btn-sm" style="background:var(--danger); color:#fff;" onclick="sessionStorage.removeItem('abp_admin_auth'); handleRouting();">Keluar</button>
+        </div>
+      </div>
+      <p style="font-size:13.5px; color:var(--ink-muted);">Data di bawah tersimpan di perangkat ini / server lokal. Semua pesanan & pesan juga dikirim ke <strong>${CONFIG.email}</strong>.</p>
+
+      <h3 style="margin-top:24px;">Pesanan (${orders.length})</h3>
+      <div class="admin-table-wrap"><table class="lead-table">
+        <thead><tr><th>No. Pesanan</th><th>Pemesan</th><th>Produk</th><th>Total</th><th>Pembayaran</th><th></th></tr></thead>
+        <tbody>${orders.length ? orders.map(o => `
+          <tr><td class="mono">${o.orderNo}<br><small>${new Date(o.createdAt).toLocaleString('id-ID')}</small></td>
+          <td><strong>${escapeHtml(o.customer.instansi)}</strong><br><small>${escapeHtml(o.customer.nama)} · ${escapeHtml(o.customer.email)}</small></td>
+          <td>${o.items.map(i => escapeHtml(i.name)).join(', ')}</td>
+          <td class="mono"><strong>${rupiah(o.totals.total)}</strong></td>
+          <td>${paymentLabel(o.payment)}</td>
+          <td><a class="btn btn-outline btn-xs" href="#invoice/${encodeURIComponent(o.orderNo)}">Invoice</a></td></tr>`).join('') : '<tr><td colspan="6" style="text-align:center; color:var(--ink-muted);">Belum ada pesanan.</td></tr>'}
+        </tbody></table></div>
+
+      <h3 style="margin-top:28px;">Pesan & Lead (${leadsData.length})</h3>
+      <div class="admin-table-wrap"><table class="lead-table">
+        <thead><tr><th>Waktu</th><th>Nama & Instansi</th><th>Kontak</th><th>Jenis / Produk</th><th>Pesan</th></tr></thead>
+        <tbody>${leadsData.length ? leadsData.map(l => `
+          <tr><td style="white-space:nowrap; font-size:12.5px;">${escapeHtml(l.timestamp || '-')}</td>
+          <td><strong>${escapeHtml(l.nama || '-')}</strong><br><small>${escapeHtml(l.instansi || l.firm || '-')}</small></td>
+          <td>${escapeHtml(l.email || '-')}<br><small>${escapeHtml(l.phone || '-')}</small></td>
+          <td><span class="lead-tag ${l.type === 'Pesanan' ? 'tag-order' : l.type === 'Demo' ? 'tag-demo' : 'tag-contact'}">${escapeHtml(l.type || 'Pesan')}</span><br><small>${escapeHtml(l.produk || '-')}</small></td>
+          <td style="max-width:280px;">${escapeHtml(l.pesan || '-')}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center; color:var(--ink-muted);">Belum ada pesan.</td></tr>'}
+        </tbody></table></div>
+    </div></section>`;
+}
+
+window.handleAdminLogin = function (e) {
+  e.preventDefault();
+  const code = document.getElementById('admin-passcode').value.trim();
+  if (CONFIG.adminPasscodes.includes(code)) {
+    sessionStorage.setItem('abp_admin_auth', 'true');
+    renderAdminPage(document.getElementById('app-view'));
+  } else {
+    document.getElementById('admin-error-msg').style.display = 'block';
+  }
+};
+
+window.exportLeadsToCSV = function () {
+  const orders = getOrders();
+  const rows = [['Tipe', 'Waktu', 'Nama', 'Instansi', 'Email', 'Telepon', 'Produk', 'Keterangan']];
+  orders.forEach(o => rows.push(['Pesanan', o.createdAt, o.customer.nama, o.customer.instansi, o.customer.email, o.customer.phone, o.items.map(i => i.name).join('; '), `${o.orderNo} ${rupiah(o.totals.total)}`]));
+  leadsData.forEach(l => rows.push([l.type || '', l.timestamp || '', l.nama || '', l.instansi || '', l.email || '', l.phone || '', l.produk || '', l.pesan || '']));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `ABP_Marketplace_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
 };

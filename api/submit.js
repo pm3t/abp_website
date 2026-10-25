@@ -20,6 +20,7 @@ export default async function handler(req, res) {
 
     const submission = {
       ...body,
+      target_email: 'anugerahbaktiprima@gmail.com',
       timestamp: formattedTime,
       id: 'LEAD-' + Date.now()
     };
@@ -42,7 +43,7 @@ export default async function handler(req, res) {
         const text = `📥 *LEAD BARU WEBSITE ABP*\n\n` +
                      `⏰ *Waktu:* ${formattedTime}\n` +
                      `👤 *Nama:* ${submission.nama || '-'}\n` +
-                     `🏢 *Perusahaan:* ${submission.firm || '-'}\n` +
+                     `🏢 *Perusahaan:* ${submission.instansi || submission.firm || '-'}\n` +
                      `📧 *Email:* ${submission.email || '-'}\n` +
                      `📞 *Telepon:* ${submission.phone || '-'}\n` +
                      `📦 *Produk:* ${submission.produk || '-'}\n` +

@@ -25,6 +25,7 @@ class ABPRequestHandler(http.server.SimpleHTTPRequestHandler):
                 # Add precise timestamp if not present
                 submission['timestamp'] = datetime.now().strftime('%d-%m-%Y %H:%M:%S WIB')
                 submission['id'] = 'LEAD-' + datetime.now().strftime('%Y%m%d%H%M%S')
+                submission['target_email'] = 'anugerahbaktiprima@gmail.com'
                 
                 # Append to assets/leads.json
                 leads = []
