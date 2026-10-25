@@ -9,6 +9,8 @@ assets/leads.json
 
 # Node modules & Environment
 node_modules/
+venv/
+.venv/
 .env
 .env.local
 

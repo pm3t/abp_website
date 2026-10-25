@@ -1,0 +1,9 @@
+venv/
+.venv/
+__pycache__/
+*.pptx
+create_pptx.py
+create_3slide.py
+server.py
+assets/leads.json
+
