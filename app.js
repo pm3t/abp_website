@@ -32,7 +32,7 @@ const DEMO_URLS = {
   govply: '',
   rekan: 'https://rekan.abpcloud.my.id',
   cultiva: 'https://cultiva.abpcloud.my.id',
-  digisale: '',
+  digisale: 'https://digisale.abpcloud.my.id',
   servio: '',
   ledgery: 'https://ledgery.abpcloud.my.id',
   qrgen: 'https://qrgen.abpcloud.my.id',
