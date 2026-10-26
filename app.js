@@ -1095,7 +1095,7 @@ function renderVendorPage(container) {
         <div class="content-panel" style="margin-top:28px;">
           <h2>Alur menjadi vendor</h2>
           <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px;">
-            ${['Kirim pengajuan produk', 'Review & demo dengan tim ABP', 'Sepakati harga & bagi hasil', 'Produk tayang di etalase'].map((s, i) => `
+            ${['Kirim pengajuan produk', 'Kurasi & demo dengan tim ABP', 'Finalisasi kemitraan & standar layanan', 'Produk tayang di etalase'].map((s, i) => `
               <div style="display:flex; gap:10px; align-items:center;"><div class="step-num-circle">${i + 1}</div><strong style="font-size:14px;">${s}</strong></div>`).join('')}
           </div>
         </div>
