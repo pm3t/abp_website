@@ -38,13 +38,13 @@ const DEMO_URLS = {
   ],
   servio: [
     { label: 'Web Management', sublabel: 'Dashboard Workshop & Tim', url: 'https://servio.abpcloud.my.id', icon: '🖥️' },
-    { label: 'Customer Portal', sublabel: 'Tracking Servis Pelanggan (PWA)', url: 'https://servio.abpcloud.my.id/portal', icon: '📱' }
+    { label: 'Customer Portal', sublabel: 'Tracking Servis Pelanggan (PWA)', url: 'https://servio-mobile.abpcloud.my.id', icon: '📱' }
   ],
   ledgery: 'https://ledgery.abpcloud.my.id',
   qrgen: 'https://qrgen.abpcloud.my.id',
   eklesia: [
     { label: 'Web Admin', sublabel: 'Manajemen Data & Keuangan Gereja', url: 'https://eklesia-webadmin.abpcloud.my.id', icon: '🖥️' },
-    { label: 'PWA Jemaat', sublabel: 'Aplikasi Mobile Jemaat & Warta', url: 'https://eklesia.abpcloud.my.id', icon: '📱' }
+    { label: 'PWA Jemaat', sublabel: 'Aplikasi Mobile Jemaat & Warta', url: 'https://eklesia-mobile.abpcloud.my.id', icon: '📱' }
   ],
   akadex: '',
   rtnet: '',
