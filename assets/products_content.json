@@ -312,12 +312,20 @@
     "color": "#8B5CF6",
     "tagline": "Manajemen Kios Handphone, Lacak IMEI, Trade-In, Servis & PPOB",
     "pages_text": [
-      "3 Alur Bisnis Kios HP dalam Satu Sistem Terpadu\nJual HP/Aksesoris, Beli HP Bekas (Trade-In), Servis Konter, hingga Pulsa & PPOB",
-      "POS Kasir Konter, Checklist Trade-In & Servis HP\nTransaksi cepat dengan kamera scan barcode/IMEI dan struk printer Bluetooth"
+      "Penjualan HP & Aksesoris (POS Kasir)\nTransaksi cepat unit HP (IMEI) dan aksesoris dengan berbagai metode pembayaran",
+      "Transaksi Pulsa, Paket Data & PPOB\nLayanan produk digital dan tagihan pelanggan langsung dari layar kasir konter",
+      "Manajemen Tiket Servis & Perbaikan HP\nPencatatan servis masuk, status pengerjaan teknisi, biaya sparepart, dan pengambilan unit",
+      "Manajemen Stok Unit HP (per IMEI) & Aksesoris\nLacak stok masing-masing unit berdasarkan IMEI, kondisi baru/bekas, dan harga modal",
+      "Pengaturan Toko, Pengguna & Konfigurasi Struk\nKelola profil konter, hak akses kasir/teknisi, dan format struk printer thermal",
+      "Laporan Penjualan, Laba Kotor & Rekap Operasional\nPantau omzet harian, margin keuntungan per transaksi, dan performa kios secara real-time"
     ],
     "images": [
       "assets/images/kiosio-01.png",
-      "assets/images/kiosio-02.png"
+      "assets/images/kiosio-02.png",
+      "assets/images/kiosio-03.png",
+      "assets/images/kiosio-04.png",
+      "assets/images/kiosio-05.png",
+      "assets/images/kiosio-06.png"
     ]
   },
   "qrgen": {
