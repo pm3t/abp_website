@@ -29,11 +29,11 @@ const CONFIG = {
  * Jika diisi, tombol "Live Demo" otomatis muncul di Etalase, Detail Produk & Pricelist.
  * ========================================== */
 const DEMO_URLS = {
-  govply: '',
+  govply: 'https://govply.abpcloud.my.id',
   rekan: 'https://rekan.abpcloud.my.id',
   cultiva: 'https://cultiva.abpcloud.my.id',
   digisale: 'https://digisale.abpcloud.my.id',
-  servio: '',
+  servio: 'https://servio.abpcloud.my.id',
   ledgery: 'https://ledgery.abpcloud.my.id',
   qrgen: 'https://qrgen.abpcloud.my.id',
   eklesia: 'https://eklesia-webadmin.abpcloud.my.id',
