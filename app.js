@@ -16,8 +16,9 @@ const CONFIG = {
   formEndpoint: 'https://formsubmit.co/ajax/anugerahbaktiprima@gmail.com',
   // GANTI dengan rekening resmi perusahaan sebelum go-live
   bankAccounts: [
-    { bank: 'BCA', number: '000-000-0000', holder: 'Bayu Nurcahyono' },
-    { bank: 'BRI', number: '000-00-0000000-0', holder: 'Bayu Nurcahyono' }
+    { bank: 'BCA', number: '6090260021', holder: 'Bayu Nurcahyono' },
+    { bank: 'Jago', number: '105692105503', holder: 'Bayu Nurcahyono' },
+    { bank: 'BRI', number: '140001000726504', holder: 'Bayu Nurcahyono' }
   ],
   adminPasscodes: ['abp2026']
 };
@@ -1246,9 +1247,8 @@ function renderCheckoutPage(container) {
             <div class="checkout-step-head"><div class="step-num-circle">2</div><h3 style="font-size:18px;">Metode Pembayaran</h3></div>
             <div class="payment-methods-grid">
               ${[
-                ['transfer', 'Transfer Bank', 'BCA / Mandiri, konfirmasi manual'],
-                ['qris', 'QRIS', 'Semua e-wallet & mobile banking'],
-                ['invoice', 'Invoice / PO', 'Untuk instansi & korporat (termin)']
+                ['transfer', 'Transfer Bank', 'BCA / BRI, konfirmasi manual'],
+                ['qris', 'QRIS', 'Semua e-wallet & mobile banking']
               ].map(m => `
                 <div class="pay-method-option ${selectedPayment === m[0] ? 'selected' : ''}" data-method="${m[0]}" onclick="selectPayment('${m[0]}')">
                   <strong>${m[1]}</strong><small>${m[2]}</small>
