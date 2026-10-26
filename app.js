@@ -871,7 +871,7 @@ function renderProductPage(container, id) {
         <div class="pdp-header-card">
           <div class="pdp-top-meta">
             <span class="sector-pill" style="background:${p.color};">${escapeHtml(p.sector)}</span>
-            <span class="vendor-tag">${v.verified ? '<span class="verified-check">✔</span>' : ''} Dijual oleh <strong>&nbsp;${escapeHtml(v.name)}</strong></span>
+            <span class="vendor-tag">${v.verified ? '<span class="verified-check">✔</span>' : ''} <strong>${escapeHtml(v.name)}</strong></span>
             <span class="rating-tag">★ ${p.rating.toFixed(1)}</span>
           </div>
           <h1 style="font-size:clamp(28px,3.4vw,40px);">${escapeHtml(p.name)}</h1>
@@ -973,7 +973,6 @@ function renderProductPage(container, id) {
         <button class="btn btn-xs" style="margin-top:12px; width:100%; background:none; color:var(--primary);" onclick="openDemoModal('${p.name}')">Atau jadwalkan demo dengan tim kami</button>
         <div class="buy-box-guarantees">
           <span>☁️ Cloud hosting & maintenance termasuk</span>
-          <span>🧾 Invoice resmi dari ${CONFIG.companyName}</span>
           <span>💳 QRIS atau transfer bank</span>
           <span>📞 Dukungan via WhatsApp ${CONFIG.phoneDisplay}</span>
         </div>
