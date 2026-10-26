@@ -25,18 +25,27 @@ const CONFIG = {
 
 /* ==========================================
  * URL LIVE DEMO MASING-MASING PRODUK
- * Isi URL lengkap (mis. 'https://kios.abpcloud.my.id').
- * Jika diisi, tombol "Live Demo" otomatis muncul di Etalase, Detail Produk & Pricelist.
+ * Bisa berupa string URL langsung atau Array jika memiliki > 1 akses
+ * (misal Web Desktop Backoffice & Mobile/PWA Kasir/Jemaat).
  * ========================================== */
 const DEMO_URLS = {
   govply: 'https://govply.abpcloud.my.id',
   rekan: 'https://rekan.abpcloud.my.id',
   cultiva: 'https://cultiva.abpcloud.my.id',
-  digisale: 'https://digisale.abpcloud.my.id',
-  servio: 'https://servio.abpcloud.my.id',
+  digisale: [
+    { label: 'Web Head Office', sublabel: 'Dashboard Pemilik & Gudang', url: 'https://digisale.abpcloud.my.id', icon: '🖥️' },
+    { label: 'POS Kasir (PWA)', sublabel: 'Kasir Toko Online/Offline', url: 'https://digisale.abpcloud.my.id/pos', icon: '🛒' }
+  ],
+  servio: [
+    { label: 'Web Management', sublabel: 'Dashboard Workshop & Tim', url: 'https://servio.abpcloud.my.id', icon: '🖥️' },
+    { label: 'Customer Portal', sublabel: 'Tracking Servis Pelanggan (PWA)', url: 'https://servio.abpcloud.my.id/portal', icon: '📱' }
+  ],
   ledgery: 'https://ledgery.abpcloud.my.id',
   qrgen: 'https://qrgen.abpcloud.my.id',
-  eklesia: 'https://eklesia-webadmin.abpcloud.my.id',
+  eklesia: [
+    { label: 'Web Admin', sublabel: 'Manajemen Data & Keuangan Gereja', url: 'https://eklesia-webadmin.abpcloud.my.id', icon: '🖥️' },
+    { label: 'PWA Jemaat', sublabel: 'Aplikasi Mobile Jemaat & Warta', url: 'https://eklesia.abpcloud.my.id', icon: '📱' }
+  ],
   akadex: '',
   rtnet: '',
   bengkelio: 'https://bengkel.abpcloud.my.id',
@@ -380,7 +389,119 @@ let selectedPayment = 'transfer';
 const rupiah = (n) => 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
 const getProduct = (id) => PRODUCTS.find(p => p.id === id);
 const getVendor = (p) => VENDORS[p.vendor] || { name: p.vendor, verified: false };
-const getDemoUrl = (p) => (p && (DEMO_URLS[p.id] || p.demoUrl || '')).trim();
+const getDemoLinks = (p) => {
+  if (!p) return [];
+  const entry = DEMO_URLS[p.id] || p.demoUrl;
+  if (!entry) return [];
+  if (typeof entry === 'string') {
+    const trimmed = entry.trim();
+    return trimmed ? [{ label: 'Live Demo', sublabel: 'Aplikasi Web', url: trimmed, icon: '🚀' }] : [];
+  }
+  if (Array.isArray(entry)) {
+    return entry.filter(item => item && item.url);
+  }
+  return [];
+};
+
+const getDemoUrl = (p) => {
+  const links = getDemoLinks(p);
+  return links.length ? links[0].url : '';
+};
+
+function renderDemoCardAction(p) {
+  const links = getDemoLinks(p);
+  if (!links.length) return '';
+  if (links.length === 1) {
+    return `<a href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" class="btn btn-emerald btn-xs full-width" style="margin-top:8px;">🚀 Coba Live Demo ↗</a>`;
+  }
+  return `
+    <div class="demo-split-wrap" style="margin-top:8px;">
+      <button type="button" class="btn btn-emerald btn-xs full-width demo-split-btn" id="demo-btn-${p.id}" onclick="toggleDemoExpand('${p.id}')">
+        <span>🚀 Live Demo (${links.length} Akses)</span>
+        <span class="demo-caret">▾</span>
+      </button>
+      <div class="demo-expand-pane" id="demo-pane-${p.id}">
+        ${links.map(l => `
+          <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="demo-expand-item">
+            <span class="demo-expand-icon">${l.icon || '🚀'}</span>
+            <div class="demo-expand-body">
+              <span class="demo-expand-label">${escapeHtml(l.label)} ↗</span>
+              ${l.sublabel ? `<span class="demo-expand-sub">${escapeHtml(l.sublabel)}</span>` : ''}
+            </div>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderDemoDetailAction(p) {
+  const links = getDemoLinks(p);
+  if (!links.length) return '';
+  if (links.length === 1) {
+    return `<div style="margin-top:14px;"><a href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" class="btn btn-emerald btn-sm">🚀 Buka Live Demo ${escapeHtml(p.name)} ↗</a></div>`;
+  }
+  return `
+    <div class="pdp-demo-multi-box" style="margin-top:18px;">
+      <div class="pdp-demo-multi-title">🚀 Tersedia ${links.length} Akses Live Demo Langsung:</div>
+      <div class="pdp-demo-cards-grid">
+        ${links.map(l => `
+          <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="pdp-demo-card-item">
+            <div class="pdp-demo-card-icon">${l.icon || '🚀'}</div>
+            <div class="pdp-demo-card-text">
+              <div class="pdp-demo-card-label">${escapeHtml(l.label)} ↗</div>
+              ${l.sublabel ? `<div class="pdp-demo-card-desc">${escapeHtml(l.sublabel)}</div>` : ''}
+            </div>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderDemoBuyboxAction(p) {
+  const links = getDemoLinks(p);
+  if (!links.length) return '';
+  if (links.length === 1) {
+    return `<a href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" class="btn btn-emerald full-width" style="margin-top:10px;">🚀 Coba Live Demo Aplikasi ↗</a>`;
+  }
+  return `
+    <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
+      ${links.map(l => `
+        <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="btn btn-emerald btn-xs full-width" style="display:flex; align-items:center; justify-content:center; gap:6px;">
+          <span>${l.icon || '🚀'}</span>
+          <span>Live Demo: <strong>${escapeHtml(l.label)}</strong> ↗</span>
+        </a>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderDemoPricelistAction(p) {
+  const links = getDemoLinks(p);
+  if (!links.length) return '';
+  if (links.length === 1) {
+    return `<a href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" class="btn btn-outline btn-xs">Demo ↗</a>`;
+  }
+  return links.map(l => `
+    <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="btn btn-outline btn-xs" title="${escapeHtml(l.sublabel || l.label)}">
+      ${l.icon || ''} ${escapeHtml(l.label)} ↗
+    </a>
+  `).join(' ');
+}
+
+window.toggleDemoExpand = function (id) {
+  const pane = document.getElementById(`demo-pane-${id}`);
+  const btn = document.getElementById(`demo-btn-${id}`);
+  if (!pane) return;
+  const isOpen = pane.classList.contains('open');
+  document.querySelectorAll('.demo-expand-pane.open').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.demo-split-btn.active').forEach(b => b.classList.remove('active'));
+  if (!isOpen) {
+    pane.classList.add('open');
+    if (btn) btn.classList.add('active');
+  }
+};
 
 function escapeHtml(text) {
   if (text === undefined || text === null) return '';
@@ -762,7 +883,7 @@ function filteredProducts() {
 function productCardHTML(p) {
   const v = getVendor(p);
   const thumb = productThumb(p);
-  const demoUrl = getDemoUrl(p);
+  const demoAction = renderDemoCardAction(p);
   return `
     <article class="mp-card">
       <div class="mp-card-thumb" onclick="location.hash='#produk/${p.id}'">
@@ -795,7 +916,7 @@ function productCardHTML(p) {
             ? `<button class="btn btn-emerald btn-sm" onclick="buyNow('${p.id}')">Dapatkan Gratis</button>`
             : `<button class="btn btn-primary btn-sm" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
         </div>
-        ${demoUrl ? `<a href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener" class="btn btn-emerald btn-xs full-width" style="margin-top:8px;">🚀 Coba Live Demo ↗</a>` : ''}
+        ${demoAction}
       </div>
     </article>`;
 }
@@ -854,7 +975,7 @@ function renderProductPage(container, id) {
           <h1 style="font-size:clamp(28px,3.4vw,40px);">${escapeHtml(p.name)}</h1>
           <div style="font-size:17px; font-weight:700; color:var(--primary); margin:4px 0 10px;">${escapeHtml(p.tagline)}</div>
           <p style="color:var(--ink-muted); margin:0; font-size:15.5px;">${escapeHtml(p.desc)}</p>
-          ${demoUrl ? `<div style="margin-top:14px;"><a href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener" class="btn btn-emerald btn-sm">🚀 Buka Live Demo ${escapeHtml(p.name)} ↗</a></div>` : ''}
+          ${renderDemoDetailAction(p)}
           ${heroImg ? `
             <div class="pdp-main-preview" onclick="openImageModal('${heroImg}', '${escapeHtml(p.name)}')">
               <img src="${heroImg}" alt="Tampilan ${escapeHtml(p.name)}">
@@ -945,7 +1066,7 @@ function renderProductPage(container, id) {
           <div class="buy-breakdown" id="pdp-breakdown"></div>
           <button class="btn btn-primary full-width" onclick="pdpAdd(true)">Beli Sekarang →</button>
           <button class="btn btn-outline full-width" style="margin-top:10px;" onclick="pdpAdd(false)">+ Tambah ke Keranjang</button>
-          ${demoUrl ? `<a href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener" class="btn btn-emerald full-width" style="margin-top:10px;">🚀 Coba Live Demo Aplikasi ↗</a>` : ''}
+          ${renderDemoBuyboxAction(p)}
         `}
         <button class="btn btn-xs" style="margin-top:12px; width:100%; background:none; color:var(--primary);" onclick="openDemoModal('${p.name}')">Atau jadwalkan demo dengan tim kami</button>
         <div class="buy-box-guarantees">
@@ -1055,8 +1176,8 @@ function renderPricelistPage(container) {
                   <td class="mono">${p.free ? '—' : rupiah(p.onboarding)}</td>
                   <td class="mono"><strong>${p.free ? 'GRATIS' : rupiah(p.monthly)}</strong></td>
                   <td style="font-size:13px;">${escapeHtml(p.unitLabel)}</td>
-                  <td><div style="display:flex; gap:6px; align-items:center;">
-                    ${getDemoUrl(p) ? `<a href="${escapeHtml(getDemoUrl(p))}" target="_blank" rel="noopener" class="btn btn-outline btn-xs">Demo ↗</a>` : ''}
+                  <td><div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    ${renderDemoPricelistAction(p)}
                     ${p.free
                       ? `<a href="#produk/qrgen" class="btn btn-emerald btn-xs">Coba</a>`
                       : `<button class="btn btn-primary btn-xs" onclick="addToCart('${p.id}')">+ Keranjang</button>`}

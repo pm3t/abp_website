@@ -2004,3 +2004,155 @@ footer {
     padding: 0;
   }
 }
+
+/* ---------- MULTI-ACCESS DEMO STYLES ---------- */
+.demo-split-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.demo-split-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.demo-caret {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.demo-split-btn.active .demo-caret {
+  transform: rotate(180deg);
+}
+
+.demo-expand-pane {
+  display: none;
+  background: var(--surface-dim);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  margin-top: 6px;
+  animation: fadeInDown 0.2s ease;
+}
+
+.demo-expand-pane.open {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.demo-expand-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.15s ease;
+}
+
+.demo-expand-item:hover {
+  border-color: var(--emerald-dark);
+  background: #f0fdf4;
+  transform: translateY(-1px);
+}
+
+.demo-expand-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.demo-expand-body {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.demo-expand-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--emerald-dark);
+}
+
+.demo-expand-sub {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+/* PDP Multi-Demo Box */
+.pdp-demo-multi-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+}
+
+.pdp-demo-multi-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #166534;
+  margin-bottom: 10px;
+}
+
+.pdp-demo-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.pdp-demo-card-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #86efac;
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.08);
+}
+
+.pdp-demo-card-item:hover {
+  border-color: var(--emerald-dark);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  transform: translateY(-2px);
+}
+
+.pdp-demo-card-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.pdp-demo-card-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--emerald-dark);
+}
+
+.pdp-demo-card-desc {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
