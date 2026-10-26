@@ -54,31 +54,7 @@ const VENDORS = {
     company: 'PT. Anugerah Bakti Prima',
     verified: true,
     official: true,
-    desc: 'Tim pengembang utama PT. Anugerah Bakti Prima untuk solusi enterprise, pemerintahan, dan UMKM.'
-  },
-  partner_agro: {
-    id: 'partner_agro',
-    name: 'ABP AgriTech Division',
-    company: 'Mitra Ekosistem Agrobisnis & IoT',
-    verified: true,
-    official: false,
-    desc: 'Divisi & mitra spesialis sistem telemetri perkebunan, sensor IoT lahan, dan rantai pasok komoditas.'
-  },
-  partner_edu: {
-    id: 'partner_edu',
-    name: 'ABP EduTech Partner',
-    company: 'Konsorsium Sistem Akademik Kampus',
-    verified: true,
-    official: false,
-    desc: 'Spesialis sistem informasi akademik perguruan tinggi dan integrasi pelaporan PDDIKTI Neo Feeder.'
-  },
-  partner_sme: {
-    id: 'partner_sme',
-    name: 'Nusantara Retail & Auto Labs',
-    company: 'Mitra Vendor SaaS UMKM Terverifikasi',
-    verified: true,
-    official: false,
-    desc: 'Vendor spesialis aplikasi operasional mikro-retail, bengkel otomotif, dan konter handphone.'
+    desc: 'Tim pengembang utama PT. Anugerah Bakti Prima untuk solusi enterprise, pemerintahan, pendidikan, agrobisnis, komunitas, dan UMKM.'
   }
 };
 
@@ -147,7 +123,7 @@ const PRODUCTS = [
     ]
   },
   {
-    id: 'cultiva', name: 'Cultiva', vendor: 'partner_agro', category: 'agro', color: '#1BA37A',
+    id: 'cultiva', name: 'Cultiva', vendor: 'abp', category: 'agro', color: '#1BA37A',
     tagline: 'Budidaya & Penjualan', sector: 'Perkebunan & Agrobisnis',
     onboarding: 25000000, monthly: 12500000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
     thumb: 0, rating: 4.8,
@@ -289,7 +265,7 @@ const PRODUCTS = [
     ]
   },
   {
-    id: 'akadex', name: 'Akadex', vendor: 'partner_edu', category: 'edu', color: '#6366F1',
+    id: 'akadex', name: 'Akadex', vendor: 'abp', category: 'edu', color: '#6366F1',
     tagline: 'Sistem Akademik Perguruan Tinggi', sector: 'Perguruan Tinggi',
     onboarding: 18000000, monthly: 2750000, unit: 'Perguruan Tinggi', unitLabel: 'Per PT/Bulan',
     thumb: 0, rating: 4.8,
@@ -337,7 +313,7 @@ const PRODUCTS = [
     ]
   },
   {
-    id: 'bengkelio', name: 'BengkelIO', vendor: 'partner_sme', category: 'retail', color: '#F97316',
+    id: 'bengkelio', name: 'BengkelIO', vendor: 'abp', category: 'retail', color: '#F97316',
     tagline: 'Aplikasi Bengkel Kecil', sector: 'Bengkel Motor & Mobil',
     onboarding: 1000000, monthly: 150000, unit: 'Bengkel', unitLabel: 'Per Bengkel/Bulan',
     thumb: 0, rating: 4.7,
@@ -361,7 +337,7 @@ const PRODUCTS = [
     ]
   },
   {
-    id: 'kiosio', name: 'KiosIO', vendor: 'partner_sme', category: 'retail', color: '#8B5CF6',
+    id: 'kiosio', name: 'KiosIO', vendor: 'abp', category: 'retail', color: '#8B5CF6',
     tagline: 'Aplikasi Kios HP', sector: 'Kios & Konter Handphone',
     onboarding: 1500000, monthly: 350000, unit: 'Kios', unitLabel: 'Per Kios/Bulan',
     thumb: 0, rating: 4.8,
