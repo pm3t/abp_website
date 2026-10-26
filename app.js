@@ -23,6 +23,26 @@ const CONFIG = {
 };
 
 /* ==========================================
+ * URL LIVE DEMO MASING-MASING PRODUK
+ * Isi URL lengkap (mis. 'https://kios.abpcloud.my.id').
+ * Jika diisi, tombol "Live Demo" otomatis muncul di Etalase, Detail Produk & Pricelist.
+ * ========================================== */
+const DEMO_URLS = {
+  govply: '',
+  rekan: '',
+  cultiva: '',
+  digisale: '',
+  servio: '',
+  ledgery: '',
+  qrgen: 'https://qrgen.abpcloud.my.id',
+  eklesia: '',
+  akadex: '',
+  rtnet: '',
+  bengkelio: 'https://bengkel.abpcloud.my.id',
+  kiosio: 'https://kios.abpcloud.my.id'
+};
+
+/* ==========================================
  * VENDOR (Marketplace multi-vendor)
  * Tambahkan vendor pihak ketiga di sini, lalu set `vendor` pada produk.
  * ========================================== */
@@ -129,7 +149,7 @@ const PRODUCTS = [
     id: 'cultiva', name: 'Cultiva', vendor: 'partner_agro', category: 'agro', color: '#1BA37A',
     tagline: 'Budidaya & Penjualan', sector: 'Perkebunan & Agrobisnis',
     onboarding: 25000000, monthly: 12500000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
-    thumb: 2, rating: 4.8,
+    thumb: 0, rating: 4.8,
     desc: 'Kendalikan COGS per blok kebun, pantau lahan dengan sensor IoT, dan kelola rantai penjualan hingga ke buyer.',
     highlights: ['Kontrol COGS per blok', 'Monitoring IoT lahan', 'Traceability & sales order'],
     problems: [
@@ -153,7 +173,7 @@ const PRODUCTS = [
     id: 'digisale', name: 'DigiSale', vendor: 'abp', category: 'retail', color: '#D98B2B',
     tagline: 'POS Toko & Head Office', sector: 'Retail & Toko Multi-Cabang',
     onboarding: 7500000, monthly: 750000, unit: 'Toko', unitLabel: 'Per Toko/Bulan',
-    thumb: 2, rating: 4.7,
+    thumb: 1, rating: 4.7,
     desc: 'Kasir offline-first yang tetap jalan saat internet mati, kontrol kasbon pelanggan, konversi satuan grosir–eceran, dan dashboard head office.',
     highlights: ['Kasir tetap jalan tanpa internet', 'Kontrol kasbon & piutang', 'Multi-cabang dari head office'],
     problems: [
@@ -177,7 +197,7 @@ const PRODUCTS = [
     id: 'servio', name: 'Servio', vendor: 'abp', category: 'service', color: '#1F9E6D',
     tagline: 'Penjadwalan Teknisi Pest Control', sector: 'Jasa Kebersihan & Pest Control',
     onboarding: 7500000, monthly: 100000, unit: 'User', unitLabel: 'Per User/Bulan',
-    thumb: 3, rating: 4.8, defaultQty: 5,
+    thumb: 1, rating: 4.8, defaultQty: 5,
     desc: 'Penjadwalan teknisi bebas bentrok, monitoring target kunjungan kontrak, aplikasi lapangan offline, dan portal klien.',
     highlights: ['Jadwal teknisi bebas bentrok', 'Warning SLA kontrak', 'Foto bukti & TTD digital'],
     problems: [
@@ -247,7 +267,7 @@ const PRODUCTS = [
     id: 'eklesia', name: 'CMS Eklesia', vendor: 'abp', category: 'community', color: '#E8862B',
     tagline: 'Manajemen Gereja', sector: 'Keagamaan / Gereja',
     onboarding: 12000000, monthly: 1400000, unit: 'Gereja', unitLabel: 'Per Gereja/Bulan',
-    thumb: 1, rating: 4.9,
+    thumb: 0, rating: 4.9,
     desc: 'Data jemaat & penggembalaan, keuangan persembahan multi-kantong, jadwal pelayan, presensi, komsel, dan aplikasi jemaat.',
     highlights: ['Keuangan persembahan transparan', 'Kartu jemaat & lawatan', 'Jadwal pelayan bebas bentrok'],
     problems: [
@@ -295,7 +315,7 @@ const PRODUCTS = [
     id: 'rtnet', name: 'RTnet', vendor: 'abp', category: 'community', color: '#C7973F',
     tagline: 'Aplikasi Pengurus & Warga RT', sector: 'Komunitas RT/RW',
     onboarding: 2500000, monthly: 150000, unit: 'RT', unitLabel: 'Per RT/Bulan',
-    thumb: 3, rating: 4.8,
+    thumb: 0, rating: 4.8,
     desc: 'Iuran warga transparan, surat pengantar digital, dan data warga yang aman saat pergantian pengurus.',
     highlights: ['Iuran & kas transparan', 'Surat pengantar digital', 'Serah terima pengurus mudah'],
     problems: [
@@ -383,6 +403,7 @@ let selectedPayment = 'transfer';
 const rupiah = (n) => 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
 const getProduct = (id) => PRODUCTS.find(p => p.id === id);
 const getVendor = (p) => VENDORS[p.vendor] || { name: p.vendor, verified: false };
+const getDemoUrl = (p) => (p && (DEMO_URLS[p.id] || p.demoUrl || '')).trim();
 
 function escapeHtml(text) {
   if (text === undefined || text === null) return '';
@@ -761,6 +782,7 @@ function filteredProducts() {
 function productCardHTML(p) {
   const v = getVendor(p);
   const thumb = productThumb(p);
+  const demoUrl = getDemoUrl(p);
   return `
     <article class="mp-card">
       <div class="mp-card-thumb" onclick="location.hash='#produk/${p.id}'">
@@ -793,6 +815,7 @@ function productCardHTML(p) {
             ? `<button class="btn btn-emerald btn-sm" onclick="buyNow('${p.id}')">Dapatkan Gratis</button>`
             : `<button class="btn btn-primary btn-sm" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
         </div>
+        ${demoUrl ? `<a href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener" class="btn btn-emerald btn-xs full-width" style="margin-top:8px;">🚀 Coba Live Demo ↗</a>` : ''}
       </div>
     </article>`;
 }
@@ -829,6 +852,7 @@ function renderProductPage(container, id) {
     return;
   }
   const v = getVendor(p);
+  const demoUrl = getDemoUrl(p);
   const images = productImages(p);
   const pages = (productsContent[p.id] && productsContent[p.id].pages_text) || [];
   const heroImg = productThumb(p);
@@ -850,6 +874,7 @@ function renderProductPage(container, id) {
           <h1 style="font-size:clamp(28px,3.4vw,40px);">${escapeHtml(p.name)}</h1>
           <div style="font-size:17px; font-weight:700; color:var(--primary); margin:4px 0 10px;">${escapeHtml(p.tagline)}</div>
           <p style="color:var(--ink-muted); margin:0; font-size:15.5px;">${escapeHtml(p.desc)}</p>
+          ${demoUrl ? `<div style="margin-top:14px;"><a href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener" class="btn btn-emerald btn-sm">🚀 Buka Live Demo ${escapeHtml(p.name)} ↗</a></div>` : ''}
           ${heroImg ? `
             <div class="pdp-main-preview" onclick="openImageModal('${heroImg}', '${escapeHtml(p.name)}')">
               <img src="${heroImg}" alt="Tampilan ${escapeHtml(p.name)}">
@@ -940,8 +965,9 @@ function renderProductPage(container, id) {
           <div class="buy-breakdown" id="pdp-breakdown"></div>
           <button class="btn btn-primary full-width" onclick="pdpAdd(true)">Beli Sekarang →</button>
           <button class="btn btn-outline full-width" style="margin-top:10px;" onclick="pdpAdd(false)">+ Tambah ke Keranjang</button>
+          ${demoUrl ? `<a href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener" class="btn btn-emerald full-width" style="margin-top:10px;">🚀 Coba Live Demo Aplikasi ↗</a>` : ''}
         `}
-        <button class="btn btn-xs" style="margin-top:12px; width:100%; background:none; color:var(--primary);" onclick="openDemoModal('${p.name}')">Atau jadwalkan demo dulu</button>
+        <button class="btn btn-xs" style="margin-top:12px; width:100%; background:none; color:var(--primary);" onclick="openDemoModal('${p.name}')">Atau jadwalkan demo dengan tim kami</button>
         <div class="buy-box-guarantees">
           <span>☁️ Cloud hosting & maintenance termasuk</span>
           <span>🧾 Invoice resmi dari ${CONFIG.companyName}</span>
@@ -1050,9 +1076,12 @@ function renderPricelistPage(container) {
                   <td class="mono">${p.free ? '—' : rupiah(p.onboarding)}</td>
                   <td class="mono"><strong>${p.free ? 'GRATIS' : rupiah(p.monthly)}</strong></td>
                   <td style="font-size:13px;">${escapeHtml(p.unitLabel)}</td>
-                  <td>${p.free
-                    ? `<a href="#produk/qrgen" class="btn btn-emerald btn-xs">Coba</a>`
-                    : `<button class="btn btn-primary btn-xs" onclick="addToCart('${p.id}')">+ Keranjang</button>`}</td>
+                  <td><div style="display:flex; gap:6px; align-items:center;">
+                    ${getDemoUrl(p) ? `<a href="${escapeHtml(getDemoUrl(p))}" target="_blank" rel="noopener" class="btn btn-outline btn-xs">Demo ↗</a>` : ''}
+                    ${p.free
+                      ? `<a href="#produk/qrgen" class="btn btn-emerald btn-xs">Coba</a>`
+                      : `<button class="btn btn-primary btn-xs" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
+                  </div></td>
                 </tr>`).join('')}
             </tbody>
           </table>
