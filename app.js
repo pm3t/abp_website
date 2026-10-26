@@ -35,8 +35,8 @@ const DEMO_URLS = {
   servio: '',
   ledgery: '',
   qrgen: 'https://qrgen.abpcloud.my.id',
-  eklesia: '',
-  akadex: '',
+  eklesia: 'https://eklesia-webadmin.abpcloud.my.id',
+  akadex: 'https://akadex.abpcloud.my.id',
   rtnet: '',
   bengkelio: 'https://bengkel.abpcloud.my.id',
   kiosio: 'https://kios.abpcloud.my.id'
