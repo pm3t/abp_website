@@ -34,7 +34,7 @@ const DEMO_URLS = {
   cultiva: '',
   digisale: '',
   servio: '',
-  ledgery: '',
+  ledgery: 'https://ledgery.abpcloud.my.id',
   qrgen: 'https://qrgen.abpcloud.my.id',
   eklesia: 'https://eklesia-webadmin.abpcloud.my.id',
   akadex: '',
