@@ -30,8 +30,8 @@ const CONFIG = {
  * ========================================== */
 const DEMO_URLS = {
   govply: '',
-  rekan: '',
-  cultiva: '',
+  rekan: 'https://rekan.abpcloud.my.id',
+  cultiva: 'https://cultiva.abpcloud.my.id',
   digisale: '',
   servio: '',
   ledgery: 'https://ledgery.abpcloud.my.id',
