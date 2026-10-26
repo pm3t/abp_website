@@ -101,7 +101,7 @@ const PRODUCTS = [
     id: 'govply', name: 'GovPly', vendor: 'abp', category: 'gov', color: '#0D9488',
     tagline: 'Tata Naskah Dinas & Persuratan', sector: 'Instansi Pemerintah & Swasta',
     onboarding: 7500000, monthly: 3500000, unit: 'Instansi', unitLabel: 'Per Instansi/Bulan',
-    thumb: 3, rating: 4.9,
+    thumb: 0, rating: 4.9,
     desc: 'Disposisi surat digital lewat ponsel pimpinan, pelacakan surat real-time, dan arsip digital yang dapat dicari dalam hitungan detik.',
     highlights: ['Disposisi via HP pimpinan', 'Tracking surat real-time', 'Arsip digital & audit log'],
     problems: [
@@ -125,7 +125,7 @@ const PRODUCTS = [
     id: 'rekan', name: 'Rekan', vendor: 'abp', category: 'enterprise', color: '#2E8BC9',
     tagline: 'Manajemen SDM, Penggajian & Absensi', sector: 'SDM & Payroll Perusahaan',
     onboarding: 7500000, monthly: 1500000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
-    thumb: 2, rating: 4.8,
+    thumb: 0, rating: 4.8,
     desc: 'Hitung gaji, PPh 21 TER, dan BPJS otomatis; absensi GPS geofencing; pengajuan cuti & lembur mandiri.',
     highlights: ['Payroll PPh 21 TER & BPJS', 'Absensi GPS + verifikasi wajah', 'Self-service cuti & lembur'],
     problems: [
@@ -173,7 +173,7 @@ const PRODUCTS = [
     id: 'digisale', name: 'DigiSale', vendor: 'abp', category: 'retail', color: '#D98B2B',
     tagline: 'POS Toko & Head Office', sector: 'Retail & Toko Multi-Cabang',
     onboarding: 7500000, monthly: 750000, unit: 'Toko', unitLabel: 'Per Toko/Bulan',
-    thumb: 1, rating: 4.7,
+    thumb: 0, rating: 4.7,
     desc: 'Kasir offline-first yang tetap jalan saat internet mati, kontrol kasbon pelanggan, konversi satuan grosir–eceran, dan dashboard head office.',
     highlights: ['Kasir tetap jalan tanpa internet', 'Kontrol kasbon & piutang', 'Multi-cabang dari head office'],
     problems: [
@@ -197,7 +197,7 @@ const PRODUCTS = [
     id: 'servio', name: 'Servio', vendor: 'abp', category: 'service', color: '#1F9E6D',
     tagline: 'Penjadwalan Teknisi Pest Control', sector: 'Jasa Kebersihan & Pest Control',
     onboarding: 7500000, monthly: 100000, unit: 'User', unitLabel: 'Per User/Bulan',
-    thumb: 1, rating: 4.8, defaultQty: 5,
+    thumb: 0, rating: 4.8, defaultQty: 5,
     desc: 'Penjadwalan teknisi bebas bentrok, monitoring target kunjungan kontrak, aplikasi lapangan offline, dan portal klien.',
     highlights: ['Jadwal teknisi bebas bentrok', 'Warning SLA kontrak', 'Foto bukti & TTD digital'],
     problems: [
@@ -410,8 +410,11 @@ function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
 }
 
+const ASSET_VERSION = '20261026-3';
+
 function productImages(p) {
-  return (productsContent[p.id] && productsContent[p.id].images) || [];
+  const imgs = (productsContent[p.id] && productsContent[p.id].images) || [];
+  return imgs.map(src => src.includes('?') ? src : `${src}?v=${ASSET_VERSION}`);
 }
 
 function productThumb(p) {
@@ -454,7 +457,7 @@ window.handleBackdropClick = function (event) {
 
 async function loadProductContentData() {
   try {
-    const res = await fetch('assets/products_content.json');
+    const res = await fetch(`assets/products_content.json?v=${ASSET_VERSION}`, { cache: 'no-store' });
     if (res.ok) productsContent = await res.json();
   } catch (err) {
     console.warn('products_content.json tidak dapat dimuat:', err);

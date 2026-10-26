@@ -11,9 +11,9 @@
       "Manajemen Iuran & Kas Lingkungan — Pencatatan tagihan iuran keamanan/kebersihan bulanan dan status pembayaran warga.",
       "Laporan Keuangan Transparan — Rekap pemasukan dan pengeluaran kas RT/RW yang dapat diakses langsung oleh warga.",
       "Layanan Surat Pengantar Digital — Pengajuan dan penerbitan surat pengantar RT/RW online dari smartphone warga.",
-      "Papan Informasi & Pengumuman Warga — Broadcast jadwal kerja bakti, rapat warga, dan pengumuman lingkungan.",
-      "Portal Warga (Mobile Friendly) — Tampilan aplikasi khusus warga untuk cek tagihan iuran, unggah bukti bayar, dan lapor pengurus.",
-      "Panel Bendahara & Ketua RT — Verifikasi cepat pembayaran iuran warga dan persetujuan administrasi lingkungan."
+      "Portal Warga (Mobile Friendly) — Tampilan aplikasi khusus warga untuk cek tagihan iuran, unggah bukti bayar, dan ajukan surat.",
+      "Panel Bendahara RT — Verifikasi cepat pembayaran iuran warga dan rekap buku kas lingkungan otomatis.",
+      "Panel Ketua RT — Persetujuan surat pengantar digital, manajemen warga, dan pemantauan kas RT."
     ],
     "images": [
       "assets/images/rtnet-01.png",
@@ -70,18 +70,12 @@
     "color": "#1F9E6D",
     "tagline": "Operasional Jasa Kebersihan, Pest Control & Layanan Lapangan",
     "pages_text": [
-      "Portal Login Servio — Akses terintegrasi untuk Admin Operasional, Supervisor Lapangan, dan Manajemen.",
-      "Dashboard Operasional & SLA Kontrak — Ringkasan jadwal kunjungan hari ini, pemenuhan target kontrak bulanan, teknisi aktif, dan tagihan.",
-      "Kalender Penjadwalan & Dispatch Teknisi — Alokasi jadwal kunjungan teknisi harian/mingguan bebas bentrok antar lokasi klien.",
       "Manajemen Pelanggan (Customer CRM) — Database klien komersial, gedung, restoran, dan residensial beserta titik lokasi layanan.",
-      "Manajemen Kontrak & Target Kunjungan — Pemantauan kuota kunjungan rutin per kontrak beserta peringatan dini masa berakhir kontrak.",
       "Manajemen Tim & Teknisi Lapangan — Pengaturan regu kerja, area cakupan, dan beban penugasan teknisi.",
       "Katalog Jenis Layanan & Checklist SOP — Standarisasi prosedur pekerjaan pest control, kebersihan, dan perawatan fasilitas.",
-      "Manajemen Invoice & Penagihan Kontrak — Penerbitan tagihan otomatis berdasarkan berita acara pekerjaan lapangan yang telah selesai.",
       "Manajemen Pengguna & Hak Akses — Pengaturan akun admin cabang, supervisor, dan teknisi mobile.",
-      "Platform Admin Multi-Cabang — Pengelolaan organisasi, cabang operasional, dan parameter sistem terpusat.",
-      "Portal Pelanggan (Customer Login) — Halaman akses khusus bagi klien korporat untuk memantau layanan.",
-      "Dashboard Portal Pelanggan — Klien dapat melihat jadwal kunjungan, mengunduh laporan berita acara (foto & TTD), serta riwayat invoice."
+      "Portal Login Admin & Operasional — Akses terintegrasi untuk Admin Operasional, Supervisor Lapangan, dan Manajemen.",
+      "Portal Pelanggan (Customer Portal) — Halaman akses khusus bagi klien korporat untuk memantau jadwal & laporan layanan."
     ],
     "images": [
       "assets/images/servio-01.png",
@@ -89,13 +83,7 @@
       "assets/images/servio-03.png",
       "assets/images/servio-04.png",
       "assets/images/servio-05.png",
-      "assets/images/servio-06.png",
-      "assets/images/servio-07.png",
-      "assets/images/servio-08.png",
-      "assets/images/servio-09.png",
-      "assets/images/servio-10.png",
-      "assets/images/servio-11.png",
-      "assets/images/servio-12.png"
+      "assets/images/servio-06.png"
     ]
   },
   "govply": {
@@ -124,24 +112,16 @@
     "color": "#2E8BC9",
     "tagline": "HRIS, Absensi GPS, & Automated Payroll TER PPh 21",
     "pages_text": [
-      "Executive HR Dashboard — Pantau total karyawan aktif, kehadiran hari ini, pengajuan cuti/lembur, serta grafik analitik SDM secara real-time.",
-      "Direktori & Profil Karyawan — Kelola data personalia, jabatan, divisi, status kepegawaian, dan dokumen kontrak kerja terpusat.",
-      "Monitoring Presensi & Absensi — Rekap kehadiran harian berbasis GPS Geofencing & Selfie dengan deteksi keterlambatan otomatis.",
-      "Manajemen Cuti, Izin & Lembur — Alur persetujuan (approval workflow) berjenjang untuk pengajuan cuti tahunan, sakit, dan surat perintah lembur.",
-      "Mesin Payroll & Slip Gaji Otomatis — Perhitungan gaji pokok, tunjangan, potongan absensi, BPJS Kesehatan/Ketenagakerjaan, dan PPh 21.",
-      "Rekrutmen & Applicant Tracking System (ATS) — Kelola lowongan kerja dan pipeline tahapan seleksi kandidat dari screening hingga offering.",
-      "Penilaian Kinerja (KPI & OKR) — Evaluasi performa kerja karyawan per periode secara objektif dan terukur.",
-      "Employee Self-Service (ESS) Portal — Akses mandiri karyawan untuk absensi, pengajuan cuti, dan unduh slip gaji digital."
+      "Executive HR Dashboard — Pantau total karyawan aktif, tingkat kehadiran, pengajuan cuti/lembur, estimasi payroll, serta grafik analitik SDM secara real-time.",
+      "Manajemen Karyawan (Core HR) — Direktori personel terpusat lengkap dengan NIK, jabatan, departemen, status PTKP, dan masa berlaku kontrak.",
+      "Rekapitulasi Absensi Tim & Karyawan — Monitoring log waktu hadir berbasis GPS Geofencing, status tepat waktu/terlambat, dan durasi lembur.",
+      "Pusat Pemrosesan Payroll — Kalkulasi otomatis gaji bersih (Take Home Pay), BPJS Kesehatan/Ketenagakerjaan, dan pemotongan pajak PPh 21 TER."
     ],
     "images": [
       "assets/images/rekan-01.png",
       "assets/images/rekan-02.png",
       "assets/images/rekan-03.png",
-      "assets/images/rekan-04.png",
-      "assets/images/rekan-05.png",
-      "assets/images/rekan-06.png",
-      "assets/images/rekan-07.png",
-      "assets/images/rekan-08.png"
+      "assets/images/rekan-04.png"
     ]
   },
   "cultiva": {
@@ -189,13 +169,10 @@
       "Kasir POS Desktop Offline-First — Antarmuka kasir cepat dengan pencarian barcode, pilihan multi-satuan (kg/sak, pcs/dus, galon), dan indikator sinkronisasi offline.",
       "Dashboard Manajemen Pusat (Head Office) — Monitoring real-time omzet harian lintas cabang, piutang aktif, stok kritis, dan grafik perbandingan antar toko.",
       "Master Produk & Konversi Multi-Satuan — Pengelolaan katalog barang, kategori, harga bertingkat (eceran/grosir), dan konversi satuan otomatis.",
-      "Monitoring Stok Lintas Toko — Pantau saldo persediaan real-time di seluruh cabang toko dan gudang pusat.",
       "Transfer & Mutasi Stok Antar Cabang — Pengiriman dan penerimaan barang antar toko dengan pelacakan status pengiriman.",
       "Stock Opname & Penyesuaian Fisik — Rekonsiliasi stok sistem vs stok fisik gudang beserta pencatatan selisih.",
       "Purchase Order (PO) & Penerimaan Supplier — Pembuatan pesanan pembelian ke pemasok dan pencatatan barang masuk.",
-      "Manajemen Kasbon & Piutang Pelanggan — Pencatatan hutang pelanggan, batas plafon kredit, dan histori cicilan pembayaran.",
-      "Laporan Aging (Umur) Piutang — Analisis piutang jatuh tempo lintas toko untuk mempercepat penagihan kasbon.",
-      "Laporan Konsolidasi Laba Kotor & Omzet — Rekapitulasi penjualan, HPP, dan margin keuntungan seluruh cabang toko."
+      "Laporan Aging (Umur) Piutang — Analisis piutang jatuh tempo lintas toko untuk mempercepat penagihan kasbon pelanggan."
     ],
     "images": [
       "assets/images/digisale-01.png",
@@ -204,10 +181,7 @@
       "assets/images/digisale-04.png",
       "assets/images/digisale-05.png",
       "assets/images/digisale-06.png",
-      "assets/images/digisale-07.png",
-      "assets/images/digisale-08.png",
-      "assets/images/digisale-09.png",
-      "assets/images/digisale-10.png"
+      "assets/images/digisale-07.png"
     ]
   },
   "akadex": {
@@ -255,12 +229,16 @@
     "color": "#F97316",
     "tagline": "Aplikasi Operasional, Work Order & Kasir Bengkel",
     "pages_text": [
-      "Work Order Servis, Stok Sparepart & Kasir Thermal\nCatat servis motor/mobil dalam 60 detik, cetak struk Bluetooth, dan pantau laba harian",
-      "Kontrol Stok Sparepart, Harga Modal & Laba Bersih\nCegah kebocoran stok oli dan onderdil dengan peringatan stok minimum otomatis"
+      "Dashboard Operasional Bengkel — Ringkasan omzet harian, jumlah servis aktif, status piutang belum lunas, dan peringatan stok oli/sparepart menipis.",
+      "Daftar Servis (SPK / Work Order) — Antrian pengerjaan kendaraan berdasarkan plat nomor, mekanik, keluhan pelanggan, dan rincian biaya jasa + onderdil.",
+      "Kasir & Pembayaran Bengkel — Pembayaran SPK servis yang telah selesai maupun penjualan cepat sparepart (Tunai, QRIS, Transfer, atau Kasbon).",
+      "Laporan & Analitik Penjualan & Laba — Rekapitulasi total omzet, HPP suku cadang, laba kotor beserta margin, dan rincian transaksi bengkel."
     ],
     "images": [
       "assets/images/bengkelio-01.png",
-      "assets/images/bengkelio-02.png"
+      "assets/images/bengkelio-02.png",
+      "assets/images/bengkelio-03.png",
+      "assets/images/bengkelio-04.png"
     ]
   },
   "kiosio": {
