@@ -208,8 +208,8 @@ const PRODUCTS = [
     tagline: 'Jurnal s.d. Laporan Keuangan', sector: 'Akuntansi & Keuangan',
     onboarding: 10000000, monthly: 3500000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
     thumb: 0, rating: 4.7,
-    desc: 'Accounting engine multi-tenant: jurnal manual & via API, buku besar, neraca, laba rugi, arus kas, dan rekap pajak dasar.',
-    highlights: ['Jurnal manual & via API', 'Neraca, Laba Rugi, Arus Kas', 'Auto-post atau approval'],
+    desc: 'Accounting engine multi-tenant: jurnal manual & via API, buku besar, subledger Kas/Bank, AP, AR, persediaan, aktiva tetap, dan laporan keuangan komprehensif.',
+    highlights: ['Subledger AP, AR & Aktiva Tetap', 'Neraca, Laba Rugi, Arus Kas', 'Jurnal manual & via API'],
     problems: [
       'Transaksi dari aplikasi kasir, payroll, dan operasional tidak tersambung ke pembukuan.',
       'Laporan keuangan baru tersedia setelah rekap manual akhir bulan.',
@@ -223,6 +223,8 @@ const PRODUCTS = [
     features: [
       { title: 'Chart of Accounts per Tenant', desc: 'Aset, Liabilitas, Ekuitas, Pendapatan, Beban.' },
       { title: 'Jurnal & Buku Besar', desc: 'Validasi balance, jurnal penyesuaian & tutup buku.' },
+      { title: 'Subledger Kas/Bank, AP, AR & Persediaan', desc: 'Buku pembantu kas & bank, hutang usaha (AP), piutang pelanggan (AR), dan mutasi persediaan.' },
+      { title: 'Pengelolaan Aktiva Tetap', desc: 'Pencatatan aset tetap, perhitungan nilai buku, dan jadwal penyusutan depresiasi otomatis.' },
       { title: 'Laporan Keuangan', desc: 'Neraca, Laba Rugi, Arus Kas, dan Neraca Saldo.' },
       { title: 'Integrasi API Ber-versi', desc: 'Satu tenant dapat menerima jurnal dari banyak aplikasi.' }
     ]
