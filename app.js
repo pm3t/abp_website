@@ -86,7 +86,7 @@ const PRODUCTS = [
   {
     id: 'govply', name: 'GovPly', vendor: 'abp', category: 'gov', color: '#0D9488',
     tagline: 'Tata Naskah Dinas & Persuratan', sector: 'Instansi Pemerintah & Swasta',
-    onboarding: 7500000, monthly: 3500000, unit: 'Instansi', unitLabel: 'Per Instansi/Bulan',
+    onboarding: 7500000, monthly: 3500000, unit: 'PT', unitLabel: 'Per PT/Bulan',
     thumb: 0, rating: 4.9,
     desc: 'Disposisi surat digital lewat ponsel pimpinan, pelacakan surat real-time, dan arsip digital yang dapat dicari dalam hitungan detik.',
     highlights: ['Disposisi via HP pimpinan', 'Tracking surat real-time', 'Arsip digital & audit log'],
@@ -158,7 +158,7 @@ const PRODUCTS = [
   {
     id: 'digisale', name: 'DigiSale', vendor: 'abp', category: 'retail', color: '#D98B2B',
     tagline: 'POS Toko & Head Office', sector: 'Retail & Toko Multi-Cabang',
-    onboarding: 7500000, monthly: 750000, unit: 'Toko', unitLabel: 'Per Toko/Bulan',
+    onboarding: 7500000, monthly: 1000000, unit: 'Toko', unitLabel: 'Per Toko/Bulan',
     thumb: 0, rating: 4.7,
     desc: 'Kasir offline-first yang tetap jalan saat internet mati, kontrol kasbon pelanggan, konversi satuan grosir–eceran, dan dashboard head office.',
     highlights: ['Kasir tetap jalan tanpa internet', 'Kontrol kasbon & piutang', 'Multi-cabang dari head office'],
@@ -206,7 +206,7 @@ const PRODUCTS = [
   {
     id: 'ledgery', name: 'Ledgery', vendor: 'abp', category: 'enterprise', color: '#0EA5E9',
     tagline: 'Jurnal s.d. Laporan Keuangan', sector: 'Akuntansi & Keuangan',
-    onboarding: 2500000, monthly: 750000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
+    onboarding: 10000000, monthly: 3500000, unit: 'Perusahaan', unitLabel: 'Per PT/Bulan',
     thumb: 0, rating: 4.7,
     desc: 'Accounting engine multi-tenant: jurnal manual & via API, buku besar, neraca, laba rugi, arus kas, dan rekap pajak dasar.',
     highlights: ['Jurnal manual & via API', 'Neraca, Laba Rugi, Arus Kas', 'Auto-post atau approval'],
