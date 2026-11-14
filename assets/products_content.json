@@ -277,6 +277,19 @@
       "assets/images/qrgen-01.png"
     ]
   },
+  "pph21": {
+    "id": "pph21",
+    "name": "Kalkulator PPh 21 TER",
+    "sector": "Kalkulator Pajak Gaji & TER PP 58/2023 (Free Product)",
+    "color": "#2563EB",
+    "tagline": "Kalkulator Pajak Gaji & TER PP 58/2023 (Free Product)",
+    "pages_text": [
+      "Simulasi Perhitungan PPh 21 TER Bulanan — Masukkan gaji bruto dan status PTKP (TK/0 s.d K/3) untuk mengetahui kategori TER, persentase tarif efektif, potongan pajak sebulan, dan estimasi take home pay."
+    ],
+    "images": [
+      "assets/images/pph21-01.png"
+    ]
+  },
   "airocr": {
     "id": "airocr",
     "name": "AirOCR",
