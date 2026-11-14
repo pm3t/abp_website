@@ -625,6 +625,7 @@ function handleRouting() {
   if (hash.startsWith('#produk/')) renderProductPage(view, hash.replace('#produk/', ''));
   else if (hash.startsWith('#invoice/')) renderInvoicePage(view, decodeURIComponent(hash.replace('#invoice/', '')));
   else if (route === 'pricelist') renderPricelistPage(view);
+  else if (route === 'kalkulator-pph21') renderPph21CalculatorPage(view);
   else if (route === 'vendor') renderVendorPage(view);
   else if (route === 'kontak') renderContactPage(view);
   else if (route === 'checkout') renderCheckoutPage(view);
@@ -1251,6 +1252,195 @@ function renderPricelistPage(container) {
       </div>
     </section>`;
 }
+
+/* ==========================================
+ * KALKULATOR PPH 21 TER (PP 58/2023 & PMK 168/2023)
+ * Free Tool / Lead Magnet untuk Rekan HRIS
+ * ========================================== */
+const TER_DATA = [
+  // Kategori A (TK/0, TK/1, K/0)
+  { cat: 'A', max: 5400000, rate: 0.000 },
+  { cat: 'A', max: 5650000, rate: 0.0025 },
+  { cat: 'A', max: 5950000, rate: 0.0050 },
+  { cat: 'A', max: 6300000, rate: 0.0075 },
+  { cat: 'A', max: 6750000, rate: 0.0100 },
+  { cat: 'A', max: 7500000, rate: 0.0125 },
+  { cat: 'A', max: 8550000, rate: 0.0150 },
+  { cat: 'A', max: 9650000, rate: 0.0175 },
+  { cat: 'A', max: 10050000, rate: 0.0200 },
+  { cat: 'A', max: 10350000, rate: 0.0225 },
+  { cat: 'A', max: 10700000, rate: 0.0250 },
+  { cat: 'A', max: 12500000, rate: 0.0300 },
+  { cat: 'A', max: 13750000, rate: 0.0400 },
+  { cat: 'A', max: 15100000, rate: 0.0500 },
+  { cat: 'A', max: 16900000, rate: 0.0600 },
+  { cat: 'A', max: 19750000, rate: 0.0700 },
+  { cat: 'A', max: 24150000, rate: 0.0800 },
+  { cat: 'A', max: 26450000, rate: 0.0900 },
+  { cat: 'A', max: 28000000, rate: 0.1000 },
+  { cat: 'A', max: Infinity, rate: 0.1200 },
+
+  // Kategori B (TK/2, TK/3, K/1, K/2)
+  { cat: 'B', max: 6200000, rate: 0.000 },
+  { cat: 'B', max: 6500000, rate: 0.0025 },
+  { cat: 'B', max: 6850000, rate: 0.0050 },
+  { cat: 'B', max: 7300000, rate: 0.0075 },
+  { cat: 'B', max: 9200000, rate: 0.0150 },
+  { cat: 'B', max: 10750000, rate: 0.0250 },
+  { cat: 'B', max: 12500000, rate: 0.0300 },
+  { cat: 'B', max: 14150000, rate: 0.0400 },
+  { cat: 'B', max: 16150000, rate: 0.0500 },
+  { cat: 'B', max: 18050000, rate: 0.0600 },
+  { cat: 'B', max: 20300000, rate: 0.0700 },
+  { cat: 'B', max: 22800000, rate: 0.0800 },
+  { cat: 'B', max: 26100000, rate: 0.0900 },
+  { cat: 'B', max: Infinity, rate: 0.1200 },
+
+  // Kategori C (K/3)
+  { cat: 'C', max: 6600000, rate: 0.000 },
+  { cat: 'C', max: 6950000, rate: 0.0025 },
+  { cat: 'C', max: 7350000, rate: 0.0050 },
+  { cat: 'C', max: 7800000, rate: 0.0075 },
+  { cat: 'C', max: 8850000, rate: 0.0150 },
+  { cat: 'C', max: 9900000, rate: 0.0225 },
+  { cat: 'C', max: 10700000, rate: 0.0250 },
+  { cat: 'C', max: 12500000, rate: 0.0300 },
+  { cat: 'C', max: 14150000, rate: 0.0400 },
+  { cat: 'C', max: 16150000, rate: 0.0500 },
+  { cat: 'C', max: Infinity, rate: 0.1000 },
+];
+
+function getTerCategory(ptkp) {
+  if (['TK/0', 'TK/1', 'K/0'].includes(ptkp)) return 'A';
+  if (['TK/2', 'TK/3', 'K/1', 'K/2'].includes(ptkp)) return 'B';
+  if (ptkp === 'K/3') return 'C';
+  return 'A';
+}
+
+function calculatePph21Ter(bruto, ptkp) {
+  const cat = getTerCategory(ptkp);
+  const rows = TER_DATA.filter(r => r.cat === cat);
+  const row = rows.find(r => bruto <= r.max) || rows[rows.length - 1];
+  const rate = row ? row.rate : 0;
+  const pph21 = Math.round(bruto * rate);
+  return { category: cat, rate, pph21, takeHomePay: bruto - pph21 };
+}
+
+function renderPph21CalculatorPage(container) {
+  container.innerHTML = `
+    <section class="mp-hero" style="padding:44px 0 36px;">
+      <div class="wrap">
+        <div class="mp-eyebrow">● Free Online Business Tool</div>
+        <h1 style="font-size:clamp(28px,3.6vw,42px);">Kalkulator PPh 21 TER Bulanan</h1>
+        <p class="lede" style="margin:0; max-width:760px;">Hitung otomatis potongan pajak penghasilan karyawan sebulan sesuai regulasi <strong>PP No. 58 Tahun 2023</strong> &amp; <strong>PMK 168/2023</strong> (Kategori TER A, B, C).</p>
+      </div>
+    </section>
+
+    <section style="padding:24px 0 80px;">
+      <div class="wrap" style="max-width:960px;">
+        <div class="content-panel" style="padding:32px 36px; border-radius:18px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:28px;">
+            <!-- Input Form -->
+            <div>
+              <h3 style="margin-top:0; font-size:18px;">Input Data Gaji &amp; PTKP</h3>
+              <div class="field" style="margin-top:16px;">
+                <label for="pph-gaji">Penghasilan Bruto Sebulan (Gaji Pokok + Tunjangan)</label>
+                <input type="number" id="pph-gaji" value="10000000" min="0" step="500000" oninput="runPphCalculation()" style="font-size:16px; font-weight:700;">
+                <small style="color:var(--ink-muted); display:block; margin-top:4px;">Termasuk lembur dan tunjangan tetap yang kena pajak.</small>
+              </div>
+
+              <div class="field" style="margin-top:16px;">
+                <label for="pph-ptkp">Status PTKP (Penghasilan Tidak Kena Pajak)</label>
+                <select id="pph-ptkp" onchange="runPphCalculation()" style="font-size:15px; font-weight:600;">
+                  <optgroup label="Kategori TER A">
+                    <option value="TK/0" selected>TK/0 — Tidak Kawin (0 Tanggungan) [TER A]</option>
+                    <option value="TK/1">TK/1 — Tidak Kawin (1 Tanggungan) [TER A]</option>
+                    <option value="K/0">K/0 — Kawin (0 Tanggungan) [TER A]</option>
+                  </optgroup>
+                  <optgroup label="Kategori TER B">
+                    <option value="TK/2">TK/2 — Tidak Kawin (2 Tanggungan) [TER B]</option>
+                    <option value="TK/3">TK/3 — Tidak Kawin (3 Tanggungan) [TER B]</option>
+                    <option value="K/1">K/1 — Kawin (1 Tanggungan) [TER B]</option>
+                    <option value="K/2">K/2 — Kawin (2 Tanggungan) [TER B]</option>
+                  </optgroup>
+                  <optgroup label="Kategori TER C">
+                    <option value="K/3">K/3 — Kawin (3 Tanggungan) [TER C]</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div style="margin-top:20px; font-size:13px; color:var(--ink-muted); line-height:1.5;">
+                <strong>Dasar Regulasi:</strong> Tarif Efektif Rata-rata (TER) berlaku untuk masa pajak Januari s.d. November. Pada masa pajak Desember, perhitungan tahunan menggunakan tarif Pasal 17 ayat (1) huruf a UU HPP.
+              </div>
+            </div>
+
+            <!-- Result Box -->
+            <div>
+              <h3 style="margin-top:0; font-size:18px;">Hasil Perhitungan Pajak</h3>
+              <div id="pph-result-box" style="background:var(--surface-dim); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:16px;">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Callout: Rekan HRIS -->
+          <div style="margin-top:36px; padding:24px; background:linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border:1px solid #93C5FD; border-radius:16px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+            <div style="max-width:580px;">
+              <span class="sector-pill" style="background:#2E8BC9; font-size:11px; padding:3px 10px;">SOLUSI PAYROLL OTOMATIS</span>
+              <h4 style="margin:8px 0 6px; font-size:18px; color:#1E3A8A;">Hitung Gaji, PPh 21 TER &amp; BPJS Seluruh Karyawan Otomatis</h4>
+              <p style="margin:0; font-size:13.5px; color:#1E40AF; line-height:1.5;">
+                Jangan hitung PPh 21 dan potongan lembur satu per satu di Excel. Gunakan <strong>Rekan HRIS &amp; Payroll</strong>: kalkulasi pajak otomatis, slip gaji digital via HP, dan absensi GPS geofencing.
+              </p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <a href="#produk/rekan" class="btn btn-primary btn-sm">Lihat Fitur Rekan →</a>
+              <a href="https://rekan.abpcloud.my.id" target="_blank" rel="noopener" class="btn btn-emerald btn-sm">🚀 Coba Live Demo Rekan ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+
+  runPphCalculation();
+}
+
+window.runPphCalculation = function () {
+  const gajiEl = document.getElementById('pph-gaji');
+  const ptkpEl = document.getElementById('pph-ptkp');
+  const resEl = document.getElementById('pph-result-box');
+  if (!gajiEl || !ptkpEl || !resEl) return;
+
+  const bruto = Math.max(0, parseFloat(gajiEl.value) || 0);
+  const ptkp = ptkpEl.value;
+  const res = calculatePph21Ter(bruto, ptkp);
+
+  resEl.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed var(--line);">
+      <span style="font-size:13.5px; color:var(--ink-muted);">Kategori TER</span>
+      <span style="font-size:14px; font-weight:800; background:#2E8BC9; color:#fff; padding:3px 10px; border-radius:99px;">Kategori ${res.category}</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <span style="font-size:13.5px; color:var(--ink-muted);">Tarif Efektif (TER)</span>
+      <strong style="font-size:15px; color:var(--ink);">${(res.rate * 100).toFixed(2)}%</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <span style="font-size:13.5px; color:var(--ink-muted);">Penghasilan Bruto</span>
+      <strong class="mono" style="font-size:15px;">${rupiah(bruto)}</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 14px; background:#FEF2F2; border:1px solid #FECACA; border-radius:10px;">
+      <span style="font-size:14px; font-weight:700; color:#991B1B;">Potongan PPh 21 (Bulan ini)</span>
+      <strong class="mono" style="font-size:17px; color:#DC2626;">${rupiah(res.pph21)}</strong>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:#ECFDF5; border:1px solid #A7F3D0; border-radius:10px;">
+      <div>
+        <span style="font-size:13.5px; font-weight:800; color:#065F46; display:block;">Estimasi Bersih (Take Home)</span>
+        <small style="color:#047857; font-size:11px;">Sebelum potongan BPJS / pinjaman</small>
+      </div>
+      <strong class="mono" style="font-size:18px; color:#059669;">${rupiah(res.takeHomePay)}</strong>
+    </div>
+  `;
+};
 
 /* ==========================================
  * 4. HALAMAN VENDOR
