@@ -1170,6 +1170,19 @@ function qrgenToolHTML() {
           <button class="btn btn-outline btn-sm" onclick="printQrgen()">Cetak QR</button>
         </div>
       </div>
+
+      <!-- Cross-Promotion Callout Banner -->
+      <div style="margin-top:28px; padding:18px 20px; background:linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border:1px solid #C7D2FE; border-radius:14px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+        <div style="max-width:540px;">
+          <div style="font-size:12px; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;">💡 Butuh Sistem Operasional & Kasir Lengkap?</div>
+          <div style="font-size:14px; font-weight:700; color:var(--ink); margin-bottom:4px;">Tingkatkan Bisnis Toko & Retail Anda dengan DigiSale</div>
+          <div style="font-size:12.5px; color:var(--ink-muted);">Aplikasi kasir POS yang tetap jalan saat internet mati, kelola piutang/kasbon pelanggan, konversi satuan, dan pantau banyak toko dari satu dashboard pusat.</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <a href="#produk/digisale" class="btn btn-primary btn-sm">Lihat DigiSale →</a>
+          <a href="https://digisale.abpcloud.my.id/pos" target="_blank" rel="noopener" class="btn btn-emerald btn-sm">Coba Kasir (PWA) ↗</a>
+        </div>
+      </div>
     </div>`;
 }
 
