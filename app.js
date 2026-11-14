@@ -433,7 +433,7 @@ const BILLING_PERIODS = [
 
 let productsContent = {};
 let leadsData = [];
-let mpState = { search: '', category: 'all', vendor: 'all', sort: 'featured' };
+let mpState = { search: '', category: 'all', vendor: 'all', sort: 'featured', page: 1, pageSize: 6 };
 let selectedPayment = 'transfer';
 
 /* ==========================================
@@ -842,7 +842,7 @@ function renderHomePage(container) {
       <div class="wrap mp-hero-grid">
         <div>
           <div class="mp-eyebrow">● Marketplace SaaS Multi-Vendor Indonesia</div>
-          <h1>Temukan aplikasi <span>siap pakai</span> untuk instansi, kampus & bisnis Anda.</h1>
+          <h1>Temukan aplikasi <span>siap pakai</span> untuk instansi, komunitas, kampus & bisnis Anda.</h1>
           <p class="lede">Bandingkan fitur, lihat tampilan aplikasi, pilih jumlah lisensi, lalu checkout. Langganan cloud sudah termasuk maintenance, tanpa beli server.</p>
           <div class="mp-hero-badges">
             <span class="mp-trust-pill">☁️ Cloud + maintenance</span>
@@ -890,13 +890,27 @@ function renderHomePage(container) {
       </div>
     </div>
 
-    <section class="etalase-section">
+    <section class="etalase-section" id="etalase-section">
       <div class="wrap">
         <div class="etalase-meta-bar">
-          <span class="etalase-count" id="etalase-count"></span>
-          <a href="#pricelist" class="btn btn-outline btn-sm">Bandingkan semua harga →</a>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span class="etalase-count" id="etalase-count"></span>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+            <div class="page-size-picker">
+              <label for="mp-pagesize" style="font-size:13px; color:var(--ink-muted); font-weight:600;">Per halaman:</label>
+              <select id="mp-pagesize" class="mp-select" style="padding:6px 10px; font-size:13px; height:auto; min-width:90px;" onchange="onMpPageSize(this.value)">
+                <option value="6" ${mpState.pageSize === 6 ? 'selected' : ''}>6 produk</option>
+                <option value="9" ${mpState.pageSize === 9 ? 'selected' : ''}>9 produk</option>
+                <option value="12" ${mpState.pageSize === 12 ? 'selected' : ''}>12 produk</option>
+                <option value="all" ${mpState.pageSize === 'all' ? 'selected' : ''}>Semua</option>
+              </select>
+            </div>
+            <a href="#pricelist" class="btn btn-outline btn-sm">Bandingkan semua harga →</a>
+          </div>
         </div>
         <div class="product-grid" id="product-grid"></div>
+        <div class="pagination-bar" id="pagination-bar"></div>
       </div>
     </section>
 
@@ -985,21 +999,123 @@ function productCardHTML(p) {
 function renderProductGrid() {
   const grid = document.getElementById('product-grid');
   const count = document.getElementById('etalase-count');
+  const paginationBar = document.getElementById('pagination-bar');
   if (!grid) return;
+
   const list = filteredProducts();
-  if (count) count.textContent = `Menampilkan ${list.length} dari ${PRODUCTS.length} produk`;
-  grid.innerHTML = list.length ? list.map(productCardHTML).join('') : `
+  const total = list.length;
+  const isAll = mpState.pageSize === 'all';
+  const size = isAll ? Math.max(1, total) : (parseInt(mpState.pageSize, 10) || 6);
+  const totalPages = Math.max(1, Math.ceil(total / size));
+
+  if (mpState.page > totalPages) mpState.page = totalPages;
+  if (mpState.page < 1) mpState.page = 1;
+
+  const startIndex = (mpState.page - 1) * size;
+  const pagedList = isAll ? list : list.slice(startIndex, startIndex + size);
+  const startNumber = total > 0 ? startIndex + 1 : 0;
+  const endNumber = isAll ? total : Math.min(startIndex + size, total);
+
+  if (count) {
+    if (total === 0) {
+      count.textContent = 'Tidak ada produk yang cocok';
+    } else if (totalPages === 1) {
+      count.textContent = `Menampilkan semua ${total} produk`;
+    } else {
+      count.textContent = `Menampilkan ${startNumber}–${endNumber} dari ${total} produk (Halaman ${mpState.page} dari ${totalPages})`;
+    }
+  }
+
+  grid.innerHTML = pagedList.length ? pagedList.map(productCardHTML).join('') : `
     <div class="content-panel" style="grid-column:1/-1; text-align:center;">
       <h3>Produk tidak ditemukan</h3>
       <p style="color:var(--ink-muted);">Coba kata kunci lain atau <a href="#kontak" style="color:var(--primary); font-weight:700;">hubungi kami</a> untuk kebutuhan khusus.</p>
     </div>`;
+
+  if (paginationBar) {
+    if (totalPages <= 1 || isAll || total === 0) {
+      paginationBar.innerHTML = '';
+      paginationBar.style.display = 'none';
+    } else {
+      paginationBar.style.display = 'flex';
+      paginationBar.innerHTML = renderPaginationControls(mpState.page, totalPages);
+    }
+  }
 }
 
-window.onMpSearch = (v) => { mpState.search = v; renderProductGrid(); };
-window.onMpSort = (v) => { mpState.sort = v; renderProductGrid(); };
-window.onMpVendor = (v) => { mpState.vendor = v; renderProductGrid(); };
+function renderPaginationControls(currentPage, totalPages) {
+  const getPages = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, '...', totalPages];
+    }
+    if (currentPage >= totalPages - 3) {
+      return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+  };
+
+  const pages = getPages();
+  const prevDisabled = currentPage <= 1;
+  const nextDisabled = currentPage >= totalPages;
+
+  return `
+    <button type="button" class="pagination-btn pagination-nav ${prevDisabled ? 'disabled' : ''}" 
+            ${prevDisabled ? 'disabled' : ''} 
+            onclick="setMpPage(${currentPage - 1})" 
+            aria-label="Halaman Sebelumnya">
+      ‹ Sebelumnya
+    </button>
+    <div class="pagination-numbers">
+      ${pages.map(p => {
+        if (p === '...') {
+          return `<span class="pagination-ellipsis">…</span>`;
+        }
+        const isActive = p === currentPage;
+        return `
+          <button type="button" 
+                  class="pagination-btn pagination-num ${isActive ? 'active' : ''}" 
+                  onclick="setMpPage(${p})" 
+                  ${isActive ? 'aria-current="page"' : ''}>
+            ${p}
+          </button>
+        `;
+      }).join('')}
+    </div>
+    <button type="button" class="pagination-btn pagination-nav ${nextDisabled ? 'disabled' : ''}" 
+            ${nextDisabled ? 'disabled' : ''} 
+            onclick="setMpPage(${currentPage + 1})" 
+            aria-label="Halaman Selanjutnya">
+      Selanjutnya ›
+    </button>
+  `;
+}
+
+window.setMpPage = function (page) {
+  mpState.page = page;
+  renderProductGrid();
+  const section = document.getElementById('etalase-section');
+  if (section) {
+    const yOffset = -70;
+    const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+  }
+};
+
+window.onMpPageSize = function (size) {
+  mpState.pageSize = size === 'all' ? 'all' : parseInt(size, 10);
+  mpState.page = 1;
+  renderProductGrid();
+};
+
+window.onMpSearch = (v) => { mpState.search = v; mpState.page = 1; renderProductGrid(); };
+window.onMpSort = (v) => { mpState.sort = v; mpState.page = 1; renderProductGrid(); };
+window.onMpVendor = (v) => { mpState.vendor = v; mpState.page = 1; renderProductGrid(); };
 window.onMpCategory = (c) => {
   mpState.category = c;
+  mpState.page = 1;
   document.querySelectorAll('.cat-pill').forEach((el, i) => el.classList.toggle('active', CATEGORIES[i].id === c));
   renderProductGrid();
 };
