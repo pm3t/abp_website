@@ -375,6 +375,17 @@ nav.links a.nav-item.active::after {
   margin-left: 4px;
 }
 
+.coming-soon-mini-pill {
+  background: #FEF3C7;
+  color: #B45309;
+  font-size: 9.5px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-weight: 800;
+  margin-left: 4px;
+  border: 1px solid #FDE68A;
+}
+
 /* Mobile Toggle */
 .mobile-toggle {
   display: none;
@@ -854,6 +865,18 @@ nav.links a.nav-item.active::after {
   padding: 4px 10px;
   border-radius: 99px;
   box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+}
+
+.coming-soon-badge-pill {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 99px;
+  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .mp-card-body {

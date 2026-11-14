@@ -276,5 +276,18 @@
     "images": [
       "assets/images/qrgen-01.png"
     ]
+  },
+  "airocr": {
+    "id": "airocr",
+    "name": "AirOCR",
+    "sector": "Layanan API OCR & Barcode Label Cargo Airfreight",
+    "color": "#0284C7",
+    "tagline": "Layanan API OCR & Barcode Label Cargo Airfreight",
+    "pages_text": [
+      "Arsitektur Pipeline AirOCR API — Ekstraksi instan foto label kargo udara (AWB, HAWB, koli & kode bandara IATA) menjadi format JSON terstruktur siap integrasi aplikasi tenant."
+    ],
+    "images": [
+      "assets/images/airocr-01.png"
+    ]
   }
 }

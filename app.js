@@ -49,7 +49,8 @@ const DEMO_URLS = {
   akadex: '',
   rtnet: '',
   bengkelio: 'https://bengkel.abpcloud.my.id',
-  kiosio: 'https://kios.abpcloud.my.id'
+  kiosio: 'https://kios.abpcloud.my.id',
+  airocr: ''
 };
 
 /* ==========================================
@@ -370,6 +371,31 @@ const PRODUCTS = [
       { title: 'Tiket Servis', desc: 'Status, sparepart, garansi servis, notifikasi pelanggan.' },
       { title: 'Pulsa, Data & PPOB', desc: 'Produk digital langsung dari layar kasir.' }
     ]
+  },
+  {
+    id: 'airocr', name: 'AirOCR', vendor: 'abp', category: 'enterprise', color: '#0284C7',
+    tagline: 'API OCR & Barcode Label Cargo Airfreight', sector: 'Logistik & Kargo Udara (API)',
+    onboarding: 0, monthly: 550, unit: 'API Call', unitLabel: 'Per Success API Call',
+    comingSoon: true, payPerUse: true,
+    thumb: 0, rating: 4.9,
+    desc: 'Layanan pembacaan label cargo airfreight (AWB, HAWB & handling label) yang mengembalikan format JSON terstruktur siap pakai untuk aplikasi tenant.',
+    highlights: ['Output JSON terstruktur instan', 'Billing Rp 550 / success API call', 'Bebas biaya jika foto buram (blur)'],
+    problems: [
+      'Input manual nomor AWB, HAWB, koli, dan bandara tujuan di gudang kargo rawan salah ketik dan menghambat antrean X-Ray screening.',
+      'Label kargo sering terlipat, miring, atau memiliki beragam format standar maskapai dan forwarder global.',
+      'Biaya lisensi OCR enterprise konvensional mahal dengan komitmen bulanan tinggi meski volume kargo sedang fluktuatif.'
+    ],
+    solutions: [
+      'Ekstraksi otomatis AWB (validasi Modulo-7), HAWB, jumlah koli, dan rute bandara ke format JSON siap pakai dalam hitungan detik.',
+      'Pipeline gabungan multi-rotation barcode decoder (ZXing) dan AI Vision dengan deteksi ketajaman gambar (Laplacian blur detection).',
+      'Skema Pay-per-Success API Call Rp 550 tanpa biaya bulanan tetap; gratis (Rp 0) bila foto ditolak karena terlalu buram.'
+    ],
+    features: [
+      { title: 'Output JSON Siap Integrasi', desc: 'Mengembalikan AWB, HAWB, total koli, kode bandara IATA, handling code, dan skor confidence per field.' },
+      { title: 'Multi-Rotation Barcode & AI OCR', desc: 'Membaca barcode 0°/90°/180°/270° sekaligus ekstraksi teks cerdas dengan validasi checksum Modulo-7.' },
+      { title: 'Billing Per Success API Call', desc: 'Hanya Rp 550 per panggilan API sukses. Foto buram (IMAGE_TOO_BLURRY) tidak dikenakan biaya (Rp 0).' },
+      { title: 'Idempotency & Webhook Real-Time', desc: 'Bebas tagihan ganda saat retry jaringan (Idempotency-Key) serta notifikasi webhook ber-signature HMAC-SHA256.' }
+    ]
   }
 ];
 
@@ -510,7 +536,7 @@ function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
 }
 
-const ASSET_VERSION = '20261026-3';
+const ASSET_VERSION = '20261114-1';
 
 function productImages(p) {
   const imgs = (productsContent[p.id] && productsContent[p.id].images) || [];
@@ -781,7 +807,7 @@ function renderCartDrawer() {
  * ========================================== */
 function renderHomePage(container) {
   const paidCount = PRODUCTS.filter(p => !p.free).length;
-  const minMonthly = Math.min(...PRODUCTS.filter(p => !p.free).map(p => p.monthly));
+  const minMonthly = Math.min(...PRODUCTS.filter(p => !p.free && !p.comingSoon && !p.payPerUse).map(p => p.monthly));
   const vendorCount = Object.keys(VENDORS).length;
 
   container.innerHTML = `
@@ -893,6 +919,7 @@ function productCardHTML(p) {
         <div class="mp-card-badges">
           <span class="sector-pill">${escapeHtml(p.sector)}</span>
           ${p.free ? '<span class="free-badge-pill">GRATIS</span>' : ''}
+          ${p.comingSoon ? '<span class="coming-soon-badge-pill">COMING SOON</span>' : ''}
         </div>
       </div>
       <div class="mp-card-body">
@@ -907,6 +934,9 @@ function productCardHTML(p) {
         <div class="mp-card-pricing">
           ${p.free ? `
             <div class="price-main-row"><span class="price-amount" style="color:var(--emerald-dark);">Rp 0</span><span class="price-unit">Gratis selamanya</span></div>
+          ` : p.payPerUse ? `
+            <div class="price-main-row"><span class="price-amount">${rupiah(p.monthly)}</span><span class="price-unit">${escapeHtml(p.unitLabel)}</span></div>
+            <div class="price-onboarding-row"><span>Skema tagihan</span><strong class="mono">Pay-As-You-Go API</strong></div>
           ` : `
             <div class="price-main-row"><span class="price-amount">${rupiah(p.monthly)}</span><span class="price-unit">${escapeHtml(p.unitLabel)}</span></div>
             <div class="price-onboarding-row"><span>Onboarding & migrasi (sekali)</span><strong class="mono">${rupiah(p.onboarding)}</strong></div>
@@ -914,9 +944,11 @@ function productCardHTML(p) {
         </div>
         <div class="mp-card-actions">
           <a href="#produk/${p.id}" class="btn btn-outline btn-sm">Detail</a>
-          ${p.free
-            ? `<button class="btn btn-emerald btn-sm" onclick="buyNow('${p.id}')">Dapatkan Gratis</button>`
-            : `<button class="btn btn-primary btn-sm" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
+          ${p.comingSoon
+            ? `<button class="btn btn-sm" style="background:#FEF3C7; color:#B45309; border:1px solid #F59E0B; font-weight:700;" onclick="openDemoModal('${escapeHtml(p.name)}')">🔔 Segera Hadir</button>`
+            : p.free
+              ? `<button class="btn btn-emerald btn-sm" onclick="buyNow('${p.id}')">Dapatkan Gratis</button>`
+              : `<button class="btn btn-primary btn-sm" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
         </div>
         ${demoAction}
       </div>
@@ -971,6 +1003,7 @@ function renderProductPage(container, id) {
         <div class="pdp-header-card">
           <div class="pdp-top-meta">
             <span class="sector-pill" style="background:${p.color};">${escapeHtml(p.sector)}</span>
+            ${p.comingSoon ? '<span class="coming-soon-badge-pill">COMING SOON</span>' : ''}
             <span class="vendor-tag">${v.verified ? '<span class="verified-check">✔</span>' : ''} <strong>${escapeHtml(v.name)}</strong></span>
             <span class="rating-tag">★ ${p.rating.toFixed(1)}</span>
           </div>
@@ -1034,12 +1067,23 @@ function renderProductPage(container, id) {
       </div>
 
       <aside class="pdp-buy-box">
-        <span class="buy-box-badge">${p.free ? '● Gratis' : '● Tersedia · Siap aktivasi'}</span>
+        <span class="buy-box-badge" style="${p.comingSoon ? 'background:#FEF3C7; color:#B45309;' : ''}">${p.comingSoon ? '⏳ Coming Soon · Segera Hadir' : p.free ? '● Gratis' : '● Tersedia · Siap aktivasi'}</span>
         ${p.free ? `
           <div class="buy-box-price" style="color:var(--emerald-dark);">Rp 0</div>
           <div class="buy-box-unit">Gratis selamanya, tanpa watermark</div>
           <button class="btn btn-emerald full-width" onclick="document.getElementById('qrgen-tool').scrollIntoView({behavior:'smooth'})">Coba Sekarang</button>
           <button class="btn btn-outline full-width" style="margin-top:10px;" onclick="buyNow('qrgen')">Daftar Akun Gratis</button>
+        ` : p.comingSoon ? `
+          <div class="buy-box-price">${rupiah(p.monthly)}</div>
+          <div class="buy-box-unit">${escapeHtml(p.unitLabel)} · Pay-As-You-Go API</div>
+          <div style="margin:16px 0; padding:14px; background:var(--surface-dim); border-radius:10px; border:1px solid var(--line); font-size:13px; color:var(--ink-muted); line-height:1.55;">
+            <strong style="color:var(--ink); display:block; margin-bottom:6px;">💡 Skema Billing Penggunaan API</strong>
+            • <strong>${rupiah(p.monthly)}</strong> per pemanggilan API sukses<br>
+            • <strong>Rp 0 (Gratis)</strong> jika foto ditolak karena buram<br>
+            • Output JSON siap pakai untuk aplikasi tenant<br>
+            • Dilengkapi <code>Idempotency-Key</code> (anti tagihan ganda)
+          </div>
+          <button class="btn btn-primary full-width" onclick="openDemoModal('${escapeHtml(p.name)}')">🔔 Daftar Early Access / Konsultasi API →</button>
         ` : `
           <div class="buy-box-price">${rupiah(p.monthly)}</div>
           <div class="buy-box-unit">${escapeHtml(p.unitLabel)} · termasuk cloud & maintenance</div>
@@ -1080,7 +1124,7 @@ function renderProductPage(container, id) {
     </div>`;
 
   window._pdpProduct = p;
-  if (!p.free) pdpRecalc();
+  if (!p.free && !p.comingSoon) pdpRecalc();
   if (p.id === 'qrgen') initQrgenTool();
 }
 
@@ -1172,17 +1216,19 @@ function renderPricelistPage(container) {
             <tbody>
               ${PRODUCTS.map(p => `
                 <tr>
-                  <td><div style="display:flex; align-items:center; gap:8px;"><span class="dd-dot" style="background:${p.color};"></span><a href="#produk/${p.id}"><strong>${escapeHtml(p.name)}</strong></a></div></td>
+                  <td><div style="display:flex; align-items:center; gap:8px;"><span class="dd-dot" style="background:${p.color};"></span><a href="#produk/${p.id}"><strong>${escapeHtml(p.name)}</strong></a>${p.comingSoon ? '<span class="coming-soon-mini-pill">SOON</span>' : ''}</div></td>
                   <td style="font-size:13px; color:var(--ink-muted);">${escapeHtml(getVendor(p).name)}</td>
                   <td>${escapeHtml(p.tagline)}</td>
-                  <td class="mono">${p.free ? '—' : rupiah(p.onboarding)}</td>
+                  <td class="mono">${p.free || p.payPerUse ? '—' : rupiah(p.onboarding)}</td>
                   <td class="mono"><strong>${p.free ? 'GRATIS' : rupiah(p.monthly)}</strong></td>
                   <td style="font-size:13px;">${escapeHtml(p.unitLabel)}</td>
                   <td><div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
                     ${renderDemoPricelistAction(p)}
-                    ${p.free
-                      ? `<a href="#produk/qrgen" class="btn btn-emerald btn-xs">Coba</a>`
-                      : `<button class="btn btn-primary btn-xs" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
+                    ${p.comingSoon
+                      ? `<button class="btn btn-outline btn-xs" onclick="openDemoModal('${escapeHtml(p.name)}')">Segera Hadir</button>`
+                      : p.free
+                        ? `<a href="#produk/qrgen" class="btn btn-emerald btn-xs">Coba</a>`
+                        : `<button class="btn btn-primary btn-xs" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
                   </div></td>
                 </tr>`).join('')}
             </tbody>
