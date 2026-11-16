@@ -645,26 +645,60 @@ function handleRouting() {
   const view = document.getElementById('app-view');
   const route = hash.replace('#', '').split('/')[0] || 'home';
 
-  // Kirim page_view ke GA4 saat hash URL berubah
-  if (typeof gtag === 'function') {
-  gtag('event', 'page_view', {
-    page_title: document.title,
-    page_location: window.location.href,
-    page_path: window.location.pathname + window.location.hash
-  });
-  }
-
   document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.route === route));
 
-  if (hash.startsWith('#produk/')) renderProductPage(view, hash.replace('#produk/', ''));
-  else if (hash.startsWith('#invoice/')) renderInvoicePage(view, decodeURIComponent(hash.replace('#invoice/', '')));
-  else if (route === 'pricelist') renderPricelistPage(view);
-  else if (route === 'kalkulator-pph21') renderPph21CalculatorPage(view);
-  else if (route === 'vendor') renderVendorPage(view);
-  else if (route === 'kontak') renderContactPage(view);
-  else if (route === 'checkout') renderCheckoutPage(view);
-  else if (route === 'admin') renderAdminPage(view);
-  else renderHomePage(view);
+  let pageTitle = 'ABP SaaS Marketplace — PT. Anugerah Bakti Prima';
+
+  if (hash.startsWith('#produk/')) {
+    const prodId = hash.replace('#produk/', '');
+    renderProductPage(view, prodId);
+    const prod = getProduct(prodId);
+    if (prod) pageTitle = `${prod.name} — ${prod.tagline} | ABP`;
+  }
+  else if (hash.startsWith('#invoice/')) {
+    const invNo = decodeURIComponent(hash.replace('#invoice/', ''));
+    renderInvoicePage(view, invNo);
+    pageTitle = `Invoice #${invNo} | ABP`;
+  }
+  else if (route === 'pricelist') {
+    renderPricelistPage(view);
+    pageTitle = 'Daftar Harga Semua Produk SaaS | ABP';
+  }
+  else if (route === 'kalkulator-pph21') {
+    renderPph21CalculatorPage(view);
+    pageTitle = 'Kalkulator PPh 21 TER (PP 58/2023) | Free Tool ABP';
+  }
+  else if (route === 'vendor') {
+    renderVendorPage(view);
+    pageTitle = 'Program Mitra Vendor SaaS | ABP';
+  }
+  else if (route === 'kontak') {
+    renderContactPage(view);
+    pageTitle = 'Hubungi Tim Penjualan & Dukungan | ABP';
+  }
+  else if (route === 'checkout') {
+    renderCheckoutPage(view);
+    pageTitle = 'Keranjang & Checkout Langganan | ABP';
+  }
+  else if (route === 'admin') {
+    renderAdminPage(view);
+    pageTitle = 'Portal Admin & Pesanan | ABP';
+  }
+  else {
+    renderHomePage(view);
+    pageTitle = 'ABP SaaS Marketplace — Etalase Aplikasi Bisnis & Institusi';
+  }
+
+  document.title = pageTitle;
+
+  // Kirim page_view ke GA4 saat hash URL berubah
+  if (typeof gtag === 'function') {
+    gtag('event', 'page_view', {
+      page_title: pageTitle,
+      page_location: window.location.href,
+      page_path: window.location.pathname + window.location.hash
+    });
+  }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
