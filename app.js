@@ -50,7 +50,9 @@ const DEMO_URLS = {
   rtnet: '',
   bengkelio: 'https://bengkel.abpcloud.my.id',
   kiosio: 'https://kios.abpcloud.my.id',
-  airocr: '',
+  airocr: [
+    { label: 'Dokumentasi API', sublabel: 'Spesifikasi cURL & JSON', url: '#docs/airocr', icon: '📘' }
+  ],
   pph21: 'https://abpcloud.my.id/#kalkulator-pph21'
 };
 
@@ -465,24 +467,34 @@ function renderDemoCardAction(p) {
   const links = getDemoLinks(p);
   if (!links.length) return '';
   if (links.length === 1) {
-    return `<a href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" class="btn btn-emerald btn-xs full-width" style="margin-top:8px;">🚀 Coba Live Demo ↗</a>`;
+    const isHash = links[0].url.startsWith('#');
+    const label = links[0].label || 'Live Demo';
+    const icon = links[0].icon || '🚀';
+    const arrow = isHash ? '→' : '↗';
+    const target = isHash ? '' : 'target="_blank" rel="noopener"';
+    return `<a href="${escapeHtml(links[0].url)}" ${target} class="btn btn-emerald btn-xs full-width" style="margin-top:8px;">${icon} ${escapeHtml(label)} ${arrow}</a>`;
   }
   return `
     <div class="demo-split-wrap" style="margin-top:8px;">
       <button type="button" class="btn btn-emerald btn-xs full-width demo-split-btn" id="demo-btn-${p.id}" onclick="toggleDemoExpand('${p.id}')">
-        <span>🚀 Live Demo (${links.length} Akses)</span>
+        <span>🚀 Akses Demo &amp; Docs (${links.length})</span>
         <span class="demo-caret">▾</span>
       </button>
       <div class="demo-expand-pane" id="demo-pane-${p.id}">
-        ${links.map(l => `
-          <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="demo-expand-item">
+        ${links.map(l => {
+          const isHash = l.url.startsWith('#');
+          const target = isHash ? '' : 'target="_blank" rel="noopener"';
+          const arrow = isHash ? '→' : '↗';
+          return `
+          <a href="${escapeHtml(l.url)}" ${target} class="demo-expand-item">
             <span class="demo-expand-icon">${l.icon || '🚀'}</span>
             <div class="demo-expand-body">
-              <span class="demo-expand-label">${escapeHtml(l.label)} ↗</span>
+              <span class="demo-expand-label">${escapeHtml(l.label)} ${arrow}</span>
               ${l.sublabel ? `<span class="demo-expand-sub">${escapeHtml(l.sublabel)}</span>` : ''}
             </div>
           </a>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
     </div>
   `;
@@ -492,21 +504,31 @@ function renderDemoDetailAction(p) {
   const links = getDemoLinks(p);
   if (!links.length) return '';
   if (links.length === 1) {
-    return `<div style="margin-top:14px;"><a href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" class="btn btn-emerald btn-sm">🚀 Buka Live Demo ${escapeHtml(p.name)} ↗</a></div>`;
+    const isHash = links[0].url.startsWith('#');
+    const label = links[0].label || 'Buka Live Demo';
+    const icon = links[0].icon || '🚀';
+    const arrow = isHash ? '→' : '↗';
+    const target = isHash ? '' : 'target="_blank" rel="noopener"';
+    return `<div style="margin-top:14px;"><a href="${escapeHtml(links[0].url)}" ${target} class="btn btn-emerald btn-sm">${icon} ${escapeHtml(label)} ${escapeHtml(p.name)} ${arrow}</a></div>`;
   }
   return `
     <div class="pdp-demo-multi-box" style="margin-top:18px;">
       <div class="pdp-demo-multi-title">🚀 Tersedia ${links.length} Akses Live Demo Langsung:</div>
       <div class="pdp-demo-cards-grid">
-        ${links.map(l => `
-          <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="pdp-demo-card-item">
+        ${links.map(l => {
+          const isHash = l.url.startsWith('#');
+          const target = isHash ? '' : 'target="_blank" rel="noopener"';
+          const arrow = isHash ? '→' : '↗';
+          return `
+          <a href="${escapeHtml(l.url)}" ${target} class="pdp-demo-card-item">
             <div class="pdp-demo-card-icon">${l.icon || '🚀'}</div>
             <div class="pdp-demo-card-text">
-              <div class="pdp-demo-card-label">${escapeHtml(l.label)} ↗</div>
+              <div class="pdp-demo-card-label">${escapeHtml(l.label)} ${arrow}</div>
               ${l.sublabel ? `<div class="pdp-demo-card-desc">${escapeHtml(l.sublabel)}</div>` : ''}
             </div>
           </a>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
     </div>
   `;
@@ -516,16 +538,26 @@ function renderDemoBuyboxAction(p) {
   const links = getDemoLinks(p);
   if (!links.length) return '';
   if (links.length === 1) {
-    return `<a href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" class="btn btn-emerald full-width" style="margin-top:10px;">🚀 Coba Live Demo Aplikasi ↗</a>`;
+    const isHash = links[0].url.startsWith('#');
+    const label = links[0].label || 'Coba Live Demo Aplikasi';
+    const icon = links[0].icon || '🚀';
+    const arrow = isHash ? '→' : '↗';
+    const target = isHash ? '' : 'target="_blank" rel="noopener"';
+    return `<a href="${escapeHtml(links[0].url)}" ${target} class="btn btn-emerald full-width" style="margin-top:10px;">${icon} ${escapeHtml(label)} ${arrow}</a>`;
   }
   return `
     <div style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
-      ${links.map(l => `
-        <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="btn btn-emerald btn-xs full-width" style="display:flex; align-items:center; justify-content:center; gap:6px;">
+      ${links.map(l => {
+        const isHash = l.url.startsWith('#');
+        const target = isHash ? '' : 'target="_blank" rel="noopener"';
+        const arrow = isHash ? '→' : '↗';
+        return `
+        <a href="${escapeHtml(l.url)}" ${target} class="btn btn-emerald btn-xs full-width" style="display:flex; align-items:center; justify-content:center; gap:6px;">
           <span>${l.icon || '🚀'}</span>
-          <span>Live Demo: <strong>${escapeHtml(l.label)}</strong> ↗</span>
+          <span>${escapeHtml(l.label)}: <strong>${escapeHtml(l.sublabel || p.name)}</strong> ${arrow}</span>
         </a>
-      `).join('')}
+      `;
+      }).join('')}
     </div>
   `;
 }
@@ -534,13 +566,23 @@ function renderDemoPricelistAction(p) {
   const links = getDemoLinks(p);
   if (!links.length) return '';
   if (links.length === 1) {
-    return `<a href="${escapeHtml(links[0].url)}" target="_blank" rel="noopener" class="btn btn-outline btn-xs">Demo ↗</a>`;
+    const isHash = links[0].url.startsWith('#');
+    const label = links[0].label || 'Demo';
+    const icon = links[0].icon || '';
+    const arrow = isHash ? '→' : '↗';
+    const target = isHash ? '' : 'target="_blank" rel="noopener"';
+    return `<a href="${escapeHtml(links[0].url)}" ${target} class="btn btn-outline btn-xs">${icon ? icon + ' ' : ''}${escapeHtml(label)} ${arrow}</a>`;
   }
-  return links.map(l => `
-    <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="btn btn-outline btn-xs" title="${escapeHtml(l.sublabel || l.label)}">
-      ${l.icon || ''} ${escapeHtml(l.label)} ↗
+  return links.map(l => {
+    const isHash = l.url.startsWith('#');
+    const target = isHash ? '' : 'target="_blank" rel="noopener"';
+    const arrow = isHash ? '→' : '↗';
+    return `
+    <a href="${escapeHtml(l.url)}" ${target} class="btn btn-outline btn-xs" title="${escapeHtml(l.sublabel || l.label)}">
+      ${l.icon || ''} ${escapeHtml(l.label)} ${arrow}
     </a>
-  `).join(' ');
+  `;
+  }).join(' ');
 }
 
 window.toggleDemoExpand = function (id) {
@@ -667,6 +709,10 @@ function handleRouting() {
   else if (route === 'kalkulator-pph21') {
     renderPph21CalculatorPage(view);
     pageTitle = 'Kalkulator PPh 21 TER (PP 58/2023) | Free Tool ABP';
+  }
+  else if (route === 'docs' || hash.startsWith('#docs/')) {
+    renderAirOcrDocsPage(view);
+    pageTitle = 'Dokumentasi API AirOCR — Spesifikasi & Integrasi | ABP';
   }
   else if (route === 'vendor') {
     renderVendorPage(view);
@@ -1206,7 +1252,7 @@ function renderProductPage(container, id) {
             </div>` : ''}
         </div>
 
-        ${p.id === 'qrgen' ? qrgenToolHTML() : p.id === 'pph21' ? pph21ToolHTML() : ''}
+        ${p.id === 'qrgen' ? qrgenToolHTML() : p.id === 'pph21' ? pph21ToolHTML() : p.id === 'airocr' ? airocrQuickstartHTML() : ''}
 
         <div class="content-panel">
           <h2>Masalah yang diselesaikan</h2>
@@ -1648,6 +1694,488 @@ window.runPphCalculation = function () {
     </div>
   `;
 };
+
+/* ==========================================
+ * AIROCR DEVELOPER DOCS & QUICKSTART
+ * ========================================== */
+function airocrQuickstartHTML() {
+  return `
+    <div class="content-panel" style="padding:28px 32px; border-radius:18px; border:1px solid #93C5FD; background:linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%);">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+        <div style="max-width:620px;">
+          <span class="sector-pill" style="background:#0284C7; font-size:11px; padding:3px 10px;">DEVELOPER QUICKSTART</span>
+          <h3 style="margin:10px 0 6px; font-size:20px; color:#0369A1;">Coba Integrasi REST API AirOCR Langsung</h3>
+          <p style="margin:0; font-size:14px; color:#0C4A6E; line-height:1.55;">
+            Kirimkan foto label kargo udara (AWB/HAWB) via <code>multipart/form-data</code> ke endpoint sinkron. Sistem mengembalikan JSON terstruktur dengan validasi Checksum Modulo-7 dan skor confidence dalam <strong>&le; 1 detik</strong>.
+          </p>
+        </div>
+        <div>
+          <a href="#docs/airocr" class="btn btn-primary btn-sm" style="background:#0284C7; border-color:#0284C7;">📘 Buka Dokumentasi API Lengkap →</a>
+        </div>
+      </div>
+
+      <!-- Quick cURL Block -->
+      <div class="docs-code-box" style="margin-top:20px;">
+        <div class="docs-code-header">
+          <span style="font-size:12px; font-weight:700; color:#38BDF8; font-family:'JetBrains Mono', monospace;">POST /v1/scans — Contoh cURL</span>
+          <button class="docs-copy-btn" onclick="copyDocsCode('quickstart-curl')">📋 Salin cURL</button>
+        </div>
+        <pre class="docs-code-pre" id="quickstart-curl">curl -X POST https://api.airocr.abpcloud.my.id/v1/scans \\
+  -H "X-API-Key: airocr_live_xxxxxxxxxxxxxxxx" \\
+  -H "Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000" \\
+  -F "image=@label_cargo.jpg;type=image/jpeg" \\
+  -F "barcode_hints=[\"20512345675\"]"</pre>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:16px;">
+        <div style="background:rgba(255,255,255,0.85); padding:12px 14px; border-radius:10px; border:1px solid #BAE6FD;">
+          <strong style="display:block; font-size:13px; color:#0369A1;">⚡ Pay-As-You-Go Rp 550</strong>
+          <span style="font-size:12px; color:#0284C7;">Hanya bayar per pemanggilan API sukses.</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.85); padding:12px 14px; border-radius:10px; border:1px solid #BAE6FD;">
+          <strong style="display:block; font-size:13px; color:#0369A1;">🛡️ Rp 0 Bila Foto Buram</strong>
+          <span style="font-size:12px; color:#0284C7;">Laplacian blur detection otomatis membebaskan biaya.</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.85); padding:12px 14px; border-radius:10px; border:1px solid #BAE6FD;">
+          <strong style="display:block; font-size:13px; color:#0369A1;">🔒 Anti Tagihan Ganda</strong>
+          <span style="font-size:12px; color:#0284C7;">Dilengkapi header <code>Idempotency-Key</code>.</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+window.copyDocsCode = function (id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Cuplikan kode berhasil disalin ke clipboard!');
+  }).catch(() => {
+    showToast('Gagal menyalin kode.');
+  });
+};
+
+window.switchDocsTab = function (group, lang) {
+  document.querySelectorAll(`[data-tab-group="${group}"]`).forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+  document.querySelectorAll(`[data-code-group="${group}"]`).forEach(pre => {
+    pre.style.display = pre.dataset.lang === lang ? 'block' : 'none';
+  });
+};
+
+function renderAirOcrDocsPage(container) {
+  container.innerHTML = `
+    <div class="pdp-breadcrumb">
+      <div class="wrap">
+        <a href="#home">Etalase</a> / <a href="#produk/airocr">AirOCR</a> / <strong style="color:var(--ink);">Dokumentasi API</strong>
+      </div>
+    </div>
+
+    <!-- Docs Hero -->
+    <section class="docs-hero">
+      <div class="wrap">
+        <div class="mp-eyebrow">● REST API Reference v1.1</div>
+        <h1 style="font-size:clamp(28px,3.8vw,42px); margin:10px 0 14px;">Dokumentasi API AirOCR</h1>
+        <p class="lede">
+          Spesifikasi REST API untuk ekstraksi data label kargo udara (Air Waybill, House AWB &amp; handling labels) menjadi data JSON terstruktur siap integrasi ke WMS, X-Ray Screening System, dan sistem terminal kargo.
+        </p>
+        <div style="display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; align-items:center;">
+          <span style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:5px 14px; border-radius:99px; font-size:13px; font-weight:700; font-family:'JetBrains Mono', monospace;">Base URL: https://api.airocr.abpcloud.my.id</span>
+          <span style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:5px 14px; border-radius:99px; font-size:13px; font-weight:700;">Billing: Rp 550 / Call Sukses</span>
+          <button class="btn btn-primary btn-sm" onclick="openDemoModal('AirOCR')">🔑 Ajukan API Key Production →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Docs Content Layout -->
+    <div class="wrap docs-layout">
+      <!-- Sidebar Navigation -->
+      <aside class="docs-sidebar">
+        <div class="docs-sidebar-title">Daftar Isi Dokumentasi</div>
+        <ul class="docs-nav-list">
+          <li><a href="#docs-overview" class="docs-nav-link" onclick="event.preventDefault(); document.getElementById('docs-overview').scrollIntoView({behavior:'smooth'});">📌 Ringkasan &amp; Base URL</a></li>
+          <li><a href="#docs-auth" class="docs-nav-link" onclick="event.preventDefault(); document.getElementById('docs-auth').scrollIntoView({behavior:'smooth'});">🔐 Otentikasi API Key</a></li>
+          <li><a href="#docs-idempotency" class="docs-nav-link" onclick="event.preventDefault(); document.getElementById('docs-idempotency').scrollIntoView({behavior:'smooth'});">🛡️ Proteksi Idempotency</a></li>
+          <li>
+            <a href="#docs-endpoint-scans" class="docs-nav-link" onclick="event.preventDefault(); document.getElementById('docs-endpoint-scans').scrollIntoView({behavior:'smooth'});">
+              <span class="docs-nav-badge post">POST</span> <span>/v1/scans</span>
+            </a>
+          </li>
+          <li>
+            <a href="#docs-endpoint-get" class="docs-nav-link" onclick="event.preventDefault(); document.getElementById('docs-endpoint-get').scrollIntoView({behavior:'smooth'});">
+              <span class="docs-nav-badge get">GET</span> <span>/v1/scans/:id</span>
+            </a>
+          </li>
+          <li>
+            <a href="#docs-endpoint-correction" class="docs-nav-link" onclick="event.preventDefault(); document.getElementById('docs-endpoint-correction').scrollIntoView({behavior:'smooth'});">
+              <span class="docs-nav-badge patch">PATCH</span> <span>/v1/scans/:id/correction</span>
+            </a>
+          </li>
+          <li><a href="#docs-billing-rules" class="docs-nav-link" onclick="event.preventDefault(); document.getElementById('docs-billing-rules').scrollIntoView({behavior:'smooth'});">💰 Billing &amp; Status Buram</a></li>
+          <li><a href="#docs-webhooks" class="docs-nav-link" onclick="event.preventDefault(); document.getElementById('docs-webhooks').scrollIntoView({behavior:'smooth'});">🔔 Webhook &amp; Signature HMAC</a></li>
+        </ul>
+        <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
+          <button class="btn btn-outline btn-xs full-width" onclick="openDemoModal('AirOCR')">Bantuan &amp; Konsultasi API</button>
+        </div>
+      </aside>
+
+      <!-- Main Docs Sections -->
+      <main class="docs-main">
+        <!-- Section 1: Overview -->
+        <section class="docs-section" id="docs-overview">
+          <h2>📌 Ringkasan Layanan &amp; Base URL</h2>
+          <p>
+            AirOCR menyediakan RESTful API berlatensi rendah (target p95 &le; 1 detik) untuk mendeteksi, membaca, dan memvalidasi nomor AWB kargo udara, HAWB, koli, bandara asal/tujuan (IATA), dan kode handling secara otomatis dari foto label.
+          </p>
+          <div style="background:var(--surface-dim); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-top:14px; font-family:'JetBrains Mono', monospace; font-size:13.5px;">
+            <strong style="color:var(--ink-muted); display:block; font-size:11px; margin-bottom:4px; text-transform:uppercase;">Production Base URL</strong>
+            <span style="color:var(--primary); font-weight:700;">https://api.airocr.abpcloud.my.id</span>
+          </div>
+        </section>
+
+        <!-- Section 2: Auth -->
+        <section class="docs-section" id="docs-auth">
+          <h2>🔐 Otentikasi</h2>
+          <p>
+            Setiap permintaan API ke AirOCR wajib menyertakan API Key tenant pada HTTP Header <code>X-API-Key</code>.
+          </p>
+          <div class="docs-code-box">
+            <div class="docs-code-header">
+              <span style="font-size:12px; color:#94A3B8; font-family:'JetBrains Mono', monospace;">HTTP Header</span>
+              <button class="docs-copy-btn" onclick="copyDocsCode('auth-header')">📋 Salin Header</button>
+            </div>
+            <pre class="docs-code-pre" id="auth-header">X-API-Key: airocr_live_xxxxxxxxxxxxxxxxxxxxxxxx</pre>
+          </div>
+          <p style="font-size:13.5px; color:var(--ink-muted); margin-bottom:0;">
+            ⚠️ Simpan API Key Anda secara aman pada server backend Anda. Jangan pernah menyematkan Secret API Key pada aplikasi frontend publik (browser).
+          </p>
+        </section>
+
+        <!-- Section 3: Idempotency -->
+        <section class="docs-section" id="docs-idempotency">
+          <h2>🛡️ Proteksi Idempotency (Anti Tagihan Ganda)</h2>
+          <p>
+            Koneksi internet di area kargo bandara sering kali mengalami timeout atau fluktuasi sinyal. AirOCR mendukung header <code>Idempotency-Key</code> berbasis UUID v4.
+          </p>
+          <div class="docs-code-box">
+            <div class="docs-code-header">
+              <span style="font-size:12px; color:#94A3B8; font-family:'JetBrains Mono', monospace;">HTTP Header Idempotency</span>
+              <button class="docs-copy-btn" onclick="copyDocsCode('idempotency-header')">📋 Salin</button>
+            </div>
+            <pre class="docs-code-pre" id="idempotency-header">Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000</pre>
+          </div>
+          <p style="font-size:13.5px; color:var(--ink-muted);">
+            Jika request pertama mengalami kendala jaringan dan Anda mengirim ulang (*retry*) dengan <code>Idempotency-Key</code> yang sama, AirOCR langsung mengembalikan respon yang telah diproses sebelumnya <strong>tanpa melakukan penagihan ganda (0 duplicate charge)</strong>.
+          </p>
+        </section>
+
+        <!-- Section 4: POST /v1/scans -->
+        <section class="docs-section" id="docs-endpoint-scans">
+          <h2><span class="docs-method-badge post">POST</span> <code>/v1/scans</code> — Pindai &amp; Ekstraksi Label</h2>
+          <p>
+            Endpoint utama untuk mengunggah foto label kargo dan menerima data ekstraksi JSON secara sinkron.
+          </p>
+
+          <h3 style="font-size:16px; margin-top:22px;">Header Permintaan (Request Headers)</h3>
+          <table class="docs-param-table">
+            <thead>
+              <tr><th>Header</th><th>Tipe</th><th>Keterangan</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="docs-param-name">X-API-Key</span> <span class="docs-required-badge">Wajib</span></td>
+                <td><span class="docs-param-type">string</span></td>
+                <td>API Key organisasi tenant Anda.</td>
+              </tr>
+              <tr>
+                <td><span class="docs-param-name">Idempotency-Key</span> <span class="docs-required-badge">Wajib</span></td>
+                <td><span class="docs-param-type">string (UUID)</span></td>
+                <td>Kunci unik per pemindaian untuk proteksi duplikasi request.</td>
+              </tr>
+              <tr>
+                <td><span class="docs-param-name">Content-Type</span> <span class="docs-required-badge">Wajib</span></td>
+                <td><span class="docs-param-type">string</span></td>
+                <td>Wajib menggunakan <code>multipart/form-data</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="font-size:16px; margin-top:22px;">Parameter Body (multipart/form-data)</h3>
+          <table class="docs-param-table">
+            <thead>
+              <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="docs-param-name">image</span> <span class="docs-required-badge">Wajib</span></td>
+                <td><span class="docs-param-type">File binary</span></td>
+                <td>Berkas foto label kargo. Format yang didukung: JPG, PNG, WEBP (Maks 10MB).</td>
+              </tr>
+              <tr>
+                <td><span class="docs-param-name">barcode_hints</span> <span class="docs-optional-badge">Opsional</span></td>
+                <td><span class="docs-param-type">JSON Array of String</span></td>
+                <td>Hasil pembacaan hardware barcode scanner fisik (misal: <code>["20512345675"]</code>) untuk mempercepat rekonsiliasi data.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="font-size:16px; margin-top:24px;">Contoh Kode Permintaan (Code Samples)</h3>
+          <div class="docs-code-box">
+            <div class="docs-code-header">
+              <div class="docs-code-tabs">
+                <button type="button" class="docs-code-tab active" data-tab-group="scan-req" data-lang="curl" onclick="switchDocsTab('scan-req','curl')">cURL</button>
+                <button type="button" class="docs-code-tab" data-tab-group="scan-req" data-lang="js" onclick="switchDocsTab('scan-req','js')">Node.js (JavaScript)</button>
+                <button type="button" class="docs-code-tab" data-tab-group="scan-req" data-lang="python" onclick="switchDocsTab('scan-req','python')">Python</button>
+              </div>
+              <button class="docs-copy-btn" onclick="copyDocsCode('code-scan-req')">📋 Salin Kode</button>
+            </div>
+            <!-- cURL -->
+            <pre class="docs-code-pre" id="code-scan-req" data-code-group="scan-req" data-lang="curl">curl -X POST https://api.airocr.abpcloud.my.id/v1/scans \\
+  -H "X-API-Key: airocr_live_xxxxxxxxxxxxxxxx" \\
+  -H "Idempotency-Key: 550e8400-e29b-41d4-a716-446655440000" \\
+  -F "image=@label_cargo.jpg;type=image/jpeg" \\
+  -F "barcode_hints=[\"20512345675\"]"</pre>
+            <!-- JS -->
+            <pre class="docs-code-pre" data-code-group="scan-req" data-lang="js" style="display:none;">const fs = require('fs');
+const FormData = require('form-data');
+const axios = require('axios');
+
+async function scanCargoLabel() {
+  const form = new FormData();
+  form.append('image', fs.createReadStream('label_cargo.jpg'));
+  form.append('barcode_hints', JSON.stringify(['20512345675']));
+
+  const response = await axios.post('https://api.airocr.abpcloud.my.id/v1/scans', form, {
+    headers: {
+      ...form.getHeaders(),
+      'X-API-Key': 'airocr_live_xxxxxxxxxxxxxxxx',
+      'Idempotency-Key': '550e8400-e29b-41d4-a716-446655440000'
+    }
+  });
+
+  console.log('Hasil Scan:', response.data);
+}
+
+scanCargoLabel();</pre>
+            <!-- Python -->
+            <pre class="docs-code-pre" data-code-group="scan-req" data-lang="python" style="display:none;">import requests
+import uuid
+
+url = "https://api.airocr.abpcloud.my.id/v1/scans"
+headers = {
+    "X-API-Key": "airocr_live_xxxxxxxxxxxxxxxx",
+    "Idempotency-Key": str(uuid.uuid4())
+}
+
+files = {
+    "image": ("label_cargo.jpg", open("label_cargo.jpg", "rb"), "image/jpeg")
+}
+data = {
+    "barcode_hints": '["20512345675"]'
+}
+
+response = requests.post(url, headers=headers, files=files, data=data)
+print(response.status_code)
+print(response.json())</pre>
+          </div>
+
+          <h3 style="font-size:16px; margin-top:24px;">Contoh Respon Berhasil (HTTP 200 OK)</h3>
+          <div class="docs-code-box">
+            <div class="docs-code-header">
+              <span style="font-size:12px; color:#34D399; font-weight:700; font-family:'JetBrains Mono', monospace;">Status: 200 OK — JSON Response</span>
+              <button class="docs-copy-btn" onclick="copyDocsCode('code-scan-res')">📋 Salin JSON</button>
+            </div>
+            <pre class="docs-code-pre" id="code-scan-res">{
+  "id": "scan_8f9c1e2b-4d3a-4f5e-9a1b-3c4d5e6f7a8b",
+  "status": "ok",
+  "billable": true,
+  "price": 550,
+  "currency": "IDR",
+  "latency_ms": 685,
+  "created_at": "2026-11-16T12:00:00.000Z",
+  "data": {
+    "awb": {
+      "raw": "205-12345675",
+      "airline_prefix": "205",
+      "airline_name": "All Nippon Airways (ANA)",
+      "serial": "1234567",
+      "check_digit": "5",
+      "is_valid_checksum": true,
+      "confidence": 0.99
+    },
+    "hawb": {
+      "raw": "HHAJ8829104",
+      "confidence": 0.96
+    },
+    "pieces": {
+      "piece_seq": 1,
+      "total": 15,
+      "confidence": 0.94
+    },
+    "weight_kg": 245.5,
+    "origin": {
+      "raw": "NRT",
+      "iata": "NRT"
+    },
+    "destination": {
+      "raw": "JKT",
+      "iata": "CGK"
+    },
+    "handling_codes": ["SPX", "VAL"],
+    "barcodes_detected": [
+      { "format": "CODE_128", "value": "2051234567500001" },
+      { "format": "CODE_128", "value": "HHAJ8829104+S0015+" }
+    ],
+    "image_url": "https://storage.abpcloud.my.id/labels/signed-view-url.jpg?expires=300"
+  }
+}</pre>
+          </div>
+        </section>
+
+        <!-- Section 5: GET /v1/scans/:id -->
+        <section class="docs-section" id="docs-endpoint-get">
+          <h2><span class="docs-method-badge get">GET</span> <code>/v1/scans/:id</code> — Ambil Detail Hasil Scan</h2>
+          <p>Mengambil data riwayat hasil scan beserta presigned URL gambar terbaru.</p>
+          <div class="docs-code-box">
+            <div class="docs-code-header">
+              <span style="font-size:12px; color:#94A3B8; font-family:'JetBrains Mono', monospace;">cURL</span>
+              <button class="docs-copy-btn" onclick="copyDocsCode('code-get-scan')">📋 Salin</button>
+            </div>
+            <pre class="docs-code-pre" id="code-get-scan">curl -X GET https://api.airocr.abpcloud.my.id/v1/scans/scan_8f9c1e2b-4d3a-4f5e-9a1b-3c4d5e6f7a8b \\
+  -H "X-API-Key: airocr_live_xxxxxxxxxxxxxxxx"</pre>
+          </div>
+        </section>
+
+        <!-- Section 6: PATCH /v1/scans/:id/correction -->
+        <section class="docs-section" id="docs-endpoint-correction">
+          <h2><span class="docs-method-badge patch">PATCH</span> <code>/v1/scans/:id/correction</code> — Koreksi Manual Petugas</h2>
+          <p>
+            Digunakan saat petugas AvSec atau checker di terminal kargo melakukan koreksi manual terhadap field yang memiliki confidence rendah. Data koreksi ini otomatis dicatat ke tabel <code>scan_corrections</code> sebagai ground truth.
+          </p>
+          <div class="docs-code-box">
+            <div class="docs-code-header">
+              <span style="font-size:12px; color:#94A3B8; font-family:'JetBrains Mono', monospace;">Payload Koreksi JSON</span>
+              <button class="docs-copy-btn" onclick="copyDocsCode('code-correction-req')">📋 Salin</button>
+            </div>
+            <pre class="docs-code-pre" id="code-correction-req">curl -X PATCH https://api.airocr.abpcloud.my.id/v1/scans/scan_8f9c1e2b-4d3a-4f5e-9a1b-3c4d5e6f7a8b/correction \\
+  -H "X-API-Key: airocr_live_xxxxxxxxxxxxxxxx" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "corrections": {
+      "awb": "205-12345675",
+      "pieces_total": 15
+    },
+    "officer_notes": "Barcode tertutup staples, AWB dikoreksi dari teks cetak thermal."
+  }'</pre>
+          </div>
+        </section>
+
+        <!-- Section 7: Billing & Blur Policy -->
+        <section class="docs-section" id="docs-billing-rules">
+          <h2>💰 Aturan Billing &amp; Penanganan Foto Buram (Non-Billable)</h2>
+          <p>
+            AirOCR menganut prinsip <strong>Fair Billing</strong>. Klien hanya membayar pemanggilan API yang menghasilkan data valid.
+          </p>
+          <table class="docs-param-table">
+            <thead>
+              <tr><th>Kondisi Hasil Scan</th><th>Status HTTP</th><th>Flag Billable</th><th>Tarif Billing</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Sukses Lengkap (Status: ok)</strong></td>
+                <td><code style="color:#10B981;">200 OK</code></td>
+                <td><code>billable: true</code></td>
+                <td><strong>Rp 550</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Hasil Parsial (Status: needs_review)</strong></td>
+                <td><code style="color:#10B981;">200 OK</code></td>
+                <td><code>billable: true</code></td>
+                <td><strong>Rp 550</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Foto Buram / Tidak Fokus (IMAGE_TOO_BLURRY)</strong></td>
+                <td><code style="color:#EF4444;">422 Unprocessable</code></td>
+                <td><code>billable: false</code></td>
+                <td><strong style="color:#10B981;">Rp 0 (Gratis)</strong></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="font-size:15px; margin-top:20px;">Contoh Respon Foto Buram (HTTP 422 Non-Billable):</h3>
+          <div class="docs-code-box">
+            <div class="docs-code-header">
+              <span style="font-size:12px; color:#F87171; font-weight:700; font-family:'JetBrains Mono', monospace;">Status: 422 Unprocessable Entity</span>
+            </div>
+            <pre class="docs-code-pre">{
+  "statusCode": 422,
+  "error": "Unprocessable Entity",
+  "code": "IMAGE_TOO_BLURRY",
+  "message": "Foto label terlalu buram untuk diproses secara akurat. Mohon ambil ulang dengan fokus tajam.",
+  "billable": false,
+  "price": 0
+}</pre>
+          </div>
+        </section>
+
+        <!-- Section 8: Webhooks -->
+        <section class="docs-section" id="docs-webhooks">
+          <h2>🔔 Webhook Notifikasi &amp; Signature HMAC-SHA256</h2>
+          <p>
+            Untuk integrasi asinkron (misal: sistem X-Ray bandara yang langsung melanjutkan barang ke conveyor setelah label terverifikasi), AirOCR mengirimkan webhook real-time ke URL endpoint server Anda.
+          </p>
+          <p>
+            Setiap webhook dikirim dengan header verifikasi keamanan:
+            <br><code>X-AirOCR-Signature: sha256=xxxxxxxxxxxxxxxx</code>
+          </p>
+          <div class="docs-code-box">
+            <div class="docs-code-header">
+              <span style="font-size:12px; color:#94A3B8; font-family:'JetBrains Mono', monospace;">Verifikasi Webhook (Node.js Express)</span>
+              <button class="docs-copy-btn" onclick="copyDocsCode('code-webhook-verify')">📋 Salin</button>
+            </div>
+            <pre class="docs-code-pre" id="code-webhook-verify">const crypto = require('crypto');
+
+app.post('/webhook/airocr', (req, res) => {
+  const signature = req.headers['x-airocr-signature'];
+  const webhookSecret = process.env.AIROCR_WEBHOOK_SECRET;
+
+  const expectedSignature = 'sha256=' + crypto
+    .createHmac('sha256', webhookSecret)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+
+  if (signature !== expectedSignature) {
+    return res.status(401).send('Signature webhook tidak valid.');
+  }
+
+  const event = req.body;
+  if (event.event_type === 'scan.completed') {
+    console.log('Label diproses:', event.data.awb.raw);
+    // Jalankan integrasi ke WMS / X-Ray sorter
+  }
+
+  res.status(200).json({ received: true });
+});</pre>
+          </div>
+        </section>
+
+        <!-- CTA Box -->
+        <div style="padding:28px 32px; background:linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%); color:#fff; border-radius:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+          <div>
+            <h3 style="margin:0 0 6px; font-size:20px; color:#fff;">Siap Mengintegrasikan AirOCR ke Sistem Anda?</h3>
+            <p style="margin:0; font-size:14px; color:#93C5FD;">Dapatkan akun Sandbox gratis dan konsultasikan integrasi dengan tim teknis PT. Anugerah Bakti Prima.</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-emerald btn-sm" onclick="openDemoModal('AirOCR')">🔑 Request API Key Sandbox →</button>
+            <a href="#kontak" class="btn btn-outline btn-sm" style="color:#fff; border-color:rgba(255,255,255,0.4);">Hubungi Tim Sales</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  `;
+}
 
 /* ==========================================
  * 4. HALAMAN VENDOR
