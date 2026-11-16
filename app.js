@@ -401,7 +401,7 @@ const PRODUCTS = [
     id: 'airocr', name: 'AirOCR', vendor: 'abp', category: 'enterprise', color: '#0284C7',
     tagline: 'API OCR & Barcode Label Cargo Airfreight', sector: 'Logistik & Kargo Udara (API)',
     onboarding: 0, monthly: 550, unit: 'API Call', unitLabel: 'Per Success API Call',
-    comingSoon: true, payPerUse: true,
+    payPerUse: true,
     thumb: 0, rating: 4.9,
     desc: 'Layanan pembacaan label cargo airfreight (AWB, HAWB & handling label) yang mengembalikan format JSON terstruktur siap pakai untuk aplikasi tenant.',
     highlights: ['Output JSON terstruktur instan', 'Billing Rp 550 / success API call', 'Bebas biaya jika foto buram (blur)'],
@@ -989,7 +989,9 @@ function productCardHTML(p) {
             ? `<button class="btn btn-sm" style="background:#FEF3C7; color:#B45309; border:1px solid #F59E0B; font-weight:700;" onclick="openDemoModal('${escapeHtml(p.name)}')">🔔 Segera Hadir</button>`
             : p.free
               ? `<button class="btn btn-emerald btn-sm" onclick="buyNow('${p.id}')">Dapatkan Gratis</button>`
-              : `<button class="btn btn-primary btn-sm" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
+              : p.payPerUse
+                ? `<button class="btn btn-primary btn-sm" onclick="openDemoModal('${escapeHtml(p.name)}')">Aktivasi API</button>`
+                : `<button class="btn btn-primary btn-sm" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
         </div>
         ${demoAction}
       </div>
@@ -1216,6 +1218,17 @@ function renderProductPage(container, id) {
           <div class="buy-box-unit">Gratis selamanya, tanpa instalasi</div>
           <button class="btn btn-emerald full-width" onclick="${p.id === 'pph21' ? `(document.getElementById('pph21-tool') ? document.getElementById('pph21-tool').scrollIntoView({behavior:'smooth'}) : (location.hash='#kalkulator-pph21'))` : `(document.getElementById('qrgen-tool') ? document.getElementById('qrgen-tool').scrollIntoView({behavior:'smooth'}) : (location.hash='#produk/qrgen'))`}">Coba Sekarang</button>
           <a href="${p.id === 'pph21' ? '#kalkulator-pph21' : '#produk/qrgen'}" class="btn btn-outline full-width" style="margin-top:10px; display:inline-block; text-align:center;">Buka Halaman Utuh ↗</a>
+        ` : p.payPerUse ? `
+          <div class="buy-box-price">${rupiah(p.monthly)}</div>
+          <div class="buy-box-unit">${escapeHtml(p.unitLabel)} · Pay-As-You-Go API</div>
+          <div style="margin:16px 0; padding:14px; background:var(--surface-dim); border-radius:10px; border:1px solid var(--line); font-size:13px; color:var(--ink-muted); line-height:1.55;">
+            <strong style="color:var(--ink); display:block; margin-bottom:6px;">💡 Skema Billing Penggunaan API</strong>
+            • <strong>${rupiah(p.monthly)}</strong> per pemanggilan API sukses<br>
+            • <strong>Rp 0 (Gratis)</strong> jika foto ditolak karena buram (blur)<br>
+            • Output JSON siap pakai untuk aplikasi tenant<br>
+            • Dilengkapi <code>Idempotency-Key</code> (anti tagihan ganda)
+          </div>
+          <button class="btn btn-primary full-width" onclick="openDemoModal('${escapeHtml(p.name)}')">🔑 Dapatkan API Key & Integrasi →</button>
         ` : p.comingSoon ? `
           <div class="buy-box-price">${rupiah(p.monthly)}</div>
           <div class="buy-box-unit">${escapeHtml(p.unitLabel)} · Pay-As-You-Go API</div>
@@ -1267,7 +1280,7 @@ function renderProductPage(container, id) {
     </div>`;
 
   window._pdpProduct = p;
-  if (!p.free && !p.comingSoon) pdpRecalc();
+  if (!p.free && !p.comingSoon && !p.payPerUse) pdpRecalc();
   if (p.id === 'qrgen') initQrgenTool();
   if (p.id === 'pph21') runPphCalculation();
 }
@@ -1385,7 +1398,9 @@ function renderPricelistPage(container) {
                       ? `<button class="btn btn-outline btn-xs" onclick="openDemoModal('${escapeHtml(p.name)}')">Segera Hadir</button>`
                       : p.free
                         ? `<a href="#produk/${p.id}" class="btn btn-emerald btn-xs">Coba</a>`
-                        : `<button class="btn btn-primary btn-xs" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
+                        : p.payPerUse
+                          ? `<button class="btn btn-primary btn-xs" onclick="openDemoModal('${escapeHtml(p.name)}')">Aktivasi API</button>`
+                          : `<button class="btn btn-primary btn-xs" onclick="addToCart('${p.id}')">+ Keranjang</button>`}
                   </div></td>
                 </tr>`).join('')}
             </tbody>
