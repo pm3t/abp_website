@@ -645,6 +645,15 @@ function handleRouting() {
   const view = document.getElementById('app-view');
   const route = hash.replace('#', '').split('/')[0] || 'home';
 
+  // Kirim page_view ke GA4 saat hash URL berubah
+  if (typeof gtag === 'function') {
+  gtag('event', 'page_view', {
+    page_title: document.title,
+    page_location: window.location.href,
+    page_path: window.location.pathname + window.location.hash
+  });
+  }
+
   document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.route === route));
 
   if (hash.startsWith('#produk/')) renderProductPage(view, hash.replace('#produk/', ''));
