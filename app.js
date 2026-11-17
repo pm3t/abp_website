@@ -402,11 +402,11 @@ const PRODUCTS = [
   {
     id: 'airocr', name: 'AirOCR', vendor: 'abp', category: 'enterprise', color: '#0284C7',
     tagline: 'API OCR & Barcode Label Cargo Airfreight', sector: 'Logistik & Kargo Udara (API)',
-    onboarding: 0, monthly: 550, unit: 'API Call', unitLabel: 'Per Success API Call',
+    onboarding: 0, monthly: 750, unit: 'API Call', unitLabel: 'Per Success API Call',
     payPerUse: true,
     thumb: 0, rating: 4.9,
     desc: 'Layanan pembacaan label cargo airfreight (AWB, HAWB & handling label) yang mengembalikan format JSON terstruktur siap pakai untuk aplikasi tenant.',
-    highlights: ['Output JSON terstruktur instan', 'Billing Rp 550 / success API call', 'Bebas biaya jika foto buram (blur)'],
+    highlights: ['Output JSON terstruktur instan', 'Billing Rp 750 / success API call', 'Bebas biaya jika foto buram (blur)'],
     problems: [
       'Input manual nomor AWB, HAWB, koli, dan bandara tujuan di gudang kargo rawan salah ketik dan menghambat antrean X-Ray screening.',
       'Label kargo sering terlipat, miring, atau memiliki beragam format standar maskapai dan forwarder global.',
@@ -415,12 +415,12 @@ const PRODUCTS = [
     solutions: [
       'Ekstraksi otomatis AWB (validasi Modulo-7), HAWB, jumlah koli, dan rute bandara ke format JSON siap pakai dalam hitungan detik.',
       'Pipeline gabungan multi-rotation barcode decoder (ZXing) dan AI Vision dengan deteksi ketajaman gambar (Laplacian blur detection).',
-      'Skema Pay-per-Success API Call Rp 550 tanpa biaya bulanan tetap; gratis (Rp 0) bila foto ditolak karena terlalu buram.'
+      'Skema Pay-per-Success API Call Rp 750 tanpa biaya bulanan tetap; gratis (Rp 0) bila foto ditolak karena terlalu buram.'
     ],
     features: [
       { title: 'Output JSON Siap Integrasi', desc: 'Mengembalikan AWB, HAWB, total koli, kode bandara IATA, handling code, dan skor confidence per field.' },
       { title: 'Multi-Rotation Barcode & AI OCR', desc: 'Membaca barcode 0°/90°/180°/270° sekaligus ekstraksi teks cerdas dengan validasi checksum Modulo-7.' },
-      { title: 'Billing Per Success API Call', desc: 'Hanya Rp 550 per panggilan API sukses. Foto buram (IMAGE_TOO_BLURRY) tidak dikenakan biaya (Rp 0).' },
+      { title: 'Billing Per Success API Call', desc: 'Hanya Rp 750 per panggilan API sukses. Foto buram (IMAGE_TOO_BLURRY) tidak dikenakan biaya (Rp 0).' },
       { title: 'Idempotency & Webhook Real-Time', desc: 'Bebas tagihan ganda saat retry jaringan (Idempotency-Key) serta notifikasi webhook ber-signature HMAC-SHA256.' }
     ]
   }
@@ -1729,7 +1729,7 @@ function airocrQuickstartHTML() {
 
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:16px;">
         <div style="background:rgba(255,255,255,0.85); padding:12px 14px; border-radius:10px; border:1px solid #BAE6FD;">
-          <strong style="display:block; font-size:13px; color:#0369A1;">⚡ Pay-As-You-Go Rp 550</strong>
+          <strong style="display:block; font-size:13px; color:#0369A1;">⚡ Pay-As-You-Go Rp 750</strong>
           <span style="font-size:12px; color:#0284C7;">Hanya bayar per pemanggilan API sukses.</span>
         </div>
         <div style="background:rgba(255,255,255,0.85); padding:12px 14px; border-radius:10px; border:1px solid #BAE6FD;">
@@ -1783,7 +1783,7 @@ function renderAirOcrDocsPage(container) {
         </p>
         <div style="display:flex; gap:12px; margin-top:22px; flex-wrap:wrap; align-items:center;">
           <span style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:5px 14px; border-radius:99px; font-size:13px; font-weight:700; font-family:'JetBrains Mono', monospace;">Base URL: https://api.airocr.abpcloud.my.id</span>
-          <span style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:5px 14px; border-radius:99px; font-size:13px; font-weight:700;">Billing: Rp 550 / Call Sukses</span>
+          <span style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:5px 14px; border-radius:99px; font-size:13px; font-weight:700;">Billing: Rp 750 / Call Sukses</span>
           <button class="btn btn-primary btn-sm" onclick="openDemoModal('AirOCR')">🔑 Ajukan API Key Production →</button>
         </div>
       </div>
@@ -1991,7 +1991,7 @@ print(response.json())</pre>
   "id": "scan_8f9c1e2b-4d3a-4f5e-9a1b-3c4d5e6f7a8b",
   "status": "ok",
   "billable": true,
-  "price": 550,
+  "price": 750,
   "currency": "IDR",
   "latency_ms": 685,
   "created_at": "2026-11-16T12:00:00.000Z",
@@ -2087,13 +2087,13 @@ print(response.json())</pre>
                 <td><strong>Sukses Lengkap (Status: ok)</strong></td>
                 <td><code style="color:#10B981;">200 OK</code></td>
                 <td><code>billable: true</code></td>
-                <td><strong>Rp 550</strong></td>
+                <td><strong>Rp 750</strong></td>
               </tr>
               <tr>
                 <td><strong>Hasil Parsial (Status: needs_review)</strong></td>
                 <td><code style="color:#10B981;">200 OK</code></td>
                 <td><code>billable: true</code></td>
-                <td><strong>Rp 550</strong></td>
+                <td><strong>Rp 750</strong></td>
               </tr>
               <tr>
                 <td><strong>Foto Buram / Tidak Fokus (IMAGE_TOO_BLURRY)</strong></td>
