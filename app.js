@@ -57,6 +57,67 @@ const DEMO_URLS = {
 };
 
 /* ==========================================
+ * GATED DEMO & VIDEO WALKTHROUGH (8 PRODUK PRIORITAS)
+ * Pengunjung melihat Interactive Guided Tour + Video Walkthrough terlebih dahulu,
+ * dan mengisi form singkat (Nama, Instansi, WhatsApp) untuk membuka link Live Demo.
+ * ========================================== */
+const GATED_DEMO_PRODUCTS = new Set([
+  'govply', 'rekan', 'cultiva', 'eklesia', 'akadex', 'digisale', 'servio', 'ledgery'
+]);
+
+// Isi dengan link YouTube (youtu.be / youtube.com/watch?v=), Loom, atau file .mp4 jika video sudah siap
+const VIDEO_WALKTHROUGHS = {
+  govply: '',
+  rekan: '',
+  cultiva: '',
+  eklesia: '',
+  akadex: '',
+  digisale: '',
+  servio: '',
+  ledgery: ''
+};
+
+const isGatedDemo = (p) => Boolean(p && GATED_DEMO_PRODUCTS.has(p.id));
+
+function getUnlockedDemos() {
+  try {
+    return JSON.parse(localStorage.getItem('abp_unlocked_demos') || '{}');
+  } catch (e) {
+    return {};
+  }
+}
+
+function isDemoUnlocked(productId) {
+  const unlocked = getUnlockedDemos();
+  return Boolean(unlocked && unlocked[productId]);
+}
+
+function saveUnlockedDemo(productId, info) {
+  try {
+    const unlocked = getUnlockedDemos();
+    unlocked[productId] = { ...info, unlockedAt: new Date().toISOString() };
+    localStorage.setItem('abp_unlocked_demos', JSON.stringify(unlocked));
+  } catch (e) {}
+}
+
+function getVideoEmbedHtml(url, productName) {
+  const trimmed = (url || '').trim();
+  if (!trimmed) return '';
+  // YouTube
+  const ytMatch = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    return `<div class="guided-tour-video-wrap"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}?rel=0" title="Video Walkthrough ${escapeHtml(productName)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+  }
+  // Loom
+  const loomMatch = trimmed.match(/loom\.com\/(?:share|embed)\/([a-zA-Z0-9]+)/);
+  if (loomMatch) {
+    return `<div class="guided-tour-video-wrap"><iframe src="https://www.loom.com/embed/${loomMatch[1]}" title="Video Walkthrough ${escapeHtml(productName)}" allowfullscreen></iframe></div>`;
+  }
+  // Direct MP4 / WebM
+  return `<div class="guided-tour-video-wrap"><video controls controlsList="nodownload" preload="metadata"><source src="${escapeHtml(trimmed)}" type="video/mp4">Browser Anda tidak mendukung pemutar video.</video></div>`;
+}
+
+/* ==========================================
  * VENDOR (Marketplace multi-vendor)
  * Tambahkan vendor pihak ketiga di sini, lalu set `vendor` pada produk.
  * ========================================== */
@@ -464,6 +525,10 @@ const getDemoUrl = (p) => {
 };
 
 function renderDemoCardAction(p) {
+  if (isGatedDemo(p)) {
+    const unlocked = isDemoUnlocked(p.id);
+    return `<button type="button" class="btn btn-emerald btn-xs full-width" style="margin-top:8px;" onclick="openGatedDemoModal('${p.id}')">${unlocked ? '🔓 Buka Live Demo ↗' : '🔒 Preview &amp; Akses Demo →'}</button>`;
+  }
   const links = getDemoLinks(p);
   if (!links.length) return '';
   if (links.length === 1) {
@@ -501,6 +566,20 @@ function renderDemoCardAction(p) {
 }
 
 function renderDemoDetailAction(p) {
+  if (isGatedDemo(p)) {
+    const unlocked = isDemoUnlocked(p.id);
+    const hasVideo = Boolean((VIDEO_WALKTHROUGHS[p.id] || '').trim());
+    return `
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="const el=document.getElementById('pdp-guided-tour'); if(el) el.scrollIntoView({behavior:'smooth'});">
+          ${hasVideo ? '🎬 Video &amp; Guided Tour' : '🧭 Interactive Guided Tour'} ↓
+        </button>
+        <button type="button" class="btn btn-emerald btn-sm" onclick="openGatedDemoModal('${p.id}')">
+          ${unlocked ? `🔓 Buka Live Demo ${escapeHtml(p.name)} ↗` : `🔒 Buka Akses Live Demo ${escapeHtml(p.name)} →`}
+        </button>
+      </div>
+    `;
+  }
   const links = getDemoLinks(p);
   if (!links.length) return '';
   if (links.length === 1) {
@@ -535,6 +614,10 @@ function renderDemoDetailAction(p) {
 }
 
 function renderDemoBuyboxAction(p) {
+  if (isGatedDemo(p)) {
+    const unlocked = isDemoUnlocked(p.id);
+    return `<button type="button" class="btn btn-emerald full-width" style="margin-top:10px;" onclick="openGatedDemoModal('${p.id}')">${unlocked ? '🔓 Buka Live Demo Aplikasi ↗' : '🔒 Buka Akses Live Demo →'}</button>`;
+  }
   const links = getDemoLinks(p);
   if (!links.length) return '';
   if (links.length === 1) {
@@ -563,6 +646,10 @@ function renderDemoBuyboxAction(p) {
 }
 
 function renderDemoPricelistAction(p) {
+  if (isGatedDemo(p)) {
+    const unlocked = isDemoUnlocked(p.id);
+    return `<button type="button" class="btn btn-outline btn-xs" onclick="openGatedDemoModal('${p.id}')">${unlocked ? '🔓 Demo ↗' : '🔒 Demo'}</button>`;
+  }
   const links = getDemoLinks(p);
   if (!links.length) return '';
   if (links.length === 1) {
@@ -638,13 +725,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    closeImageModal(); closeDemoModal(); closeVendorModal(); closeCartDrawer();
+    closeImageModal(); closeDemoModal(); closeVendorModal(); closeGatedDemoModal(); closeCartDrawer();
   }
 });
 
 window.handleBackdropClick = function (event) {
   if (event.target.classList.contains('modal-backdrop')) {
-    closeImageModal(); closeDemoModal(); closeVendorModal();
+    closeImageModal(); closeDemoModal(); closeVendorModal(); closeGatedDemoModal();
   }
 };
 
@@ -1252,7 +1339,7 @@ function renderProductPage(container, id) {
             </div>` : ''}
         </div>
 
-        ${p.id === 'qrgen' ? qrgenToolHTML() : p.id === 'pph21' ? pph21ToolHTML() : p.id === 'airocr' ? airocrQuickstartHTML() : ''}
+        ${p.id === 'qrgen' ? qrgenToolHTML() : p.id === 'pph21' ? pph21ToolHTML() : p.id === 'airocr' ? airocrQuickstartHTML() : isGatedDemo(p) ? renderGuidedTourHTML(p) : ''}
 
         <div class="content-panel">
           <h2>Masalah yang diselesaikan</h2>
@@ -2722,6 +2809,271 @@ window.openImageModal = function (src, caption) {
   document.getElementById('image-modal').classList.add('open');
 };
 window.closeImageModal = () => { const m = document.getElementById('image-modal'); if (m) m.classList.remove('open'); };
+
+/* ==========================================
+ * INTERACTIVE GUIDED TOUR & GATED DEMO MODAL
+ * ========================================== */
+function renderGuidedTourHTML(p) {
+  const images = productImages(p);
+  const pages = (productsContent[p.id] && productsContent[p.id].pages_text) || [];
+  if (!images.length) return '';
+
+  const slides = images.map((src, i) => {
+    const raw = (pages[i] || '').trim();
+    const parts = raw.split(/\s+—\s+|\n/);
+    const title = (parts[0] || `Tampilan ${i + 1}`).replace(/^[^\w]+/, '').trim();
+    const desc = parts.slice(1).join(' ').trim() || `Cuplikan antarmuka modul utama ${p.name}.`;
+    return { src, title, desc };
+  });
+
+  window._guidedTourState = { productId: p.id, productName: p.name, slides, index: 0 };
+  const videoUrl = (VIDEO_WALKTHROUGHS[p.id] || '').trim();
+  const videoEmbed = getVideoEmbedHtml(videoUrl, p.name);
+  const unlocked = isDemoUnlocked(p.id);
+  const first = slides[0];
+
+  return `
+    <div class="content-panel guided-tour-panel" id="pdp-guided-tour">
+      <div class="guided-tour-header">
+        <div>
+          <span class="free-mini-pill" style="background:#E0F2FE; color:#0369A1; margin-bottom:6px; display:inline-block;">PREVIEW INTERAKTIF</span>
+          <h2 style="margin:0; font-size:21px;">Tur Produk &amp; Video Walkthrough ${escapeHtml(p.name)}</h2>
+        </div>
+        <div class="guided-tour-tabs" role="tablist">
+          <button type="button" class="guided-tour-tab active" id="tour-tab-slides" onclick="switchTourTab('slides')">🧭 Guided Tour (${slides.length})</button>
+          <button type="button" class="guided-tour-tab" id="tour-tab-video" onclick="switchTourTab('video')">🎬 Video Walkthrough</button>
+        </div>
+      </div>
+
+      <div id="tour-pane-slides">
+        <div class="guided-tour-stage">
+          <div class="guided-tour-img-wrap" oncontextmenu="return false;">
+            <img id="tour-slide-img" src="${first.src}" alt="${escapeHtml(p.name)} — ${escapeHtml(first.title)}" draggable="false">
+            <div class="guided-tour-watermark">
+              <div class="guided-tour-watermark-text">DEMO PREVIEW · ABP</div>
+            </div>
+            <div class="guided-tour-step-pill" id="tour-step-pill">Langkah 1 dari ${slides.length}</div>
+            <div class="guided-tour-watermark-badge">🔒 Protected Preview · ${escapeHtml(CONFIG.companyName)}</div>
+          </div>
+          <div class="guided-tour-caption-bar">
+            <div class="guided-tour-caption-text">
+              <h4 id="tour-slide-title">${escapeHtml(first.title)}</h4>
+              <p id="tour-slide-desc">${escapeHtml(first.desc)}</p>
+            </div>
+            <div class="guided-tour-nav">
+              <button type="button" id="tour-prev-btn" onclick="tourStep(-1)" disabled>← Sebelumnya</button>
+              <button type="button" id="tour-next-btn" onclick="tourStep(1)" ${slides.length <= 1 ? 'disabled' : ''}>Selanjutnya →</button>
+            </div>
+          </div>
+          <div class="guided-tour-dots" id="tour-dots">
+            ${slides.map((_, i) => `<button type="button" class="guided-tour-dot ${i === 0 ? 'active' : ''}" onclick="tourGoTo(${i})" aria-label="Langkah ${i + 1}"></button>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div id="tour-pane-video" style="display:none;">
+        ${videoEmbed || `
+          <div class="guided-tour-video-placeholder">
+            <div style="font-size:38px; margin-bottom:10px;">🎬</div>
+            <h3 style="margin:0 0 8px; color:#ffffff; font-size:18px;">Video Walkthrough ${escapeHtml(p.name)}</h3>
+            <p style="margin:0 auto 18px; max-width:500px; font-size:13.5px; color:#cbd5e1; line-height:1.6;">
+              Video rekaman walkthrough 2 menit sedang dipersiapkan oleh tim Product Specialist kami. Sementara itu, Anda dapat menjelajahi <strong>Guided Tour (${slides.length} langkah)</strong> atau membuka langsung <strong>Akses Live Demo</strong>.
+            </p>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+              <button type="button" class="btn btn-outline btn-sm" style="color:#fff; border-color:rgba(255,255,255,0.35);" onclick="switchTourTab('slides')">🧭 Lihat Guided Tour</button>
+              <button type="button" class="btn btn-emerald btn-sm" onclick="openGatedDemoModal('${p.id}')">${unlocked ? '🔓 Buka Live Demo ↗' : '🔒 Buka Akses Live Demo →'}</button>
+            </div>
+          </div>
+        `}
+      </div>
+
+      <div class="guided-tour-footer-cta">
+        <div>
+          <strong style="display:block; font-size:14.5px; color:#065f46;">Ingin mencoba langsung aplikasi ${escapeHtml(p.name)}?</strong>
+          <span style="font-size:13px; color:#047857;">Isi data singkat (Nama, Instansi &amp; WhatsApp) untuk langsung membuka link Live Demo.</span>
+        </div>
+        <button type="button" class="btn btn-emerald btn-sm" onclick="openGatedDemoModal('${p.id}')">
+          ${unlocked ? `🔓 Buka Live Demo ${escapeHtml(p.name)} ↗` : `🔒 Buka Akses Live Demo →`}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+window.switchTourTab = function (tab) {
+  const sPane = document.getElementById('tour-pane-slides');
+  const vPane = document.getElementById('tour-pane-video');
+  const sTab = document.getElementById('tour-tab-slides');
+  const vTab = document.getElementById('tour-tab-video');
+  if (!sPane || !vPane) return;
+  const isSlides = tab === 'slides';
+  sPane.style.display = isSlides ? '' : 'none';
+  vPane.style.display = isSlides ? 'none' : '';
+  if (sTab) sTab.classList.toggle('active', isSlides);
+  if (vTab) vTab.classList.toggle('active', !isSlides);
+};
+
+window.tourGoTo = function (idx) {
+  const st = window._guidedTourState;
+  if (!st || !st.slides.length) return;
+  const clamped = Math.max(0, Math.min(idx, st.slides.length - 1));
+  st.index = clamped;
+  const slide = st.slides[clamped];
+  const img = document.getElementById('tour-slide-img');
+  const pill = document.getElementById('tour-step-pill');
+  const title = document.getElementById('tour-slide-title');
+  const desc = document.getElementById('tour-slide-desc');
+  const prevBtn = document.getElementById('tour-prev-btn');
+  const nextBtn = document.getElementById('tour-next-btn');
+  if (img) { img.src = slide.src; img.alt = `${st.productName} — ${slide.title}`; }
+  if (pill) pill.textContent = `Langkah ${clamped + 1} dari ${st.slides.length}`;
+  if (title) title.textContent = slide.title;
+  if (desc) desc.textContent = slide.desc;
+  if (prevBtn) prevBtn.disabled = clamped === 0;
+  if (nextBtn) nextBtn.disabled = clamped === st.slides.length - 1;
+  document.querySelectorAll('#tour-dots .guided-tour-dot').forEach((d, i) => d.classList.toggle('active', i === clamped));
+};
+
+window.tourStep = function (delta) {
+  const st = window._guidedTourState;
+  if (!st) return;
+  window.tourGoTo(st.index + delta);
+};
+
+function renderGatedDemoModalContent(productId) {
+  const p = getProduct(productId);
+  const body = document.getElementById('gated-demo-body');
+  if (!p || !body) return;
+  const links = getDemoLinks(p);
+  const unlocked = isDemoUnlocked(p.id);
+
+  if (unlocked) {
+    const waText = encodeURIComponent(`Halo Tim ABP, saya baru saja membuka akses Live Demo ${p.name} di abpcloud.my.id dan ingin dibantu kredensial login / panduan singkat.`);
+    body.innerHTML = `
+      <div class="modal-header">
+        <div class="modal-label"><span class="rule"></span> Akses Live Demo Terbuka</div>
+        <h3>🔓 Live Demo ${escapeHtml(p.name)}</h3>
+        <p>Terima kasih telah mendaftar. Silakan klik tautan di bawah ini untuk mencoba langsung aplikasi <strong>${escapeHtml(p.name)}</strong>.</p>
+      </div>
+      <div class="gated-unlock-banner">
+        <strong>✓ Verifikasi Berhasil</strong> — Tautan akses demo ${escapeHtml(p.name)} aktif di browser Anda.
+      </div>
+      ${links.length ? `
+        <div class="gated-links-list">
+          ${links.map(l => {
+            const isHash = l.url.startsWith('#');
+            const target = isHash ? '' : 'target="_blank" rel="noopener"';
+            const arrow = isHash ? '→' : '↗';
+            return `
+              <a href="${escapeHtml(l.url)}" ${target} class="gated-link-card">
+                <div class="gated-link-icon">${l.icon || '🚀'}</div>
+                <div class="gated-link-body">
+                  <strong>${escapeHtml(l.label)} — ${escapeHtml(p.name)} ${arrow}</strong>
+                  <span>${escapeHtml(l.sublabel || l.url)}</span>
+                </div>
+              </a>
+            `;
+          }).join('')}
+        </div>
+      ` : `
+        <div class="gated-unlock-banner" style="background:#EFF6FF; border-color:#BFDBFE; color:#1E40AF;">
+          <strong>Sandbox Khusus Instansi:</strong> Akses Live Demo ${escapeHtml(p.name)} disiapkan khusus per instansi agar data uji tetap terisolasi. Klik tombol WhatsApp di bawah agar tim kami langsung mengirimkan tautan &amp; akun sandbox Anda.
+        </div>
+      `}
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="https://wa.me/${CONFIG.phoneWA}?text=${waText}" target="_blank" rel="noopener" class="btn btn-primary full-width" style="text-align:center;">
+          💬 Minta Akun Login / Panduan via WhatsApp →
+        </a>
+      </div>
+    `;
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="modal-header">
+      <div class="modal-label"><span class="rule"></span> Gated Live Demo Access</div>
+      <h3>🔒 Buka Akses Live Demo ${escapeHtml(p.name)}</h3>
+      <p>Isi data singkat berikut untuk langsung membuka tautan Live Demo <strong>${escapeHtml(p.name)}</strong> secara otomatis.</p>
+    </div>
+    <form id="gated-demo-form" onsubmit="handleGatedDemoSubmit(event, '${p.id}')">
+      <div class="field-row">
+        <div class="field">
+          <label for="gd-nama">Nama Lengkap *</label>
+          <input type="text" id="gd-nama" required placeholder="Contoh: Budi Santoso">
+        </div>
+        <div class="field">
+          <label for="gd-instansi">Nama Perusahaan / Instansi *</label>
+          <input type="text" id="gd-instansi" required placeholder="PT, Kampus, Gereja, atau Toko">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="gd-phone">No. WhatsApp *</label>
+          <input type="tel" id="gd-phone" required placeholder="0812-xxxx-xxxx">
+        </div>
+        <div class="field">
+          <label for="gd-email">Email Bisnis (Opsional)</label>
+          <input type="email" id="gd-email" placeholder="nama@instansi.id">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-emerald full-width">🔓 Buka Link Live Demo Sekarang →</button>
+      <div class="gated-privacy-note">🔒 Data Anda hanya digunakan tim ${escapeHtml(CONFIG.companyName)} untuk dukungan demo &amp; tidak dibagikan ke pihak ketiga.</div>
+    </form>
+  `;
+}
+
+window.openGatedDemoModal = function (productId) {
+  renderGatedDemoModalContent(productId);
+  const m = document.getElementById('gated-demo-modal');
+  if (m) m.classList.add('open');
+};
+
+window.closeGatedDemoModal = function () {
+  const m = document.getElementById('gated-demo-modal');
+  if (m) m.classList.remove('open');
+};
+
+window.handleGatedDemoSubmit = async function (e, productId) {
+  e.preventDefault();
+  const p = getProduct(productId);
+  if (!p) return;
+  const btn = e.target.querySelector('button[type="submit"]');
+  const d = {
+    nama: (document.getElementById('gd-nama').value || '').trim(),
+    instansi: (document.getElementById('gd-instansi').value || '').trim(),
+    phone: (document.getElementById('gd-phone').value || '').trim(),
+    email: (document.getElementById('gd-email').value || '').trim(),
+    produk: p.name
+  };
+  if (btn) { btn.disabled = true; btn.textContent = 'Membuka akses demo...'; }
+
+  // Simpan status unlock langsung agar pengalaman pengguna cepat & tidak terhambat jaringan
+  saveUnlockedDemo(productId, d);
+
+  // Kirim notifikasi lead ke email & log lokal secara non-blocking
+  sendToEmail({
+    _subject: `[Gated Demo Unlock] ${d.produk} — ${d.instansi}`,
+    _replyto: d.email || CONFIG.email,
+    'Jenis': 'Gated Live Demo Unlock',
+    'Nama': d.nama,
+    'Instansi': d.instansi,
+    'WhatsApp': d.phone,
+    'Email': d.email || '-',
+    'Produk': d.produk
+  }).catch(() => {});
+
+  logLead({ type: 'Gated Demo', ...d, pesan: 'Membuka tautan Gated Live Demo' }).catch(() => {});
+
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'gated_demo_unlock', { product_id: productId, product_name: p.name });
+  }
+
+  renderGatedDemoModalContent(productId);
+  showToast(`Akses Live Demo ${p.name} berhasil dibuka!`);
+
+  // Segarkan tampilan halaman saat ini agar label tombol berubah menjadi Terbuka
+  if (typeof render === 'function') render();
+};
 
 window.handleDemoSubmit = async function (e) {
   e.preventDefault();
